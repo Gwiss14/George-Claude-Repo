@@ -1,0 +1,363 @@
+<title>Ops Docket</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap">
+<style>
+  :root {
+    --paper:      #F0F2F1;
+    --card:       #FAFBFA;
+    --ink:        #17242A;
+    --ink-soft:   #4A5A60;
+    --ink-faint:  #83959B;
+    --rule:       #D3DAD8;
+    --rule-soft:  #E3E8E6;
+    --clay:       #A63E2C;
+    --ochre:      #B07216;
+    --slate:      #3E6A78;
+    --moss:       #4A6B4F;
+    --clay-wash:  #F6E7E3;
+    --ochre-wash: #F7EDDC;
+    --slate-wash: #E6EEF1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper:      #12191C;
+      --card:       #182126;
+      --ink:        #E6EDEC;
+      --ink-soft:   #A3B3B8;
+      --ink-faint:  #6E8087;
+      --rule:       #2A363B;
+      --rule-soft:  #212B30;
+      --clay:       #E08974;
+      --ochre:      #DCA84E;
+      --slate:      #7FB2C2;
+      --moss:       #8FB496;
+      --clay-wash:  #2B1D1A;
+      --ochre-wash: #2A2318;
+      --slate-wash: #1A262B;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper:      #12191C;
+    --card:       #182126;
+    --ink:        #E6EDEC;
+    --ink-soft:   #A3B3B8;
+    --ink-faint:  #6E8087;
+    --rule:       #2A363B;
+    --rule-soft:  #212B30;
+    --clay:       #E08974;
+    --ochre:      #DCA84E;
+    --slate:      #7FB2C2;
+    --moss:       #8FB496;
+    --clay-wash:  #2B1D1A;
+    --ochre-wash: #2A2318;
+    --slate-wash: #1A262B;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding-inline: 20px;
+    padding-block: 40px 64px;
+  }
+
+  /* ---- masthead ---- */
+  .masthead { border-bottom: 2px solid var(--ink); padding-bottom: 14px; margin-bottom: 8px; }
+  .masthead h1 {
+    font-family: "Newsreader", Georgia, serif;
+    font-size: clamp(30px, 7vw, 40px);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+  .dateline {
+    display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .verdict {
+    font-family: "Newsreader", Georgia, serif;
+    font-size: 19px; line-height: 1.45; font-style: italic;
+    color: var(--ink-soft);
+    margin: 18px 0 40px;
+    padding-left: 16px;
+    border-left: 3px solid var(--ochre);
+    text-wrap: pretty;
+  }
+  .verdict strong { font-style: normal; font-weight: 600; color: var(--ink); }
+
+  /* ---- sections ---- */
+  section { margin-bottom: 44px; }
+  .eyebrow {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 7px; margin-bottom: 4px;
+  }
+  .eyebrow h2 {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+    margin: 0; color: var(--ink);
+  }
+  .eyebrow .count {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11.5px; color: var(--ink-faint); font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- docket rows ---- */
+  .row {
+    display: grid;
+    grid-template-columns: 62px 1fr;
+    gap: 0 16px;
+    align-items: start;
+    padding: 18px 0 18px 14px;
+    border-bottom: 1px solid var(--rule-soft);
+    border-left: 3px solid var(--sev, var(--rule));
+  }
+  .row:last-child { border-bottom: none; }
+  .age { text-align: right; padding-top: 2px; }
+  .age .n {
+    display: block;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 25px; font-weight: 500; line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--sev, var(--ink));
+  }
+  .age .u {
+    display: block; margin-top: 3px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .who {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 3px;
+  }
+  .ask {
+    font-family: "Newsreader", Georgia, serif;
+    font-size: 19px; line-height: 1.35; font-weight: 500;
+    margin: 0 0 5px; text-wrap: pretty;
+  }
+  .ask a { color: inherit; text-decoration-color: var(--rule); text-underline-offset: 3px; }
+  .ask a:hover { text-decoration-color: var(--sev, var(--ink)); }
+  .why { margin: 0; color: var(--ink-soft); font-size: 14px; text-wrap: pretty; }
+  .meta { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .tag {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase;
+    padding: 2.5px 7px; border-radius: 2px;
+    background: var(--tagbg, var(--slate-wash)); color: var(--sev, var(--slate));
+  }
+  .score {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 10px; color: var(--ink-faint); font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- plain list (today / slipping) ---- */
+  .line {
+    display: grid; grid-template-columns: 62px 1fr; gap: 0 16px;
+    padding: 13px 0 13px 14px;
+    border-bottom: 1px solid var(--rule-soft);
+    border-left: 3px solid transparent;
+  }
+  .line:last-child { border-bottom: none; }
+  .line .stamp {
+    text-align: right;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px; color: var(--ink-faint);
+    font-variant-numeric: tabular-nums; padding-top: 3px;
+  }
+  .line p { margin: 0; }
+  .line .t { font-weight: 500; }
+  .line .s { color: var(--ink-soft); font-size: 13.5px; margin-top: 2px; }
+
+  .empty {
+    padding: 16px 0 16px 14px;
+    border-left: 3px solid var(--rule);
+    color: var(--ink-soft);
+    font-family: "Newsreader", Georgia, serif;
+    font-size: 17px; font-style: italic;
+  }
+
+  .footnote {
+    margin-top: 48px; padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px; line-height: 1.7; color: var(--ink-faint);
+    letter-spacing: 0.02em;
+  }
+  .footnote b { color: var(--ink-soft); font-weight: 500; }
+
+  @media (max-width: 460px) {
+    .row, .line { grid-template-columns: 48px 1fr; gap: 0 12px; }
+    .age .n { font-size: 21px; }
+    .ask { font-size: 17px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <h1 id="title">Ops Docket</h1>
+    <div class="dateline">
+      <span id="dateline-date"></span>
+      <span id="dateline-tz"></span>
+      <span id="dateline-scope"></span>
+    </div>
+  </header>
+
+  <p class="verdict" id="verdict"></p>
+
+  <section>
+    <div class="eyebrow"><h2>Waiting on you</h2><span class="count" id="c-waiting"></span></div>
+    <div id="waiting"></div>
+  </section>
+
+  <section>
+    <div class="eyebrow"><h2>Today</h2><span class="count" id="c-today"></span></div>
+    <div id="today"></div>
+  </section>
+
+  <section>
+    <div class="eyebrow"><h2>Slipping</h2><span class="count" id="c-slipping"></span></div>
+    <div id="slipping"></div>
+  </section>
+
+  <p class="footnote" id="footnote"></p>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// To regenerate the brief, replace this object. The render code below is fixed.
+// Severity: "critical" | "warn" | "open" | "calm"   (drives stripe + day-count colour)
+// ─────────────────────────────────────────────────────────────────────────────
+const BRIEF = {
+  date: "Wednesday, 23 September 2026",
+  tz: "America/Toronto",
+  scope: "Gmail · Calendar · Todoist",
+  verdict: "Two signature deadlines and a transcript are the whole day. <strong>The OCF-18 forms have sat unsigned for five days</strong> and the registrar answered your transcript request two days ago — your conditional offer is waiting on that one.",
+
+  waiting: [
+    {
+      days: 5, unit: "days", sev: "critical",
+      who: "secure@signority.com · Ontario Independent Assessment Centre",
+      ask: "Two OCF-18 forms are waiting for your e-signature",
+      why: "Sent 18 Sep, reminder 22 Sep. Both the FAE and the Initial IHAC assessment forms are outstanding — a second reminder usually means someone downstream is blocked on you.",
+      tags: ["needs action", "×2 documents"],
+      score: "5 × 1.71 = 8.6",
+      url: "https://mail.google.com/mail/?authuser=georgewissa314@gmail.com#all/thread-f:1877066777203485475"
+    },
+    {
+      days: 2, unit: "days", sev: "critical",
+      who: "registrar@dyc.edu · Daryl J. Smith, D'Youville",
+      ask: "Registrar replied — transcript request is back in your court",
+      why: "You wrote 21 Sep saying you needed it urgently for a conditional offer. He sent the request page the same afternoon and nothing has happened since. The offer is the thing at risk, not the transcript.",
+      tags: ["needs action", "conditional offer"],
+      score: "5 × 1.29 = 6.4",
+      url: "https://mail.google.com/mail/?authuser=georgewissa314@gmail.com#all/thread-f:1876974689365112863"
+    },
+    {
+      days: 35, unit: "days", sev: "warn",
+      who: "dylan.rispoli@7sage.com",
+      ask: "Dylan sent LSAT tutoring options and never heard back",
+      why: "A real person following up after you met, 19 Aug. Five weeks of silence. Worth two lines either way — this is the kind of thread that dies quietly and costs you the option.",
+      tags: ["needs reply", "person waiting"],
+      score: "3 × 2.00 = 6.0",
+      url: "https://mail.google.com/mail/?authuser=georgewissa314@gmail.com#all/thread-f:1873973821454921804"
+    },
+    {
+      days: 19, unit: "days", sev: "open",
+      who: "jwissa@rogers.com",
+      ask: "Forwarded Expedia itinerary, still unread",
+      why: "Family forwarded a travel confirmation on 4 Sep for a 2 Sep trip. Probably just filing — but it is unread, so you have not confirmed that.",
+      tags: ["needs reply"],
+      score: "2 × 2.00 = 4.0",
+      url: "https://mail.google.com/mail/?authuser=georgewissa314@gmail.com#all/thread-f:1875425463264790338"
+    }
+  ],
+
+  today: {
+    events: [],
+    eventsNote: "Nothing on the calendar. The whole day is yours to spend — which is why the list above matters.",
+    tasks: [
+      { stamp: "43d", t: "16 Todoist tasks overdue", s: "All from the 📅 Daily Planner template, frozen at 10–11 Aug. Two are still placeholders reading “Priority #3 — [fill in].” This is not a backlog, it is a system that stopped." },
+      { stamp: "43d", t: "“Work” — Inbox", s: "The only non-template task in the account. No date beyond 11 Aug, no detail." }
+    ]
+  },
+
+  slipping: [
+    { stamp: "43d", t: "The Todoist planner itself", s: "Six weeks since anything was checked off. Either restart it or delete it — a dead planner charges you guilt and returns nothing." },
+    { stamp: "37d", t: "Goodtime Jewellers — resume, no reply", s: "You sent it 17 Aug after meeting them in store, as requested. Silence since. Treat as closed unless you want to send one follow-up." },
+    { stamp: "9d",  t: "WES credential evaluation", s: "Two password resets (14 and 19 Sep) and a satisfaction survey on 22 Sep. The resets suggest you were locked out twice; the survey suggests the file is open. Worth one status check." }
+  ],
+
+  filtered: { kept: 10, total: 201, window: "30 days" },
+  built: "Built from live Gmail, Calendar and Todoist data. Read-only — nothing was sent, archived or labelled."
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+const SEV = {
+  critical: { c: "var(--clay)",  bg: "var(--clay-wash)"  },
+  warn:     { c: "var(--ochre)", bg: "var(--ochre-wash)" },
+  open:     { c: "var(--slate)", bg: "var(--slate-wash)" },
+  calm:     { c: "var(--moss)",  bg: "var(--slate-wash)" }
+};
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+const $ = id => document.getElementById(id);
+
+$("dateline-date").textContent = BRIEF.date;
+$("dateline-tz").textContent = BRIEF.tz;
+$("dateline-scope").textContent = BRIEF.scope;
+$("verdict").innerHTML = BRIEF.verdict;
+
+$("c-waiting").textContent = BRIEF.waiting.length + " open";
+$("waiting").innerHTML = BRIEF.waiting.map(i => {
+  const s = SEV[i.sev] || SEV.open;
+  const title = i.url
+    ? `<a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.ask)}</a>`
+    : esc(i.ask);
+  return `<article class="row" style="--sev:${s.c};--tagbg:${s.bg}">
+    <div class="age"><span class="n">${i.days}</span><span class="u">${esc(i.unit)}</span></div>
+    <div>
+      <div class="who">${esc(i.who)}</div>
+      <h3 class="ask">${title}</h3>
+      <p class="why">${esc(i.why)}</p>
+      <div class="meta">
+        ${i.tags.map(t => `<span class="tag">${esc(t)}</span>`).join("")}
+        <span class="score">${esc(i.score)}</span>
+      </div>
+    </div>
+  </article>`;
+}).join("");
+
+const T = BRIEF.today;
+$("c-today").textContent = T.events.length
+  ? T.events.length + " events · " + T.tasks.length + " tasks"
+  : "no events · " + T.tasks.length + " task rows";
+$("today").innerHTML =
+  (T.events.length
+    ? T.events.map(e => `<div class="line"><p class="stamp">${esc(e.stamp)}</p><div><p class="t">${esc(e.t)}</p><p class="s">${esc(e.s)}</p></div></div>`).join("")
+    : `<p class="empty">${esc(T.eventsNote)}</p>`)
+  + T.tasks.map(t => `<div class="line"><p class="stamp">${esc(t.stamp)}</p><div><p class="t">${esc(t.t)}</p><p class="s">${esc(t.s)}</p></div></div>`).join("");
+
+$("c-slipping").textContent = BRIEF.slipping.length + " items";
+$("slipping").innerHTML = BRIEF.slipping.map(t =>
+  `<div class="line"><p class="stamp">${esc(t.stamp)}</p><div><p class="t">${esc(t.t)}</p><p class="s">${esc(t.s)}</p></div></div>`
+).join("");
+
+const f = BRIEF.filtered;
+$("footnote").innerHTML =
+  `<b>${f.total - f.kept} of ${f.total}</b> inbox threads from the last ${esc(f.window)} were filtered as newsletters, `
+  + `marketing and login notifications. ${esc(BRIEF.built)}`;
+</script>
