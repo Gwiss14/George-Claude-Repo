@@ -1,0 +1,1 @@
+{ "name": "agents-live", "version": "0.1.0", "description": "A pane listing the subagents of this session: running, finished and failed, with type, model, tool calls and time.", "types": "./types/index.d.ts" }

@@ -1,0 +1,21 @@
+{
+  "name": "george-claude-repo",
+  "owner": { "name": "Gwiss14", "url": "https://github.com/Gwiss14" },
+  "metadata": { "description": "George's Claude Code mods." },
+  "plugins": [
+    {
+      "name": "turn-band",
+      "source": "./plugins/turn-band",
+      "description": "Mod: shows how long the last turn took above the prompt; /turn-band brings it back after hiding.",
+      "version": "0.1.0",
+      "category": "mod"
+    },
+    {
+      "name": "agents-live",
+      "source": "./plugins/agents-live",
+      "description": "Mod: a live pane of this session's subagents with status, type, model, tool calls and time; /agents-live opens it.",
+      "version": "0.1.0",
+      "category": "mod"
+    }
+  ]
+}
