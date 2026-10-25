@@ -1,7 +1,12 @@
 {
   "name": "george-claude-repo",
-  "owner": { "name": "Gwiss14", "url": "https://github.com/Gwiss14" },
-  "metadata": { "description": "George's Claude Code mods." },
+  "owner": {
+    "name": "Gwiss14",
+    "url": "https://github.com/Gwiss14"
+  },
+  "metadata": {
+    "description": "George's Claude Code mods."
+  },
   "plugins": [
     {
       "name": "turn-band",
@@ -13,7 +18,21 @@
     {
       "name": "agents-live",
       "source": "./plugins/agents-live",
-      "description": "Mod: a live pane of this session's subagents with status, type, model, tool calls and time; /agents-live opens it.",
+      "description": "Mod: a live pane of this session's subagents with status, type, model, tool calls and time; /agents-live opens it, /pane-check says whether panes can show.",
+      "version": "0.1.0",
+      "category": "mod"
+    },
+    {
+      "name": "weather-pane",
+      "source": "./plugins/weather-pane",
+      "description": "Mod: current weather and a 5-day forecast in a side pane and a line above the prompt; /weather <city> picks the place.",
+      "version": "0.1.0",
+      "category": "mod"
+    },
+    {
+      "name": "progress-tracker",
+      "source": "./plugins/progress-tracker",
+      "description": "Mod: a progress bar above the prompt for Claude's task list; /progress opens the full list in a pane.",
       "version": "0.1.0",
       "category": "mod"
     }

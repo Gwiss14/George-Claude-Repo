@@ -28,6 +28,10 @@ export const register: Register = on => {
       name: 'agents-live',
       description: 'Open the pane of subagents running in this session',
     })
+    await $.command.register({
+      name: 'pane-check',
+      description: 'Say whether this screen can show panes, and why not',
+    })
 
     // Sync statuses from the engine every 2s while anything runs.
     $.clock.every(2000, async () => {
@@ -53,6 +57,17 @@ export const register: Register = on => {
     await $.ui.open({ id: PANE, title: 'Agents' })
 
     return { text: 'Agents pane opened.' }
+  })
+
+  on('command.run', { command: 'pane-check' }, async $ => {
+    const opened = await $.ui.open({ id: PANE, title: 'Agents' })
+    const panes = await $.ui.panes()
+
+    return {
+      text: opened.isPlaced
+        ? `Pane placed: it is drawn on this screen. Open panes: ${panes.map(p => p.id).join(', ')}`
+        : `Pane not placed: ${opened.reason}`,
+    }
   })
 
   on('agent.spawn', async ($, e, next) => {
