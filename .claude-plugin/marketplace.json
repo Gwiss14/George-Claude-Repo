@@ -35,6 +35,13 @@
       "description": "Mod: a progress bar above the prompt for Claude's task list; /progress opens the full list in a pane.",
       "version": "0.1.0",
       "category": "mod"
+    },
+    {
+      "name": "crab-crew",
+      "source": "./plugins/crab-crew",
+      "description": "Mod: turns Claude and its subagents into crabs (🦀 spinner words, crab-named agents) and shows a crab progress bar above the prompt while a task is coded.",
+      "version": "0.1.0",
+      "category": "mod"
     }
   ]
 }

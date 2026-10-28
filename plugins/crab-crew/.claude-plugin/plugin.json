@@ -1,0 +1,1 @@
+{ "name": "crab-crew", "version": "0.1.0", "description": "Turns Claude and its agents into crabs and shows a progress bar while a task is being coded", "types": "./types/index.d.ts" }
