@@ -42,6 +42,13 @@
       "description": "Mod: turns Claude and its subagents into crabs (🦀 spinner words, crab-named agents) and shows a crab progress bar above the prompt while a task is coded.",
       "version": "0.1.0",
       "category": "mod"
+    },
+    {
+      "name": "work-bar",
+      "source": "./plugins/work-bar",
+      "description": "Mod: a live progress bar above the prompt while Claude works; fills by tasks done, or sweeps with a timer and tool count.",
+      "version": "0.1.0",
+      "category": "mod"
     }
   ]
 }
