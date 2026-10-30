@@ -10,6 +10,7 @@ For Claude Code on my phone
 | `weather-pane` | Current weather and a 5-day forecast in a side pane, plus a one-line summary above the prompt. `/weather Mississauga` picks the city (saved across sessions); `/weather` reopens the pane. Uses Open-Meteo, no API key. |
 | `progress-tracker` | A progress bar above the prompt while Claude works through a task list (`███░░░ 3/6 · Now: …`). `/progress` opens the full list in a pane. |
 | `crab-crew` | Claude and its agents become crabs: the spinner says `Scuttling… 🦀`, turns end with `🦀 Scuttled for 12s`, and subagents get a 🦀 in front of their names. While Claude works, a crab walks along a progress bar above the prompt (`[====🦀·····] 40% · 2/5 tasks`). |
+| `work-bar` | A live progress bar above the prompt on every turn. With a task list it fills as tasks finish (`██████░░░░ 50% · 1/2 · Now: … · 1m 05s · 4 tools`); otherwise a block sweeps with a timer and tool count. Ends with `Done in 1m 05s`, then clears. |
 
 ## Install
 
@@ -20,6 +21,7 @@ For Claude Code on my phone
 /plugin install weather-pane@george-claude-repo
 /plugin install progress-tracker@george-claude-repo
 /plugin install crab-crew@george-claude-repo
+/plugin install work-bar@george-claude-repo
 ```
 
 Start a new session after installing so the mods load.

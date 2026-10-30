@@ -1,0 +1,1 @@
+{ "name": "work-bar", "version": "0.1.0", "description": "A live progress bar above the prompt while Claude works: fills by tasks done, or sweeps with a timer and tool count", "types": "./types/index.d.ts" }
