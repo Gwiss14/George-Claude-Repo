@@ -1,0 +1,1 @@
+{ "name": "progress-tracker", "version": "0.1.0", "description": "A progress bar above the prompt for Claude's task list: steps done, the step under way, and a /progress pane with the full list.", "types": "./types/index.d.ts" }

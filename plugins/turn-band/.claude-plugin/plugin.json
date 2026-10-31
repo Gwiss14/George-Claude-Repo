@@ -1,0 +1,1 @@
+{ "name": "turn-band", "version": "0.1.0", "description": "Shows how long the last turn took above the prompt, plus a /turn-band command.", "types": "./types/index.d.ts" }
