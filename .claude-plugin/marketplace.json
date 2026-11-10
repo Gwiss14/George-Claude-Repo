@@ -49,6 +49,13 @@
       "description": "Mod: a live progress bar above the prompt while Claude works; fills by tasks done, or sweeps with a timer and tool count.",
       "version": "0.1.0",
       "category": "mod"
+    },
+    {
+      "name": "boot-hud",
+      "source": "./plugins/boot-hud",
+      "description": "Mod: a sci-fi HUD above the prompt while Claude works: a scanning bar, tool names that decode into place, status lights and a mission clock.",
+      "version": "0.1.0",
+      "category": "mod"
     }
   ]
 }

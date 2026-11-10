@@ -11,6 +11,9 @@ For Claude Code on my phone
 | `progress-tracker` | A progress bar above the prompt while Claude works through a task list (`███░░░ 3/6 · Now: …`). `/progress` opens the full list in a pane. |
 | `crab-crew` | Claude and its agents become crabs: the spinner says `Scuttling… 🦀`, turns end with `🦀 Scuttled for 12s`, and subagents get a 🦀 in front of their names. While Claude works, a crab walks along a progress bar above the prompt (`[====🦀·····] 40% · 2/5 tasks`). |
 | `work-bar` | A live progress bar above the prompt on every turn. With a task list it fills as tasks finish (`██████░░░░ 50% · 1/2 · Now: … · 1m 05s · 4 tools`); otherwise a block sweeps with a timer and tool count. Ends with `Done in 1m 05s`, then clears. |
+| `boot-hud` | A sci-fi HUD above the prompt while Claude works: a block scans across a bar (`▐▓▓▓▓▓▒▒░░░▌ SCAN 0x3F2A`), each tool's name decodes from scrambled characters into place (`E#i7 → Edit`), and five lights and a `T+00:42` clock track the turn. Ends with `■ COMPLETE · T+00:42 · 6 calls`, then clears. |
+
+The band mods (`turn-band`, `progress-tracker`, `crab-crew`, `work-bar`, `boot-hud`) each draw the line above the prompt, so install one of them at a time.
 
 ## Install
 
@@ -22,6 +25,7 @@ For Claude Code on my phone
 /plugin install progress-tracker@george-claude-repo
 /plugin install crab-crew@george-claude-repo
 /plugin install work-bar@george-claude-repo
+/plugin install boot-hud@george-claude-repo
 ```
 
 Start a new session after installing so the mods load.
