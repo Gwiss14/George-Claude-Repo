@@ -29,9 +29,13 @@ export const register: Register = on => {
   })
 
   on('command.run', { command: 'progress' }, async $ => {
-    await $.ui.open({ id: PANE, title: 'Progress' })
+    const { isPlaced } = await $.ui.open({ id: PANE, title: 'Progress' })
 
-    return { text: 'Progress pane opened.' }
+    return {
+      text: isPlaced
+        ? 'Progress pane opened.'
+        : "This screen can't show panes, so the Progress pane has nowhere to appear. The bar above the prompt may still show.",
+    }
   })
 
   // A new request starts a fresh list once the last one was finished.
