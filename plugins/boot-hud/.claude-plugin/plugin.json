@@ -1,0 +1,1 @@
+{ "name": "boot-hud", "version": "0.1.0", "description": "A sci-fi HUD above the prompt while Claude works: a scanning bar, tool names that decode into place, status lights and a mission clock", "types": "./types/index.d.ts" }
