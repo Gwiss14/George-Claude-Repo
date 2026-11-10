@@ -30,6 +30,8 @@ The band mods (`turn-band`, `progress-tracker`, `crab-crew`, `work-bar`, `boot-h
 
 Start a new session after installing so the mods load.
 
+`boot-hud` needs no install in this repo: `.claude/settings.json` adds the marketplace and turns it on, so it loads in every session opened here. To have it in every session on a machine, whatever the project, install it there once with the line above.
+
 ## Daily Ops Brief
 
 Answers one question each morning: **what is waiting on me, and what will quietly slip
