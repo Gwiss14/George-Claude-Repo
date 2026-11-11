@@ -1,0 +1,10 @@
+{
+  "extraKnownMarketplaces": {
+    "george-claude-repo": {
+      "source": { "source": "github", "repo": "Gwiss14/George-Claude-Repo" }
+    }
+  },
+  "enabledPlugins": {
+    "boot-hud@george-claude-repo": true
+  }
+}
