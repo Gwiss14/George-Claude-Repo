@@ -1,78 +1,93 @@
-# Lamplight Meadow — Game Design (one page)
+# Tank Roof Scrap — Game Design (one page)
 
-You are **Wick**, a young lamplighter on a small floating meadow at dusk. Light all eight lanterns before night falls. Sleepy fog-creatures called **Snuffs** crawl around putting them back out.
+You are **Juno**, a bike courier who boxes. The **Tin Crows** gang has taken over the rooftop where she parks. Clear three waves of them, the last led by their boss **Grudge**.
 
 ## Core loop
 
-Run to an unlit lantern → it lights when you touch it → Snuffs crawl to lit lanterns and put them out → run back and relight, or get ahead of them → all 8 lit at the same moment wins.
+Walk up to an enemy → press attack to throw a jab, keep pressing to chain cross and kick → back off when an enemy winds up → finish the wave → get a little health back → next wave.
 
-One level, one loop. No jumping, no fighting. The only thing the player does is **run**.
+One level (one rooftop), one loop. The only thing the player does besides moving is **attack**: one button, three-hit combo. No jump, no block, no dodge button; you dodge by walking away.
 
 ## Controls
 
 | Action | Keyboard | Touch |
 |---|---|---|
-| Run | WASD or arrow keys | Drag anywhere on screen (a floating thumb-stick appears under the finger) |
+| Move | WASD or arrow keys | Drag on the left half of the screen (floating thumb-stick) |
+| Attack | J or Space | Big button, bottom right |
 | Restart | R, or the Restart button | Restart button |
 | Debug panel | ` (backquote) | Add `?debug` to the address |
 
 ## Win and lose
 
-- **Win:** all 8 lanterns are lit at once. The beacon in the middle flares up and Wick cheers.
-- **Lose:** the 90-second dusk timer runs out. The sky goes dark and Wick slumps.
-- After either, a Restart button resets the whole round.
+- **Win:** all three waves are knocked out. Juno cheers.
+- **Lose:** Juno's health (100) reaches zero. She stays down.
+- Waves: **1** two Crows · **2** three Crows, one of them an elite (orange) · **3** Grudge and two Crows.
+- Clearing a wave gives back 25 health. Restart resets everything to wave 1.
 
 ## Camera
 
-Fixed-angle follow camera, never rotates. It looks down at about 55° from 14 m away and glides after Wick. Held upright on a phone it pulls back so the meadow's width still fits. Wick mostly runs away from or across the camera, so the camera sees his **back and top** most.
-
-## Rules in numbers (all tunable later)
-
-- Wick runs 6 m/s. A lantern lights when Wick comes within 1.2 m of it.
-- 3 Snuffs. Wander at 1.4 m/s; when a lantern is lit, the nearest free Snuff heads for it at 2.0 m/s. Two Snuffs never target the same lantern.
-- A Snuff needs 1.5 s next to a lantern to put it out, then dozes for 4 s before looking for another.
-- Bumping into a Snuff knocks Wick down: pushed back 2 m, 1.2 s on the ground, then 1 s where he cannot be knocked down again. Snuffs are never harmed.
-- Wick, Snuffs, rocks, trees, lanterns and the beacon are solid. Nobody can leave the meadow.
+Fixed angle, never rotates. It stands on the south side of the roof, about 11 m back and 8 m up, looking north and down at about 35°, and slides sideways a little to keep Juno in view. On a phone held upright it pulls back until the roof's width fits. It sees fighters from every side as they turn, and their **front** most often.
 
 ## Everything on screen
 
-Sizes are width × height × depth in metres. Every object is built facing +Z; "faces" says where +Z points in the level.
+Sizes are width × height × depth in metres. Everything is built facing +Z (toward the camera).
 
 | id | What it is | Count | Size (m) | Faces | Body |
 |---|---|---|---|---|---|
-| `wick` | Player, the lamplighter | 1 | 0.6 × 1.4 × 0.6 | The way he runs | Person (bones) |
-| `snuff` | Fog-creature, a fat grub with a domed back | 3 | 0.7 × 0.6 × 0.9 | The way it crawls | Not a person: one piece, moved in code |
-| `lantern` | Lantern on a post | 8 | 0.4 × 1.8 × 0.4 | Toward the beacon | Prop |
-| `beacon` | Big stone lamp tower in the centre | 1 | 1.6 × 4.0 × 1.6 | Toward the camera (+Z) | Prop |
-| `rock` | Boulder, blocks the way | 6 | 1.5 × 1.0 × 1.2 | Random turn | Prop |
-| `tree` | Round-topped tree, blocks the way (trunk only) | 5 | 2.4 × 3.5 × 2.4 | Random turn | Prop |
-| `meadow` | The ground: a flat round island | 1 | 32 across, 1 thick | — | Ground |
-| `rim` | Low stone edge around the meadow | 1 | 32 across, 0.4 high | — | Level edge |
-| `sky` | Dusk sky that darkens with the timer | 1 | — | — | Sky |
+| `juno` | Player, courier boxer | 1 | 0.6 × 1.7 × 0.6 | Nearest enemy while attacking, else the way she moves | Person (bones) |
+| `crow` | Gang scrapper, lean | up to 3 at once | 0.6 × 1.7 × 0.6 | Juno | Person (bones) |
+| `crow` (elite) | Same shape, orange outfit, tougher | 1 | same | Juno | Person (bones) |
+| `grudge` | Boss, a much bigger person | 1 | 0.9 × 2.2 × 0.9 | Juno | Person (bones) |
+| `crate` | Wooden crate, solid | 4 | 1.0 × 1.0 × 1.0 | Random quarter turn | Prop |
+| `water_tank` | Round tank on legs, solid | 1 | 2.0 × 2.5 × 2.0 | +Z | Prop |
+| `lamp_post` | Roof lamp, solid, lights the scene | 2 | 0.3 × 3.5 × 0.3 | +Z | Prop |
+| `roof` | The ground: flat rooftop | 1 | 16 × 0.5 × 10 | — | Ground |
+| `parapet` | Low wall around the roof | 1 | 16 × 0.6 × 10 ring, 0.3 thick | — | Level edge |
+| `sky` | Sunset sky with a far skyline | 1 | — | — | Sky |
 
-Layout: the beacon sits in the centre. The 8 lanterns stand in a rough ring 10–13 m out, unevenly spaced. Rocks and trees are scattered between the beacon and the ring so there is no straight line across. Wick starts 3 m in front of the beacon. Snuffs start at three points on the rim.
+Layout: the roof is 16 m wide (X) and 10 m deep (Z). The water tank stands in the back-left corner, lamp posts at the back-left and back-right, crates in two pairs near the left and right walls, leaving the middle open. Juno starts in the centre. Enemies climb in over the back wall.
 
-## Animated characters
+## Characters and their states
 
-**Wick — a person, animated with bones.**
+All three are people on the same skeleton. Fighters are solid to each other and to props, and nobody can leave the roof.
 
-| State | Looks like | Switches when |
+**Juno** — health 100, moves 4.5 m/s.
+
+| State | Animation | Switches when |
 |---|---|---|
-| idle | Standing, breathing | Not moving |
-| run | Running | Moving |
-| knocked_down | Falls over, lies, gets up | Touches a Snuff; back to idle/run after 1.2 s |
-| win | Cheering | All 8 lanterns lit |
-| lose | Slumps to the ground | Timer hits zero |
+| idle | idle | Not moving |
+| run | run | Moving |
+| jab / cross / kick | see attacks | Attack pressed; a press during an attack queues the next in the chain |
+| hurt | hit_to_body_01 | Hit by a jab; 0.3 s |
+| knocked_down | defeat_02, then reversed to stand | Hit by Grudge's smash; 1.0 s down, then cannot be hit for 0.6 s |
+| defeated | defeat_02, held | Health zero |
+| win | cheer | Wave 3 cleared |
 
-**Snuff — not a person, so no bones.** One blob-shaped body animated entirely in code (squash, stretch, bob, tilt).
+**Crow** — health 30 (elite 45), moves 2.6 m/s. **Grudge** — health 140, moves 2.0 m/s, cannot be knocked down.
 
-| State | Looks like | Switches when |
+| State | Animation | Switches when |
 |---|---|---|
-| wander | Slow inch-worm squash and stretch | Default; no lit lantern free to target |
-| seek | Faster squash, leans forward | A lit lantern is free; ends on arrival |
-| snuffing | Rears up and puffs for 1.5 s | Reached its lantern; the lantern goes out at the end |
-| doze | Flattened, slow breathing, 4 s | After snuffing; then back to wander |
+| enter | walk | Spawns; walks in from the back wall |
+| circle | walk | Not its turn: keeps 2.5–3.5 m from Juno, drifting sideways |
+| approach | walk (Crow elite: run) | Its turn: closes to attack range |
+| windup → attack | see attacks | In range and its turn |
+| hurt | hit_to_body_01 (kick: hit_to_head) | Hit; 0.3 s, pushed back |
+| knocked_down | defeat_02, then reversed to stand | Crow hit by Juno's kick; 1.2 s |
+| defeated | defeat_02, held, then fades | Health zero |
 
-**Lantern** (in code): `unlit` (dark), `lit` (glowing, small flicker), `fading` (flickers hard while a Snuff is snuffing it).
+## Attacks
 
-No attacks, no breakable machines and no swappable parts in this game, so there are no damage tables, parts lists or attach points.
+"Lands" and "ends" are fractions of the attack's time in the game. The library clips are much slower, so each is trimmed and sped up to the length shown.
+
+| Who | Attack | Animation | Damage | Length | Lands | Ends | Reach | Effect |
+|---|---|---|---|---|---|---|---|---|
+| Juno | jab | box_01 | 8 | 0.30 s | 0.35 | 0.55 | 1.3 m | Push 0.4 m |
+| Juno | cross | box_02 | 12 | 0.36 s | 0.45 | 0.65 | 1.4 m | Push 0.6 m |
+| Juno | kick | front_kick_01 | 20 | 0.50 s | 0.45 | 0.65 | 1.7 m | Push 2.5 m, knocks Crows down |
+| Crow | jab | box_01 | 8 (elite 10) | 0.70 s | 0.60 | 0.75 | 1.3 m | Push 0.4 m |
+| Grudge | jab | box_01 | 10 | 0.70 s | 0.60 | 0.75 | 1.6 m | Push 0.6 m |
+| Grudge | smash | slash | 22 | 1.20 s | 0.62 | 0.76 | 2.0 m | Push 2.0 m, knocks Juno down |
+
+Fight feel: a landed hit freezes both fighters for 0.07 s. A fighter that was just hit cannot be hit again for 0.25 s. The combo resets 0.5 s after Juno's last attack. Enemies take turns: only one may attack at a time (two in wave 3), with at least 0.8 s between enemy attacks; the rest circle. Grudge uses the smash every third attack.
+
+No machines, breakable parts or swappable parts in this game, so there are no parts lists or attach points.
