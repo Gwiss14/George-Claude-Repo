@@ -1,7 +1,7 @@
 # Progress
 
 ## Done
-- Stage 1, Design: GDD.md for "Tank Roof Scrap" (fighting game). Player approved and chose the comic look.
+- Stage 1, Design: GDD.md for the fighting game (first called "Tank Roof Scrap", renamed "Soluna Rooftop" at the player's request). Player approved and chose the comic look.
 - Stage 2, Greybox: playable in the browser with keyboard and touch. Three.js + Vite, no engine.
   - `src/config.js`: every tunable number. Debug panel (` key or ?debug) has sliders for all of them.
   - `src/view/registry.js`: the only place that decides looks (id -> builder). Placeholders face +Z, people have named parts with their own hinges.

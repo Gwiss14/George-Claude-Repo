@@ -1,4 +1,4 @@
-# Tank Roof Scrap — Game Design (one page)
+# Soluna Rooftop — Game Design (one page)
 
 You are **Juno**, a bike courier who boxes. The **Tin Crows** gang has taken over the rooftop where she parks, and they keep coming. Survive as many waves as you can; their boss **Grudge** leads every fifth wave.
 
