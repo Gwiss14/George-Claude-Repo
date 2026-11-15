@@ -109,7 +109,9 @@ async function runBot(mode) {
   await page.waitForTimeout(1600);
   await page.screenshot({ path: OUT + `bot-${mode}-end.png` });
   // the end screen's button restarts the round
-  await page.click('#end-restart');
+  // waves never end: the bad bot is knocked out (end screen), the good bot stops after its waves (corner button)
+  const ended = await page.evaluate(() => document.getElementById('end').classList.contains('show'));
+  await page.click(ended ? '#end-restart' : '#restart-btn');
   await page.waitForTimeout(300);
   const after = await state(page);
   r.restartFromEndScreen = after.phase === 'playing' && after.hp === 100 && after.wave <= 0;
@@ -125,11 +127,15 @@ for (const [name, r] of [['good bot', results.goodBot], ['bad bot', results.badB
   if (r.maxFighterOverlap > 0.05) fail(`${name}: fighters overlapped by ${r.maxFighterOverlap} m`);
   if (r.doubleHits) fail(`${name}: ${r.doubleHits} hits landed during invulnerability`);
   if (r.enemyStuck) fail(`${name}: enemies got stuck ${r.enemyStuck} times`);
-  if (r.minGapBetweenEnemyAttacks !== null && r.minGapBetweenEnemyAttacks < 0.79) fail(`${name}: enemy attacks only ${r.minGapBetweenEnemyAttacks}s apart`);
+  // the gap between enemy attacks shrinks each wave, down to waves.minAttackGap (0.45 s)
+  if (r.minGapBetweenEnemyAttacks !== null && r.minGapBetweenEnemyAttacks < 0.449) fail(`${name}: enemy attacks only ${r.minGapBetweenEnemyAttacks}s apart`);
   if (r.maxEnemiesAttackingAtOnce > 2) fail(`${name}: ${r.maxEnemiesAttackingAtOnce} enemies attacked at once`);
   if (!r.restartFromEndScreen) fail(`${name}: restart from end screen`);
 }
-if (results.goodBot.result !== 'won') fail(`good bot did not win (${results.goodBot.result})`);
+if (!(results.goodBot.wavesCleared >= 6)) fail(`good bot only cleared ${results.goodBot.wavesCleared} waves (${results.goodBot.result})`);
+if (!(results.goodBot.bossWavesCleared >= 1)) fail('good bot did not clear the wave 5 boss wave');
+if (results.goodBot.weaponsUnlocked.join() !== 'hammer,wrench,shovel') fail(`weapons unlocked: ${results.goodBot.weaponsUnlocked}`);
+if (results.badBot.result !== 'lost') fail(`bad bot should lose (${results.badBot.result})`);
 if (!(results.goodBot.combos > 0)) fail('good bot never landed a full combo');
 if (!(results.goodBot.coinsCollected > 0)) fail('good bot collected no coins');
 if (!(results.goodBot.weaponsBought.length > 0 && results.goodBot.weaponHits > 0)) fail('good bot did not buy and use a weapon');

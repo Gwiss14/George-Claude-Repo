@@ -5,7 +5,7 @@
     "All three fighters use the same humanoid rig (Humanoid, Mixamo preset, Auto Rig), so any clip can play on any of them.",
     "Export every rigged fighter as GLB with 2K textures (heroes: 4K as Tripo makes them), skeleton on, Number of Animations = Select All, Animation stay in Place = on.",
     "Files go in public/assets/.",
-    "Weapons are separate models hung on Juno's hand_r attach point in code, not modelled into her hands."
+    "The five weapons are one Tripo model with parts (kind 'parts'); each part hangs on Juno's hand_r attach point in code."
   ],
   "entries": [
     {
@@ -189,24 +189,41 @@
       "styles": "none"
     },
     {
-      "id": "pipe",
-      "kind": "prop",
+      "id": "weapons",
+      "kind": "parts",
       "hero": false,
-      "size_m": 1.0,
-      "polygon_budget": 800,
-      "file": "pipe.glb",
-      "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. A steel water pipe used as a street weapon, 1 metre long and about 7 centimetres thick, light blue-grey steel with a chunky elbow joint at one end and black electrical tape wrapped around the other end as a grip. Lying straight, seen from the side. Single isolated object, centered, on a plain white background.",
-      "texture_prompt": "none",
-      "styles": "none"
-    },
-    {
-      "id": "hammer",
-      "kind": "prop",
-      "hero": false,
-      "size_m": 1.1,
-      "polygon_budget": 1000,
-      "file": "hammer.glb",
-      "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. A big two-handed hammer 1.1 metres long: a straight warm-brown wooden handle about 8 centimetres thick with a yellow metal band near the top, and a heavy dark grey iron block head 34 centimetres wide. Lying straight, seen from the side. Single isolated object, centered, on a plain white background.",
+      "size_m": 1.15,
+      "polygon_budget": 10000,
+      "file": "weapons.glb",
+      "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. A set of five street-fight tools laid side by side in a neat row with a clear gap between each one, all lying flat and parallel, handles at the bottom: a light blue-grey steel water pipe 1 metre long with a chunky elbow joint at the top end and black tape on the grip; a big hammer 1.1 metres long with a brown wooden handle and a dark grey iron block head; a chrome-silver adjustable wrench 0.75 metres long with a red rubber grip; a shovel 1.15 metres long with a pale wooden handle, a black T-grip and a green steel blade; a fire axe 1 metre long with a dark brown handle, a red head and a bright silver blade edge. Each tool is one main colour of its own and none of them touch. Seen from directly above. Single isolated object, centered, on a plain white background.",
+      "parts": [
+        {
+          "name": "pipe",
+          "slot": "hand_r",
+          "length_m": 1.0
+        },
+        {
+          "name": "hammer",
+          "slot": "hand_r",
+          "length_m": 1.1
+        },
+        {
+          "name": "wrench",
+          "slot": "hand_r",
+          "length_m": 0.75
+        },
+        {
+          "name": "shovel",
+          "slot": "hand_r",
+          "length_m": 1.15
+        },
+        {
+          "name": "axe",
+          "slot": "hand_r",
+          "length_m": 1.0
+        }
+      ],
+      "notes": "Tripo splits this into five pieces; in code each piece is matched to a weapon, re-pivoted to its grip, turned so its length runs along +Z and scaled to its slot length. Each is shown above its pad and hung on Juno's hand_r attach point when bought.",
       "texture_prompt": "none",
       "styles": "none"
     }
@@ -218,23 +235,24 @@
     "lights": "The lamp glow is a light added in code above each lamp_post model.",
     "lamp_post": "Built in code (pole, lamp box and a real light): it is thin and simple, and it frees a Tripo entry for the weapons.",
     "coin": "Built in code: a gold toon cylinder with a mark, spun and bounced in code. Many coins can be on screen, so it stays a few dozen triangles.",
-    "weapon_pad": "Built in code: a hazard-striped floor ring texture."
+    "weapon_pad": "Built in code: a hazard-striped floor ring texture, dimmed while its weapon is locked."
   },
   "budget": {
-    "busiestMoment": "Wave 3: Juno, Grudge and two Crows, plus all props.",
+    "busiestMoment": "A boss wave late in a run: Juno, Grudge and four Crows (5 enemies on the roof is the cap), plus all props and the five weapons on display.",
     "triangles": {
-      "fighters": "juno 10000 + grudge 10000 + 2 x crow 6000 = 32000",
-      "props": "4 x crate 1200 + water_tank 3000 + weapon_rack 2500 + pipe 800 + hammer 1000 on display + 1 held weapon up to 1000 = 13100",
+      "fighters": "juno 10000 + grudge 10000 + 4 x crow 6000 = 44000",
+      "props": "4 x crate 1200 + water_tank 3000 + weapon_rack 2500 = 10300",
+      "weapons": "the weapons model 10000 x 1.5 (split model) = 15000, shown once on the pads plus one held piece (up to about 3000)",
       "coins": "up to about 25 at once, about 100 triangles each with outline = 2500",
-      "models": 47600,
-      "withOutlines": "about 95000",
-      "withShadowPass": "about 140000 triangles drawn per frame",
-      "phone": "fine: mid-range phones handle a few hundred thousand triangles per frame"
+      "models": 74800,
+      "withOutlines": "about 150000",
+      "withShadowPass": "about 220000 triangles drawn per frame",
+      "phone": "OK for most phones from the last few years; on an old phone, turn off outlines on the weapons on display and shadows on coins first"
     },
     "textureMemory": {
-      "asTripoMakesThem": "about 700 MB: two heroes with three 4K maps each = 536 MB, crow and crow_elite 2K colour maps 22 MB each, five props 22 MB each",
+      "asTripoMakesThem": "about 700 MB: two heroes with three 4K maps each = 536 MB, crow and crow_elite 2K colour maps 22 MB each, four other models 22 MB each (the weapons model has one map per piece, smaller for small pieces)",
       "phone": "too much as-is",
-      "afterShrinkOnLoad": "about 52 MB: fighters shrunk to 1024 (heroes 3 x 5.6 MB each, crow and crow_elite 5.6 MB each), props shrunk to 512 (1.4 MB each), plus about 3 MB of canvas textures painted in code",
+      "afterShrinkOnLoad": "about 52 MB: fighters shrunk to 1024, props and weapons to 512, plus about 3 MB of canvas textures painted in code",
       "plan": "Shrink textures on load (stage 5) and ship WebP at those sizes (stage 6)."
     }
   }

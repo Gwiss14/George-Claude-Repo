@@ -22,7 +22,8 @@ export function cfgOf(f) {
 // The attack a fighter is doing right now, with Juno's weapon applied.
 export function attackOf(f) {
   const a = CONFIG.attacks[f.attack];
-  if (f.team !== 'player' || !f.weapon) return a;
+  if (f.team !== 'player') return f.dmgMul > 1 ? { ...a, damage: Math.round(a.damage * f.dmgMul) } : a;
+  if (!f.weapon) return a;
   const w = CONFIG.weapons[f.weapon];
   return {
     ...a, length: a.length * w.lengthMul, reach: a.reach + w.reachAdd,
@@ -50,8 +51,12 @@ export class Game {
   reset() {
     this.uid = 1;
     this.time = 0;
-    this.phase = 'playing';       // playing | won | lost
-    this.waveIndex = -1;
+    this.phase = 'playing';       // playing | lost (waves never end)
+    this.waveIndex = -1;       // 0-based: wave 1 is index 0
+    this.wavesCleared = 0;
+    this.queue = [];           // enemies of this wave still waiting to climb in
+    this.reinforceTimer = 0;
+    try { this.best = Number(localStorage.getItem('trs-best-wave')) || 0; } catch { this.best = 0; }
     this.waveActive = false;
     this.waveTimer = 0.8;
     this.nextAttackTime = 0;
@@ -81,7 +86,7 @@ export class Game {
       token: false, cooldown: 0, waitTime: 0, nextAttack: null, attackCount: 0,
       circleR: 3, strafeDir: 1, strafeTimer: 2, blockedTime: 0,
       entryX: x, entryZ: z, removed: false,
-      coins: 0, weapon: null, durability: 0, comboHits: 0, comboBroken: false,
+      coins: 0, weapon: null, durability: 0, comboHits: 0, comboBroken: false, dmgMul: 1,
     };
   }
 
@@ -120,7 +125,6 @@ export class Game {
     if (j.comboTimer > 0) { j.comboTimer -= dt; if (j.comboTimer <= 0) j.comboIndex = 0; }
 
     if (j.state !== 'idle' && j.state !== 'run') return;
-    if (this.phase === 'won') { this.setState(j, 'win'); return; }
     if (this.phase !== 'playing') { this.setState(j, 'idle'); return; }
 
     if (presses > 0) {
@@ -163,7 +167,8 @@ export class Game {
     if (this.phase !== 'playing') return;
     const j = this.juno;
     if (j.state === 'knocked_down' || j.state === 'defeated') return;
-    const max = CONFIG.ai.maxAttackers[Math.max(0, this.waveIndex)] ?? 1;
+    const caps = CONFIG.ai.maxAttackers;
+    const max = caps[Math.min(caps.length - 1, Math.max(0, this.waveIndex))] ?? 1;
     const live = this.liveEnemies();
     if (live.filter((e) => e.token).length >= max) return;
     let pick = null;
@@ -226,7 +231,7 @@ export class Game {
     const facing = Math.abs(wrap(yawTo(e, j) - e.yaw)) < 0.35;
     if (d <= range) {
       if (facing && this.time >= this.nextAttackTime) {
-        this.nextAttackTime = this.time + ai.attackGap;
+        this.nextAttackTime = this.time + this.attackGap();
         e.attackCount++;
         this.startAttack(e, e.nextAttack);
       }
@@ -292,6 +297,9 @@ export class Game {
         break;
       case 'defeated':
         if (f.team === 'enemy' && f.stateTime > 2.0) f.removed = true;
+        break;
+      case 'win':
+        if (f.stateTime > 1.0) this.setState(f, 'idle'); // short cheer after a boss wave
         break;
     }
   }
@@ -405,6 +413,9 @@ export class Game {
     if (this.coins.some((c) => c.taken)) this.coins = this.coins.filter((c) => !c.taken);
   }
 
+  // A weapon is on sale once the waves before its unlock wave are cleared.
+  unlocked(weapon) { return this.wavesCleared + 1 >= CONFIG.weapons[weapon].unlockWave; }
+
   padUnder(f) {
     for (const p of WEAPON_PADS) if (Math.hypot(f.x - p.x, f.z - p.z) < CONFIG.weapons.padRadius) return p;
     return null;
@@ -412,6 +423,10 @@ export class Game {
 
   tryBuy(pad) {
     const j = this.juno, w = CONFIG.weapons[pad.weapon];
+    if (!this.unlocked(pad.weapon)) {
+      this.emit({ type: 'buyFail', weapon: pad.weapon, locked: w.unlockWave });
+      return;
+    }
     if (j.coins < w.cost) {
       this.emit({ type: 'buyFail', weapon: pad.weapon, need: w.cost - j.coins });
       return;
@@ -511,20 +526,50 @@ export class Game {
     return pen;
   }
 
-  // ---- waves -------------------------------------------------------------------
+  // ---- waves (endless) -----------------------------------------------------------
+  attackGap() {
+    const W = CONFIG.waves;
+    return Math.max(W.minAttackGap, CONFIG.ai.attackGap - W.attackGapShrink * Math.max(0, this.waveIndex));
+  }
+
+  // Who is in wave n (1-based): more Crows each wave, elites from wave 2, Grudge every 5th wave.
+  static roster(n) {
+    const W = CONFIG.waves;
+    const total = Math.min(W.maxEnemies, Math.floor(W.baseCrows + W.crowsPerWave * (n - 1)));
+    const boss = n % W.bossEvery === 0;
+    const elites = n >= W.eliteFrom ? Math.min(total - 1, Math.floor(1 + W.elitesPerWave * (n - W.eliteFrom))) : 0;
+    const list = [];
+    if (boss) list.push('grudge');
+    const grunts = total - list.length;
+    for (let i = 0; i < grunts; i++) list.push(i < elites ? 'crow_elite' : 'crow');
+    // mix the order so elites do not all come first
+    return [list[0], ...list.slice(1).sort(() => Math.random() - 0.5)];
+  }
+
   updateWaves(dt) {
     if (this.phase !== 'playing') return;
     const W = CONFIG.waves;
-    if (this.waveActive && this.liveEnemies().length === 0) {
+    const live = this.liveEnemies().length;
+
+    // reinforcements climb in as others fall
+    if (this.waveActive && this.queue.length && live < W.maxAlive) {
+      this.reinforceTimer -= dt;
+      if (this.reinforceTimer <= 0) { this.spawnEnemy(this.queue.shift()); this.reinforceTimer = W.reinforceDelay; }
+    }
+
+    if (this.waveActive && live === 0 && this.queue.length === 0) {
       this.waveActive = false;
       this.waveTimer = W.delay;
-      if (this.waveIndex >= W.list.length - 1) {
-        this.phase = 'won';
-        this.emit({ type: 'won' });
-        return;
-      }
+      this.wavesCleared = this.waveIndex + 1;
       this.juno.hp = Math.min(this.juno.maxHp, this.juno.hp + W.healOnClear);
-      this.emit({ type: 'waveClear', wave: this.waveIndex + 1 });
+      const boss = this.wavesCleared % W.bossEvery === 0;
+      if (boss && (this.juno.state === 'idle' || this.juno.state === 'run')) this.setState(this.juno, 'win');
+      this.emit({ type: 'waveClear', wave: this.wavesCleared, boss });
+      for (const [name, w] of Object.entries(CONFIG.weapons)) {
+        if (typeof w === 'object' && w.unlockWave === this.wavesCleared + 1 && w.unlockWave > 1) {
+          this.emit({ type: 'unlock', weapon: name, cost: w.cost });
+        }
+      }
     }
     if (!this.waveActive) {
       this.waveTimer -= dt;
@@ -536,15 +581,28 @@ export class Game {
     this.waveIndex = i;
     this.waveActive = true;
     this.nextAttackTime = this.time + 1.0;
-    for (const kind of CONFIG.waves.list[i]) {
-      const x = SPAWN_X[this.spawnCount++ % SPAWN_X.length];
-      const e = this.makeFighter(kind, 'enemy', x, SPAWN_Z);
-      e.entryZ = CONFIG.waves.entryZ + rand(-0.4, 0.4);
-      e.circleR = rand(CONFIG.ai.circleMin, CONFIG.ai.circleMax);
-      e.strafeDir = Math.random() < 0.5 ? -1 : 1;
-      e.cooldown = rand(0.2, 1.0);
-      this.fighters.push(e);
+    const roster = Game.roster(i + 1);
+    const first = roster.splice(0, CONFIG.waves.maxAlive);
+    for (const kind of first) this.spawnEnemy(kind);
+    this.queue = roster;
+    this.reinforceTimer = CONFIG.waves.reinforceDelay;
+    if (i + 1 > this.best) {
+      this.best = i + 1;
+      try { localStorage.setItem('trs-best-wave', String(this.best)); } catch { /* private window: keep it in memory */ }
     }
-    this.emit({ type: 'wave', wave: i + 1, total: CONFIG.waves.list.length });
+    this.emit({ type: 'wave', wave: i + 1, boss: (i + 1) % CONFIG.waves.bossEvery === 0, size: first.length + roster.length });
+  }
+
+  spawnEnemy(kind) {
+    const W = CONFIG.waves, n = this.waveIndex;
+    const x = SPAWN_X[this.spawnCount++ % SPAWN_X.length];
+    const e = this.makeFighter(kind, 'enemy', x, SPAWN_Z);
+    e.hp = e.maxHp = Math.round(e.maxHp * (1 + W.healthGrowth * n));
+    e.dmgMul = 1 + W.damageGrowth * n;
+    e.entryZ = W.entryZ + rand(-0.4, 0.4);
+    e.circleR = rand(CONFIG.ai.circleMin, CONFIG.ai.circleMax);
+    e.strafeDir = Math.random() < 0.5 ? -1 : 1;
+    e.cooldown = rand(0.2, 1.0);
+    this.fighters.push(e);
   }
 }

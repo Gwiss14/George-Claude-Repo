@@ -58,7 +58,7 @@ export class View {
       w.position.y = -0.5;          // and spin it around its middle
       holder.add(w);
       this.scene.add(holder);
-      this.padWeapons.push(holder);
+      this.padWeapons.push({ holder, pad, weapon: p.weapon });
     }
     this.coins = new Map(); // coin id -> obj
 
@@ -200,7 +200,13 @@ export class View {
       o.visible = left > 3 || Math.floor(now * 8) % 2 === 0;
     }
     for (const [id, o] of this.coins) if (!seen.has(id)) { this.scene.remove(o); this.coins.delete(id); }
-    for (const h of this.padWeapons) h.rotation.y = now * 1.2;
+    for (const p of this.padWeapons) {
+      // locked pads are dim and empty until their wave is cleared
+      const open = this.game.unlocked(p.weapon);
+      p.holder.visible = open;
+      p.holder.rotation.y = now * 1.2;
+      p.pad.children[0].material.opacity = open ? 1 : 0.3;
+    }
 
     for (const s of this.sparks) {
       const u = s.userData;

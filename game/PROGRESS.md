@@ -21,6 +21,9 @@
 - Texture plan: shrink fighters to 1024 and props to 512 on load (about 50 MB instead of about 640 MB).
 - From the playbook notes, for later stages: 2K textures, Select All animations and "stay in place" on export, recentre clips on the hips, front_kick_01 may really be a side kick, measure when each attack really lands, count the outline in the triangle budget.
 
+- Endless waves (player asked): wave rosters grow from config numbers, Grudge every 5th wave, reinforcements climb in (max 5 on the roof), enemies +8 % health / +5 % damage per wave, best wave kept in the browser. No win screen any more.
+- More weapons unlock as waves are cleared (player asked): pipe 1, hammer 2, wrench 4, shovel 6, axe 9; five pads in front of the rack. The five weapons are now one Tripo 'parts' model (`weapons.glb`), replacing the pipe and hammer entries, so assets.json has 7 entries. TRIPO.md regenerated.
+
 ## Known / open
 - New Juno states swing/backswing/overhead need animations: slash, plus two Text to Motion clips (listed in assets.json).
 - The good bot never needs to block, and loses only 8 health in a full round: the game may be too easy for a careful player. Tune enemy speed, attackGap or damage after the player tries it.
@@ -32,7 +35,7 @@
   - Canvas textures painted in code for roof, parapet, building, skyline, crates, tank, rack and pads.
 - Stage 3, Asset list: assets.json with 8 Tripo entries: juno, crow (+ crow_elite texture), grudge, crate, water_tank, weapon_rack, pipe, hammer. Lamp posts, coins, pads, roof, parapet and sky are built in code. Waiting for feedback.
 
-- Stage 4: TRIPO.md has the table of all 8 models and the export settings. Waiting for the player to make them in Tripo Studio and put the GLBs in public/assets/.
+- Stage 4: TRIPO.md has the table of all the models and the export settings. Waiting for the player to make them in Tripo Studio and put the GLBs in public/assets/.
 
 ## Next
 - Stage 5, Swap: load each GLB in place of its placeholder (when the player says they are in).

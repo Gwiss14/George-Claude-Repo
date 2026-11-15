@@ -15,9 +15,13 @@ export const PROPS = [
 ];
 
 // Stand on a pad in front of the rack and press attack to buy its weapon.
+// Pads unlock as waves are cleared (CONFIG.weapons[...].unlockWave).
 export const WEAPON_PADS = [
-  { weapon: 'pipe', x: 4.15, z: -3.6 },
-  { weapon: 'hammer', x: 5.05, z: -3.6 },
+  { weapon: 'pipe', x: 3.65, z: -3.6 },
+  { weapon: 'hammer', x: 4.6, z: -3.6 },
+  { weapon: 'wrench', x: 5.55, z: -3.6 },
+  { weapon: 'shovel', x: 4.12, z: -2.65 },
+  { weapon: 'axe', x: 5.08, z: -2.65 },
 ];
 
 export const JUNO_START = { x: 0, z: 1.0 };

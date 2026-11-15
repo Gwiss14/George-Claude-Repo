@@ -10,8 +10,9 @@ import { WEAPON_PADS } from './game/level.js';
 const dist = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 
 export class Bot {
-  constructor(mode, game, input) {
+  constructor(mode, game, input, targetWaves = 6) {
     this.mode = mode; this.game = game; this.input = input;
+    this.targetWaves = targetWaves; // waves are endless: the good bot stops after clearing this many
     input.bot = { mx: 0, my: 0, attack: false };
     this.pressTimer = 0;
     this.seg = 0; this.segTime = 0; this.segStart = null; this.escapeCheck = null;
@@ -32,6 +33,7 @@ export class Bot {
       doubleHits: 0, maxWallPenetration: 0, maxFighterOverlap: 0,
       escapeChecks: 0, escapeFailures: 0, enemyStuck: 0, enemyTurnsGivenUp: 0, lowestHp: 100,
       coinsCollected: 0, combos: 0, weaponsBought: [], weaponHits: 0, weaponBreaks: 0, buyFails: 0,
+      weaponsUnlocked: [], bossWavesCleared: 0, biggestWave: 0,
     };
   }
 
@@ -58,14 +60,15 @@ export class Bot {
       if (Number.isFinite(gap)) r.minGapBetweenEnemyAttacks = Math.min(r.minGapBetweenEnemyAttacks ?? Infinity, +gap.toFixed(3));
       this.lastEnemyAttack = ev.time;
     }
-    if (ev.type === 'waveClear') r.wavesCleared = ev.wave;
+    if (ev.type === 'waveClear') { r.wavesCleared = ev.wave; if (ev.boss) r.bossWavesCleared++; }
+    if (ev.type === 'unlock') r.weaponsUnlocked.push(ev.weapon);
+    if (ev.type === 'wave') r.biggestWave = Math.max(r.biggestWave, ev.size);
     if (ev.type === 'coin') r.coinsCollected++;
     if (ev.type === 'combo') r.combos++;
     if (ev.type === 'buy') r.weaponsBought.push(ev.weapon);
     if (ev.type === 'buyFail') r.buyFails++;
     if (ev.type === 'weaponBreak') r.weaponBreaks++;
     if (ev.type === 'hit' && ev.weapon && ev.targetTeam === 'enemy') r.weaponHits++;
-    if (ev.type === 'won') { r.wavesCleared = CONFIG.waves.list.length; r.result = 'won'; }
     if (ev.type === 'lost') r.result = 'lost';
   }
 
@@ -91,7 +94,8 @@ export class Bot {
       if (g.time - this.endTime > 1) r.done = true;
       return;
     }
-    if (g.time > 400) { r.result = r.result ?? 'timeout'; r.done = true; return; }
+    if (this.mode === 'good' && g.wavesCleared >= this.targetWaves) { r.result = `cleared ${g.wavesCleared} waves`; r.done = true; return; }
+    if (g.time > 600) { r.result = r.result ?? 'timeout'; r.done = true; return; }
     if (this.mode === 'bad') this.thinkBad(dt); else this.thinkGood(dt);
   }
 
@@ -128,7 +132,8 @@ export class Bot {
       this.setMove(c.x - j.x, c.z - j.z);
       return;
     }
-    const want = !j.weapon && [...WEAPON_PADS].reverse().find((p) => j.coins >= CONFIG.weapons[p.weapon].cost);
+    const want = !j.weapon && [...WEAPON_PADS].sort((a, b) => CONFIG.weapons[b.weapon].cost - CONFIG.weapons[a.weapon].cost)
+      .find((p) => g.unlocked(p.weapon) && j.coins >= CONFIG.weapons[p.weapon].cost);
     if (want) {
       if (dist(want, j) < CONFIG.weapons.padRadius * 0.6) { this.setMove(0, 0); this.press(dt, 0.3); }
       else this.setMove(want.x - j.x, want.z - j.z);

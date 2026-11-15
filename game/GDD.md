@@ -1,10 +1,10 @@
 # Tank Roof Scrap — Game Design (one page)
 
-You are **Juno**, a bike courier who boxes. The **Tin Crows** gang has taken over the rooftop where she parks. Clear three waves of them, the last led by their boss **Grudge**.
+You are **Juno**, a bike courier who boxes. The **Tin Crows** gang has taken over the rooftop where she parks, and they keep coming. Survive as many waves as you can; their boss **Grudge** leads every fifth wave.
 
 ## Core loop
 
-Walk up to an enemy → press attack to throw a jab, keep pressing to chain cross and kick → back off when an enemy winds up → defeated enemies burst into coins → grab them → between waves, spend coins at the weapon rack on a pipe or a hammer → finish the wave → get a little health back → next wave.
+Walk up to an enemy → press attack to throw a jab, keep pressing to chain cross and kick → back off when an enemy winds up → defeated enemies burst into coins → grab them → between waves, spend coins at the weapon rack → finish the wave → get a little health back → new weapons unlock → next, harder wave, forever.
 
 One level (one rooftop), one loop. The only thing the player does besides moving is **attack**: one button, three-hit combo. The same button buys a weapon while standing on a pad at the rack. No jump, no block, no dodge button; you dodge by walking away.
 
@@ -12,12 +12,15 @@ One level (one rooftop), one loop. The only thing the player does besides moving
 
 **Coins:** a Crow drops 3, an elite 5, Grudge 10. They burst out, bounce, slide toward Juno when she is within 2 m, and are picked up within 0.7 m. A coin left on the floor blinks after 12 s and disappears at 15 s. Coins are kept between waves and reset on restart.
 
-**Weapons spot:** a tool rack against the back wall with two pads in front of it, each with its weapon turning above it. Stand on a pad and press attack to buy. A weapon replaces the current one and breaks after a number of landed hits; then Juno is back to fists.
+**Weapons spot:** a tool rack against the back wall with five pads in front of it, each with its weapon turning above it. A pad stays dim and empty until its weapon unlocks; more weapons unlock as waves are cleared. Stand on a lit pad and press attack to buy. A weapon replaces the current one and breaks after a number of landed hits; then Juno is back to fists.
 
-| Weapon | Cost | Breaks after | Damage | Reach | Speed | Extra |
-|---|---|---|---|---|---|---|
-| pipe | 6 coins | 15 hits | ×1.5 | +0.4 m | same | third swing knocks Crows down |
-| hammer | 12 coins | 10 hits | ×2.2 | +0.5 m | 35 % slower | every swing knocks Crows down |
+| Weapon | On sale from | Cost | Breaks after | Damage | Reach | Speed | Extra |
+|---|---|---|---|---|---|---|---|
+| pipe | wave 1 | 6 coins | 15 hits | ×1.5 | +0.4 m | same | third swing knocks Crows down |
+| hammer | wave 2 | 12 coins | 10 hits | ×2.2 | +0.5 m | 35 % slower | every swing knocks Crows down |
+| wrench | wave 4 | 9 coins | 25 hits | ×1.3 | +0.2 m | 20 % faster | lasts longest |
+| shovel | wave 6 | 15 coins | 14 hits | ×1.8 | +0.8 m | 10 % slower | longest reach |
+| axe | wave 9 | 24 coins | 12 hits | ×3.0 | +0.5 m | 25 % slower | every swing knocks Crows down |
 
 ## Controls
 
@@ -30,10 +33,12 @@ One level (one rooftop), one loop. The only thing the player does besides moving
 
 ## Win and lose
 
-- **Win:** all three waves are knocked out. Juno cheers.
-- **Lose:** Juno's health (100) reaches zero. She stays down.
-- Waves: **1** two Crows · **2** three Crows, one of them an elite (orange) · **3** Grudge and two Crows.
-- Clearing a wave gives back 25 health, and there are 3.5 s before the next wave to pick up coins or buy a weapon. Restart resets everything to wave 1.
+Waves never end; the score is how far you get.
+
+- **Lose:** Juno's health (100) reaches zero. She stays down; the end screen shows the wave reached and your best wave (kept in the browser).
+- **Waves** are built from config numbers: wave 1 has 2 Crows, about 0.6 more each wave, up to 9. Orange elites start in wave 2 and grow by about one every three waves. **Grudge** leads every 5th wave. At most 5 enemies are on the roof at once; the rest climb in over the back wall as others fall.
+- **Getting harder:** each wave, enemy health +8 %, enemy damage +5 %, and the gap between enemy attacks shrinks by 0.03 s (from 0.8 s down to 0.45 s). Up to 2 enemies may attack at once from wave 3, and 3 from wave 8.
+- Clearing a wave gives back 25 health, and there are 3.5 s before the next wave to pick up coins or buy a weapon. After a boss wave Juno cheers for a second. Restart resets everything to wave 1.
 
 ## Camera
 
@@ -53,9 +58,8 @@ Sizes are width × height × depth in metres. Everything is built facing +Z (tow
 | `water_tank` | Round tank on legs, solid | 1 | 2.0 × 2.5 × 2.0 | +Z | Prop |
 | `lamp_post` | Roof lamp, solid, lights the scene | 2 | 0.3 × 3.5 × 0.3 | +Z | Prop |
 | `weapon_rack` | The weapons spot: a pegboard tool rack | 1 | 1.8 × 2.0 × 0.5 | +Z (toward the camera), against the back wall | Prop |
-| `weapon_pad` | Hazard-striped floor ring in front of the rack, one per weapon (built in code) | 2 | 0.9 across | — | Floor marking |
-| `pipe` | Weapon: a steel pipe with a taped grip | 1 on display, 1 in hand | 0.11 × 0.11 × 1.0 | length along +Z, grip at the origin | Prop (held) |
-| `hammer` | Weapon: a big wooden-handled hammer | 1 on display, 1 in hand | 0.34 × 0.18 × 1.1 | length along +Z, grip at the origin | Prop (held) |
+| `weapon_pad` | Hazard-striped floor ring in front of the rack, one per weapon (built in code) | 5 | 0.9 across | — | Floor marking |
+| `weapons` | One model with five parts: `pipe`, `hammer`, `wrench`, `shovel`, `axe` | 1 of each on display, 1 in hand | pipe 1.0 · hammer 1.1 · wrench 0.75 · shovel 1.15 · axe 1.0 m long | each part's length along +Z, grip at its origin | Parts (held) |
 | `coin` | Gold coin (built in code) | many | 0.3 × 0.3 × 0.04 | stands on edge, spins | Pickup |
 | `roof` | The ground: flat rooftop | 1 | 16 × 0.5 × 10 | — | Ground |
 | `parapet` | Low wall around the roof | 1 | 16 × 0.6 × 10 ring, 0.3 thick | — | Level edge |
@@ -78,7 +82,7 @@ All three are people on the same skeleton. Fighters are solid to each other and 
 | hurt | hit_to_body_01 | Hit by a jab; 0.3 s |
 | knocked_down | defeat_02, then reversed to stand | Hit by Grudge's smash; 1.0 s down, then cannot be hit for 0.6 s |
 | defeated | defeat_02, held | Health zero |
-| win | cheer | Wave 3 cleared |
+| win | cheer | A boss wave cleared; 1 s, then idle |
 
 **Crow** — health 30 (elite 45), moves 2.6 m/s. **Grudge** — health 140, moves 2.0 m/s, cannot be knocked down.
 
@@ -115,4 +119,4 @@ There are no machines or breakable parts. Weapons are the only swappable parts, 
 
 | Slot | Attach point (from the centre of the feet) | How a part sits on it |
 |---|---|---|
-| `hand_r` | Centre of the right fist. With arms hanging: 0.25 m to her right, 0.70 m up. In the T-pose: about 0.85 m to her right, 1.3 m up. | The weapon's grip sits on the point and its length (+Z of the weapon) points along the arm, away from the shoulder. Each weapon is scaled so its length fits the slot: pipe 1.0 m, hammer 1.1 m. |
+| `hand_r` | Centre of the right fist. With arms hanging: 0.25 m to her right, 0.70 m up. In the T-pose: about 0.85 m to her right, 1.3 m up. | The weapon's grip sits on the point and its length (+Z of the weapon) points along the arm, away from the shoulder. Each weapon is scaled so its length fits the slot: pipe 1.0, hammer 1.1, wrench 0.75, shovel 1.15, axe 1.0 m. |

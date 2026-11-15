@@ -32,14 +32,15 @@ export class Hud {
       this.el(id).addEventListener('click', (e) => { e.stopPropagation(); onRestart(); });
     }
     game.on((ev) => {
-      if (ev.type === 'wave') this.show(ev.wave === ev.total ? 'Final wave: Grudge!' : `Wave ${ev.wave}`);
-      if (ev.type === 'waveClear') this.show('Wave cleared  +25');
+      if (ev.type === 'wave') this.show(ev.boss ? `Wave ${ev.wave}: Grudge!` : `Wave ${ev.wave}`);
+      if (ev.type === 'waveClear') this.show(`Wave ${ev.wave} cleared  +${CONFIG.waves.healOnClear}`);
+      if (ev.type === 'unlock') setTimeout(() => this.show(`New weapon: ${ev.weapon.toUpperCase()}!`), 1700);
       if (ev.type === 'reset') { this.end.classList.remove('show'); this.endTimer = 0; }
       if (ev.type === 'comboHit') this.popAt(ev.x, 2.0, ev.z, (ev.weapon ? SWING_WORDS : HIT_WORDS)[Math.min(2, ev.n - 1)], ev.n >= 3 ? '' : '', (ev.n - 2) * 7);
       if (ev.type === 'combo') this.popAt(ev.x, 2.6, ev.z, `COMBO! +${CONFIG.coins.comboBonus}`, 'big', -8);
       if (ev.type === 'coin') { const j = this.game.juno; this.popAt(j.x, 1.9, j.z, '+1', 'coin', 0); }
       if (ev.type === 'buy') this.show(`Got the ${ev.weapon}!`);
-      if (ev.type === 'buyFail') { const j = this.game.juno; this.popAt(j.x, 2.0, j.z, `Need ${ev.need} more`, 'bad', 0); }
+      if (ev.type === 'buyFail') { const j = this.game.juno; this.popAt(j.x, 2.0, j.z, ev.locked ? `Wave ${ev.locked}` : `Need ${ev.need} more`, 'bad', 0); }
       if (ev.type === 'weaponBreak') { const j = this.game.juno; this.popAt(j.x, 2.1, j.z, `${ev.weapon} broke!`, 'bad', 5); }
     });
   }
@@ -68,8 +69,7 @@ export class Hud {
     const g = this.game, j = g.juno;
     this.hpFill.style.width = `${(j.hp / j.maxHp) * 100}%`;
     this.hpText.textContent = `${Math.ceil(j.hp)}`;
-    const total = 3;
-    this.wave.textContent = g.waveIndex < 0 ? 'Get ready' : `Wave ${g.waveIndex + 1} / ${total}`;
+    this.wave.textContent = g.waveIndex < 0 ? 'Get ready' : `Wave ${g.waveIndex + 1}${g.best > 1 ? ` · best ${g.best}` : ''}`;
     const boss = g.fighters.find((f) => f.kind === 'grudge');
     this.boss.style.display = boss ? 'block' : 'none';
     if (boss) this.bossFill.style.width = `${(boss.hp / boss.maxHp) * 100}%`;
@@ -87,8 +87,8 @@ export class Hud {
     const pad = g.phase === 'playing' ? g.padUnder(j) : null;
     if (pad) {
       const w = CONFIG.weapons[pad.weapon], touch = document.body.classList.contains('touch');
-      const rich = j.coins >= w.cost;
-      this.padPrompt.textContent = rich ? `${touch ? 'HIT' : 'J'} to buy ${pad.weapon.toUpperCase()} · ${w.cost} coins` : `${pad.weapon.toUpperCase()} costs ${w.cost} coins`;
+      const rich = j.coins >= w.cost && g.unlocked(pad.weapon);
+      this.padPrompt.textContent = !g.unlocked(pad.weapon) ? `${pad.weapon.toUpperCase()} unlocks at wave ${w.unlockWave}` : rich ? `${touch ? 'HIT' : 'J'} to buy ${pad.weapon.toUpperCase()} · ${w.cost} coins` : `${pad.weapon.toUpperCase()} costs ${w.cost} coins`;
       this.padPrompt.classList.toggle('poor', !rich);
     }
     this.padPrompt.classList.toggle('show', !!pad);
@@ -102,7 +102,7 @@ export class Hud {
       if (this.endTimer > 1.2 && !this.end.classList.contains('show')) {
         const won = g.phase === 'won';
         this.endTitle.textContent = won ? 'Roof cleared!' : 'Knocked out';
-        this.endSub.textContent = won ? 'The Tin Crows fly home.' : `You reached wave ${g.waveIndex + 1}.`;
+        this.endSub.textContent = `You reached wave ${g.waveIndex + 1}. Best: wave ${g.best}.`;
         this.end.classList.toggle('won', won);
         this.end.classList.add('show');
       }

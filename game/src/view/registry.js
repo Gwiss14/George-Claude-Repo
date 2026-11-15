@@ -305,6 +305,38 @@ function buildHammer() {
   return k.finish(root, 'prop');
 }
 
+function buildWrench() {
+  const k = new Kit();
+  const root = new THREE.Group();
+  const steel = k.toon(0xc4ccd6), red = k.toon(0xc0392b);
+  const h = k.mesh(box(0.06, 0.03, 0.62), steel); h.position.z = 0.31; root.add(h);
+  const grip = k.mesh(box(0.08, 0.05, 0.22), red); grip.position.z = 0.08; root.add(grip);
+  const jaw = k.mesh(box(0.2, 0.05, 0.1), steel); jaw.position.z = 0.65; root.add(jaw);
+  for (const x of [-0.07, 0.07]) { const t = k.mesh(box(0.05, 0.05, 0.08), steel); t.position.set(x, 0, 0.72); root.add(t); }
+  return k.finish(root, 'prop');
+}
+
+function buildShovel() {
+  const k = new Kit();
+  const root = new THREE.Group();
+  const wood = k.toon(0xc8955a), blade = k.toon(0x5d8a5a);
+  const h = k.mesh(cyl(0.03, 0.03, 0.9, 10), wood); h.rotation.x = Math.PI / 2; h.position.z = 0.4; root.add(h);
+  const t = k.mesh(box(0.16, 0.05, 0.04), k.toon(0x2c2f38)); t.position.z = -0.04; root.add(t);
+  const b = k.mesh(box(0.26, 0.03, 0.32), blade); b.position.z = 1.0; root.add(b);
+  return k.finish(root, 'prop');
+}
+
+function buildAxe() {
+  const k = new Kit();
+  const root = new THREE.Group();
+  const wood = k.toon(0x8a5a2b), red = k.toon(0xd8342c), steel = k.toon(0xd9dee4);
+  const h = k.mesh(cyl(0.035, 0.04, 0.92, 10), wood); h.rotation.x = Math.PI / 2; h.position.z = 0.42; root.add(h);
+  const head = k.mesh(box(0.12, 0.08, 0.16), red); head.position.z = 0.86; root.add(head);
+  const edge = k.mesh(box(0.2, 0.05, 0.22), steel); edge.position.set(0.15, 0, 0.86); root.add(edge);
+  const spike = k.mesh(box(0.1, 0.05, 0.06), red); spike.position.set(-0.1, 0, 0.86); root.add(spike);
+  return k.finish(root, 'prop');
+}
+
 const PEOPLE = {
   juno:       { height: CONFIG.juno.height, width: 0.6, skin: 0xe8b48a, top: 0x2fb6a8, bottom: 0x27324a, accent: 0xf2d14b, visor: 0x111111 },
   crow:       { height: CONFIG.enemies.crow.height, width: 0.6, skin: 0xc9a27e, top: 0x3d4a6b, bottom: 0x23262e, accent: 0x9aa3b5, visor: 0xd7e0f0 },
@@ -328,11 +360,14 @@ export const REGISTRY = {
   coin: buildCoin,
   pipe: buildPipe,
   hammer: buildHammer,
+  wrench: buildWrench,
+  shovel: buildShovel,
+  axe: buildAxe,
 };
 
 // Swappable parts hang on named attach points and are scaled to fit the slot.
 export const SLOTS = {
-  hand_r: { length: { pipe: 1.0, hammer: 1.1 } },
+  hand_r: { length: { pipe: 1.0, hammer: 1.1, wrench: 0.75, shovel: 1.15, axe: 1.0 } },
 };
 
 export function attach(owner, slot, id) {

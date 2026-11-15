@@ -70,19 +70,27 @@ export const CONFIG = {
     circleMax: 3.5,
     strafe: 0.55,        // circling speed as a share of walking speed
     attackGap: 0.8,      // s between any two enemy attacks starting
-    maxAttackers: [1, 1, 2], // per wave
+    maxAttackers: [1, 1, 2, 2, 2, 2, 2, 3], // by wave (the last number holds for every later wave)
     cooldownMin: 1.0,    // s an enemy waits after its own attack
     cooldownMax: 2.0,
     approachTimeout: 4,  // give up the turn if it cannot reach Juno in this long
     rangeShare: 0.8,     // attack when within this share of its reach
   },
 
+  // Endless: every wave is built from these numbers. Enemies get tougher each wave.
   waves: {
-    list: [
-      ['crow', 'crow'],
-      ['crow', 'crow', 'crow_elite'],
-      ['grudge', 'crow', 'crow'],
-    ],
+    baseCrows: 2,        // Crows in wave 1
+    crowsPerWave: 0.6,   // more Crows each wave (rounded down)
+    maxEnemies: 9,       // most enemies in one wave
+    eliteFrom: 2,        // first wave with an orange elite
+    elitesPerWave: 0.34, // more elites each wave after that
+    bossEvery: 5,        // Grudge leads every 5th wave
+    maxAlive: 5,         // most enemies on the roof at once; the rest climb in as others fall
+    reinforceDelay: 0.8, // s before the next one climbs in
+    healthGrowth: 0.08,  // enemy health +8 % per wave
+    damageGrowth: 0.05,  // enemy damage +5 % per wave
+    attackGapShrink: 0.03, // the gap between enemy attacks gets this much shorter per wave
+    minAttackGap: 0.45,
     healOnClear: 25,
     delay: 3.5,          // s between waves (time to grab coins or a weapon)
     entryZ: -2.6,        // where enemies walk to after climbing over the back wall
@@ -105,8 +113,11 @@ export const CONFIG = {
   // Weapons are bought at the rack (stand on a pad, press attack). They change the
   // combo into three swings and break after a number of landed hits.
   weapons: {
-    pipe:   { cost: 6,  durability: 15, damageMul: 1.5, reachAdd: 0.4, lengthMul: 1.0,  knockdownAll: 0 },
-    hammer: { cost: 12, durability: 10, damageMul: 2.2, reachAdd: 0.5, lengthMul: 1.35, knockdownAll: 1 },
+    pipe:   { unlockWave: 1, cost: 6,  durability: 15, damageMul: 1.5, reachAdd: 0.4, lengthMul: 1.0,  knockdownAll: 0 },
+    hammer: { unlockWave: 2, cost: 12, durability: 10, damageMul: 2.2, reachAdd: 0.5, lengthMul: 1.35, knockdownAll: 1 },
+    wrench: { unlockWave: 4, cost: 9,  durability: 25, damageMul: 1.3, reachAdd: 0.2, lengthMul: 0.8,  knockdownAll: 0 },
+    shovel: { unlockWave: 6, cost: 15, durability: 14, damageMul: 1.8, reachAdd: 0.8, lengthMul: 1.1,  knockdownAll: 0 },
+    axe:    { unlockWave: 9, cost: 24, durability: 12, damageMul: 3.0, reachAdd: 0.5, lengthMul: 1.25, knockdownAll: 1 },
     padRadius: 0.45,
   },
 

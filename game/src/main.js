@@ -23,7 +23,7 @@ window.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') d
 let bot = null;
 if (params.get('bot')) {
   const { Bot } = await import('./bot.js');
-  bot = new Bot(params.get('bot'), game, input);
+  bot = new Bot(params.get('bot'), game, input, Number(params.get('waves')) || 6);
 }
 
 // Fixed gameplay steps; rendering interpolates between the last two steps.
