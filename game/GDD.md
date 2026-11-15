@@ -26,7 +26,7 @@ One level (one rooftop), one loop. The only thing the player does besides moving
 
 ## Camera
 
-Fixed angle, never rotates. It stands on the south side of the roof, about 11 m back and 8 m up, looking north and down at about 35°, and slides sideways a little to keep Juno in view. On a phone held upright it pulls back until the roof's width fits. It sees fighters from every side as they turn, and their **front** most often.
+Fixed angle, never rotates. It stands on the south side of the roof, about 11 m back and 8 m up, looking north and down at about 35°, and slides sideways a little to keep Juno in view. On a phone held upright it looks down more steeply, shows about 8.5 m of the roof's width and follows Juno sideways (fitting the whole 16 m width made fighters too small). It sees fighters from every side as they turn, and their **front** most often.
 
 ## Everything on screen
 
@@ -36,7 +36,7 @@ Sizes are width × height × depth in metres. Everything is built facing +Z (tow
 |---|---|---|---|---|---|
 | `juno` | Player, courier boxer | 1 | 0.6 × 1.7 × 0.6 | Nearest enemy while attacking, else the way she moves | Person (bones) |
 | `crow` | Gang scrapper, lean | up to 3 at once | 0.6 × 1.7 × 0.6 | Juno | Person (bones) |
-| `crow` (elite) | Same shape, orange outfit, tougher | 1 | same | Juno | Person (bones) |
+| `crow_elite` | Same shape as `crow`, orange outfit, tougher (shares the crow model, recoloured) | 1 | same | Juno | Person (bones) |
 | `grudge` | Boss, a much bigger person | 1 | 0.9 × 2.2 × 0.9 | Juno | Person (bones) |
 | `crate` | Wooden crate, solid | 4 | 1.0 × 1.0 × 1.0 | Random quarter turn | Prop |
 | `water_tank` | Round tank on legs, solid | 1 | 2.0 × 2.5 × 2.0 | +Z | Prop |
@@ -45,7 +45,7 @@ Sizes are width × height × depth in metres. Everything is built facing +Z (tow
 | `parapet` | Low wall around the roof | 1 | 16 × 0.6 × 10 ring, 0.3 thick | — | Level edge |
 | `sky` | Sunset sky with a far skyline | 1 | — | — | Sky |
 
-Layout: the roof is 16 m wide (X) and 10 m deep (Z). The water tank stands in the back-left corner, lamp posts at the back-left and back-right, crates in two pairs near the left and right walls, leaving the middle open. Juno starts in the centre. Enemies climb in over the back wall.
+Layout: the roof is 16 m wide (X) and 10 m deep (Z). The water tank stands in the back-left corner, lamp posts against the back wall at the left and right, crates in two pairs against the left and right walls, leaving the middle open. Props touch the wall, so there are no gaps narrower than a fighter to get wedged in. Juno starts in the centre. Enemies climb in over the back wall.
 
 ## Characters and their states
 

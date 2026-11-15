@@ -1,18 +1,28 @@
 # Progress
 
 ## Done
-- Stage 1, Design: first GDD ("Lamplight Meadow", a no-combat lantern game) was replaced at the player's request by a fighting game, "Tank Roof Scrap". Waiting for feedback on the new GDD.md.
+- Stage 1, Design: GDD.md for "Tank Roof Scrap" (fighting game). Player approved and chose the comic look.
+- Stage 2, Greybox: playable in the browser with keyboard and touch. Three.js + Vite, no engine.
+  - `src/config.js`: every tunable number. Debug panel (` key or ?debug) has sliders for all of them.
+  - `src/view/registry.js`: the only place that decides looks (id -> builder). Placeholders face +Z, people have named parts with their own hinges.
+  - `src/game/`: gameplay only (states, combo queue, hit-stop, knockback, invulnerability, enemy turn-taking, waves, collisions). Knows nothing about looks.
+  - Fixed 120 Hz gameplay steps with interpolated drawing (smooth at 60/120/144 Hz).
+  - Comic look in code: toon materials with three hard light bands, black inside-out outline shells.
+  - Tests: `npm test` builds, then checks keyboard, combo, debug panel, restart, a good bot (full round), a bad bot (holds into walls and props), phone touch, and frame smoothness.
 
 ## Decided
-- Player said "surprise me" to the five opening questions, then asked for a fighting game after sharing the playbook's brawler notes.
-- Game: Juno (player) fights three waves of Tin Crows on a rooftop; wave 3 has the boss Grudge. One attack button, three-hit combo.
-- Controls: keyboard and phone.
-- All three characters are people on one humanoid skeleton; Grudge is a bigger humanoid; the elite Crow is a colour version of Crow.
-- The game lives in `game/` inside the existing repository (its root was not empty), so it uses that repository instead of a new one.
-- From the playbook notes, for later stages: 2K textures, Select All animations and "stay in place" on export, recentre clips on the hips, front_kick_01 may really be a side kick, measure when each attack really lands.
+- Player said "surprise me", then asked for a fighting game, then picked the comic look.
+- Juno vs three waves of Tin Crows on a rooftop; boss Grudge in wave 3. One attack button, three-hit combo.
+- All three characters are people on one humanoid skeleton; Grudge is a bigger humanoid; crow_elite reuses the crow model in orange.
+- The game lives in `game/` inside the existing repository (its root was not empty).
+- Phone held upright: steeper camera showing ~8.5 m of width that follows Juno (whole width made fighters too small).
+- Props sit flush against the walls; if a fighter is ever squeezed inside something, it is put back where it was last step.
+- From the playbook notes, for later stages: 2K textures, Select All animations and "stay in place" on export, recentre clips on the hips, front_kick_01 may really be a side kick, measure when each attack really lands, count the outline in the triangle budget.
 
-## Open
-- Art style: I plan a comic look (flat colours, black outlines and hard-edged light done in code). Not yet confirmed by the player.
+## Known / open
+- The good bot never needs to block, and loses only 8 health in a full round: the game may be too easy for a careful player. Tune enemy speed, attackGap or damage after the player tries it.
+- Draw calls are high (~170 at the busiest moment, half of it the shadow pass) because every placeholder part is its own mesh plus outline. Models in stage 5 will lower this.
 
 ## Next
-- Stage 2, Greybox: Three.js + Vite, placeholders from the GDD table, config file, debug panel, fight feel, two test bots, full round and restart on desktop and phone.
+- Player tries the greybox and gives feedback.
+- Stage 3, Asset list: assets.json with prompts for juno, crow (+ orange texture), grudge, crate, water_tank, lamp_post, roof/parapet/sky plan.
