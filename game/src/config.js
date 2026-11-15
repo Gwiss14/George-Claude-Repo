@@ -39,6 +39,13 @@ export const CONFIG = {
     hurtTime: 0.3,
     downTime: 1.0,
     invulnAfterDown: 0.6,
+    roll: {
+      speed: 8.5,        // m/s at the start of the roll; it slows to 40 % by the end
+      time: 0.38,        // s the roll lasts
+      iframes: 0.28,     // s from the start of the roll where nothing can hit Juno
+      cooldown: 0.3,     // s after a roll before the next one
+      buffer: 0.15,      // a roll pressed this long before it is allowed still happens
+    },
   },
 
   enemies: {
@@ -87,6 +94,7 @@ export const CONFIG = {
     bossEvery: 5,        // Grudge leads every 5th wave
     maxAlive: 5,         // most enemies on the roof at once; the rest climb in as others fall
     reinforceDelay: 0.8, // s before the next one climbs in
+    spawnClear: 1.0,     // m: an enemy only climbs in where nobody stands this close (else it waits)
     healthGrowth: 0.08,  // enemy health +8 % per wave
     damageGrowth: 0.05,  // enemy damage +5 % per wave
     attackGapShrink: 0.03, // the gap between enemy attacks gets this much shorter per wave
@@ -94,6 +102,22 @@ export const CONFIG = {
     healOnClear: 25,
     delay: 3.5,          // s between waves (time to grab coins or a weapon)
     entryZ: -2.6,        // where enemies walk to after climbing over the back wall
+    modifierFrom: 2,     // first wave that can get a modifier
+    plainChance: 0.25,   // share of waves (after that) that stay plain; boss waves are always plain
+  },
+
+  // Wave modifiers: one rule that changes a whole wave. Anything left out means "no change".
+  //   enemySpeed / enemyHealth: multipliers for enemies of that wave
+  //   toJuno / toEnemies: damage multipliers   coinMul: coins dropped by enemies
+  //   extraEnemies: more Crows in the wave     fistsOnly: 1 = weapon put away and rack closed
+  //   from: first wave this modifier can appear in (harsh ones wait until Juno has her footing)
+  modifiers: {
+    swift:  { label: 'Fast Crows',  from: 2, enemySpeed: 1.35 },
+    tough:  { label: 'Tough Crows', from: 3, enemyHealth: 1.5, coinMul: 2 },
+    payday: { label: 'Payday',      from: 2, coinMul: 2 },
+    glass:  { label: 'Glass Jaw',   from: 4, toJuno: 1.5, toEnemies: 1.5 },
+    fists:  { label: 'Fists Only',  from: 3, fistsOnly: 1, toEnemies: 1.25 },
+    swarm:  { label: 'Swarm',       from: 3, extraEnemies: 3, enemyHealth: 0.6 },
   },
 
   coins: {

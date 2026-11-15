@@ -1,7 +1,7 @@
 // Test bots. Open the game with ?bot=good or ?bot=bad (add &speed=4 to run faster).
 // They press the same virtual buttons a player does, and write a report to window.__botReport.
-//   good: walks to the nearest enemy, chains attacks, backs off from Grudge's smash.
-//   bad:  holds directions into walls and obstacles, mashes attack now and then.
+//   good: walks to the nearest enemy, chains attacks, rolls away from Grudge's smash.
+//   bad:  holds directions into walls and obstacles, mashes attack and roll now and then.
 // Both also check that nobody ends up inside a wall or prop, and that nothing gets stuck.
 
 import { CONFIG } from './config.js';
@@ -13,7 +13,8 @@ export class Bot {
   constructor(mode, game, input, targetWaves = 6) {
     this.mode = mode; this.game = game; this.input = input;
     this.targetWaves = targetWaves; // waves are endless: the good bot stops after clearing this many
-    input.bot = { mx: 0, my: 0, attack: false };
+    input.bot = { mx: 0, my: 0, attack: false, dodge: false };
+    this.rollTimer = 0;
     this.pressTimer = 0;
     this.seg = 0; this.segTime = 0; this.segStart = null; this.escapeCheck = null;
     this.enemyTrack = new Map();
@@ -34,6 +35,7 @@ export class Bot {
       escapeChecks: 0, escapeFailures: 0, enemyStuck: 0, enemyTurnsGivenUp: 0, lowestHp: 100,
       coinsCollected: 0, combos: 0, weaponsBought: [], weaponHits: 0, weaponBreaks: 0, buyFails: 0,
       weaponsUnlocked: [], bossWavesCleared: 0, biggestWave: 0,
+      rolls: 0, dodges: 0, modifiers: [], weaponsPutAway: 0,
     };
   }
 
@@ -70,6 +72,10 @@ export class Bot {
     if (ev.type === 'weaponBreak') r.weaponBreaks++;
     if (ev.type === 'hit' && ev.weapon && ev.targetTeam === 'enemy') r.weaponHits++;
     if (ev.type === 'lost') r.result = 'lost';
+    if (ev.type === 'roll') r.rolls++;
+    if (ev.type === 'dodged') r.dodges++;
+    if (ev.type === 'wave' && ev.modifier) r.modifiers.push(`${ev.wave}:${ev.modifier}`);
+    if (ev.type === 'weaponBack') r.weaponsPutAway++;
   }
 
   setMove(wx, wz) { // world direction -> stick (y is up the screen = -Z)
@@ -104,12 +110,13 @@ export class Bot {
     const live = g.liveEnemies();
     if (!live.length) { this.shop(dt); return; }
 
-    // back off from a smash that is winding up nearby
+    // roll away from a smash that is winding up nearby (and keep backing off after)
     for (const e of live) {
       if (e.state !== 'attack' || e.attack !== 'grudgeSmash') continue;
       const a = CONFIG.attacks.grudgeSmash;
       if (e.stateTime / a.length < a.ends && dist(e, j) < a.reach + j.radius + 0.9) {
         this.setMove(j.x - e.x, j.z - e.z);
+        if (j.state === 'idle' || j.state === 'run' || j.state === 'attack') this.input.bot.dodge = true;
         return;
       }
     }
@@ -170,6 +177,8 @@ export class Bot {
     }
     this.setMove(s[0], s[1]);
     this.press(dt, 1.4);
+    this.rollTimer -= dt;
+    if (this.rollTimer <= 0) { this.input.bot.dodge = true; this.rollTimer = 2.1; } // rolls straight into walls too
   }
 
   // Safety checks that run for both bots, every step.
@@ -191,7 +200,11 @@ export class Bot {
     const live = g.fighters.filter((f) => f.state !== 'defeated');
     for (let i = 0; i < live.length; i++) for (let k = i + 1; k < live.length; k++) {
       const o = live[i].radius + live[k].radius - dist(live[i], live[k]);
-      r.maxFighterOverlap = Math.max(r.maxFighterOverlap, +o.toFixed(4));
+      if (o > r.maxFighterOverlap) {
+        r.maxFighterOverlap = +o.toFixed(4);
+        const who = (f) => `${f.kind}:${f.state}@${f.x.toFixed(2)},${f.z.toFixed(2)}`;
+        r.worstOverlap = `${who(live[i])} vs ${who(live[k])} wave ${g.waveIndex + 1} ${g.modKey ?? 'plain'}`;
+      }
     }
     r.maxEnemiesAttackingAtOnce = Math.max(r.maxEnemiesAttackingAtOnce, g.fighters.filter((f) => f.team === 'enemy' && f.state === 'attack').length);
 

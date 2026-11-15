@@ -64,6 +64,8 @@ export class Game {
     this.coins = [];
     this.coinUid = 1;
     this.slowmo = 0;
+    this.modKey = null;        // modifier of the wave being fought (a key of CONFIG.modifiers), or null
+    this.lastModKey = null;    // the last modifier any wave had this round
     this.solids = PROPS.map((p) => ({ ...p.solid, x: p.x, z: p.z, id: p.id }));
     this.fighters = [];
     this.juno = this.makeFighter('juno', 'player', JUNO_START.x, JUNO_START.z);
@@ -86,9 +88,16 @@ export class Game {
       token: false, cooldown: 0, waitTime: 0, nextAttack: null, attackCount: 0,
       circleR: 3, strafeDir: 1, strafeTimer: 2, blockedTime: 0,
       entryX: x, entryZ: z, removed: false,
-      coins: 0, weapon: null, durability: 0, comboHits: 0, comboBroken: false, dmgMul: 1,
+      coins: 0, weapon: null, durability: 0, comboHits: 0, comboBroken: false, dmgMul: 1, speedMul: 1,
+      stashed: null,             // weapon put away during a Fists Only wave
+      wantX: 0, wantZ: 0,        // the way the player is pushing the stick (unit length, or 0)
+      rollX: 0, rollZ: 1, rollQueued: false, rollBuffer: 0, rollCooldown: 0,
     };
   }
+
+  // The active wave modifier, read live from CONFIG so the debug sliders work on it.
+  get mod() { return this.modKey ? CONFIG.modifiers[this.modKey] : null; }
+  modVal(key, fallback) { return this.mod?.[key] ?? fallback; }
 
   // Game speed multiplier (slow motion after a full combo). The main loop applies it.
   get timeWarp() { return this.slowmo > 0 ? CONFIG.combo.slowmoSpeed : 1; }
@@ -97,7 +106,7 @@ export class Game {
   liveEnemies() { return this.fighters.filter((f) => f.team === 'enemy' && f.state !== 'defeated'); }
 
   // ---- one fixed step ------------------------------------------------------
-  // input: { mx, mz } world-space move (length 0..1), attackPresses: number
+  // input: { mx, mz } world-space move (length 0..1), attackPresses: number, dodgePresses: number
   step(dt, input) {
     this.time += dt;
     for (const f of this.fighters) { f.px = f.x; f.pz = f.z; f.pyaw = f.yaw; f.frozen = f.freeze > 0; }
@@ -115,25 +124,38 @@ export class Game {
 
   // ---- Juno ------------------------------------------------------------------
   updateJuno(dt, input) {
-    const j = this.juno, c = CONFIG.juno;
+    const j = this.juno, c = CONFIG.juno, R = c.roll;
     j.vx = j.vz = 0;
-    const presses = this.phase === 'playing' ? input.attackPresses : 0;
+    const playing = this.phase === 'playing';
+    const presses = playing ? input.attackPresses : 0;
+    const dodges = playing ? (input.dodgePresses || 0) : 0;
+    const m = Math.hypot(input.mx, input.mz);
+    if (m > 0.08) { j.wantX = input.mx / m; j.wantZ = input.mz / m; } else { j.wantX = j.wantZ = 0; }
 
-    if (j.state === 'attack' && presses > 0) j.queued = true;
+    // a press during an attack or a roll is remembered and happens as soon as it can
+    if ((j.state === 'attack' || j.state === 'roll') && presses > 0) j.queued = true;
+    if (dodges > 0) { if (j.state === 'attack') j.rollQueued = true; else j.rollBuffer = R.buffer; }
     if (j.frozen) return;
+    j.rollCooldown = Math.max(0, j.rollCooldown - dt);
+    j.rollBuffer = Math.max(0, j.rollBuffer - dt);
 
     if (j.comboTimer > 0) { j.comboTimer -= dt; if (j.comboTimer <= 0) j.comboIndex = 0; }
 
+    if (j.state === 'roll') { // fast at first, slowing down to 40 % by the end
+      const s = R.speed * (1 - 0.6 * Math.min(1, j.stateTime / R.time));
+      j.vx = j.rollX * s; j.vz = j.rollZ * s;
+      return;
+    }
     if (j.state !== 'idle' && j.state !== 'run') return;
-    if (this.phase !== 'playing') { this.setState(j, 'idle'); return; }
+    if (!playing) { this.setState(j, 'idle'); return; }
 
+    if (j.rollBuffer > 0 && j.rollCooldown <= 0) { this.startRoll(j); return; }
     if (presses > 0) {
       const pad = this.padUnder(j);
       if (pad) this.tryBuy(pad); else this.startJunoAttack();
       return;
     }
 
-    const m = Math.hypot(input.mx, input.mz);
     if (m > 0.08) {
       const s = c.speed * Math.min(1, m);
       j.vx = (input.mx / m) * s;
@@ -160,6 +182,21 @@ export class Game {
     if (best) j.yaw = yawTo(j, best);
     this.startAttack(j, key);
   }
+
+  // Roll the way the stick points, or straight ahead if it is centred. Ends the combo.
+  startRoll(j) {
+    let x = j.wantX, z = j.wantZ;
+    if (!x && !z) { x = Math.sin(j.yaw); z = Math.cos(j.yaw); }
+    j.rollX = x; j.rollZ = z;
+    j.yaw = Math.atan2(x, z);
+    j.rollBuffer = 0; j.rollQueued = false; j.queued = false;
+    j.comboIndex = 0; j.comboTimer = 0;
+    this.setState(j, 'roll');
+    this.emit({ type: 'roll', x: j.x, z: j.z });
+  }
+
+  // True while a rolling fighter cannot be hit.
+  rollSafe(f) { return f.state === 'roll' && f.stateTime < CONFIG.juno.roll.iframes; }
 
   // ---- enemies -----------------------------------------------------------------
   // Hands out attack turns: only a few enemies may attack at once, with a gap between attacks.
@@ -191,7 +228,7 @@ export class Game {
     e.cooldown -= dt;
     if (!ENEMY_FREE.has(e.state)) return;
 
-    const c = CONFIG.enemies[e.kind], ai = CONFIG.ai, j = this.juno;
+    const c = CONFIG.enemies[e.kind], ai = CONFIG.ai, j = this.juno, sp = c.speed * e.speedMul;
     const dx = e.x - j.x, dz = e.z - j.z;
     const d = Math.hypot(dx, dz) || 0.001;
     this.turnToward(e, yawTo(e, j), 10, dt);
@@ -199,7 +236,7 @@ export class Game {
     if (e.state === 'enter') {
       const ex = e.entryX - e.x, ez = e.entryZ - e.z, ed = Math.hypot(ex, ez);
       if (ed < 0.25 || e.stateTime > 4) { this.setState(e, 'circle'); return; }
-      e.vx = (ex / ed) * c.speed; e.vz = (ez / ed) * c.speed;
+      e.vx = (ex / ed) * sp; e.vz = (ez / ed) * sp;
       return;
     }
 
@@ -213,7 +250,7 @@ export class Game {
       let mz = uz * radial + ux * e.strafeDir * 0.7;
       const m = Math.hypot(mx, mz);
       if (m > 0.01) {
-        const s = c.speed * ai.strafe * Math.min(1, m);
+        const s = sp * ai.strafe * Math.min(1, m);
         e.vx = (mx / m) * s; e.vz = (mz / m) * s;
       }
       return;
@@ -237,7 +274,7 @@ export class Game {
       }
       return; // hold position until the gap has passed
     }
-    e.vx = (-dx / d) * c.speed; e.vz = (-dz / d) * c.speed;
+    e.vx = (-dx / d) * sp; e.vz = (-dz / d) * sp;
   }
 
   releaseToken(e, cooldown) {
@@ -283,9 +320,18 @@ export class Game {
         const a = attackOf(f);
         const frac = f.stateTime / a.length;
         if (frac >= a.lands && frac < a.ends) this.checkHits(f, a);
+        // a roll pressed during an attack cuts off its follow-through, once the hit is over
+        if (f.rollQueued && frac >= a.ends) { this.startRoll(f); break; }
         if (frac >= 1) this.endAttack(f);
         break;
       }
+      case 'roll':
+        if (f.stateTime >= c.roll.time) {
+          f.rollCooldown = c.roll.cooldown;
+          if (f.queued && this.phase === 'playing') this.startJunoAttack(); // roll straight into a jab
+          else this.setState(f, 'idle');
+        }
+        break;
       case 'hurt':
         if (f.stateTime >= c.hurtTime) this.backToFree(f);
         break;
@@ -306,16 +352,23 @@ export class Game {
 
   // ---- combat ------------------------------------------------------------------
   canBeHit(t) {
-    return t.state !== 'defeated' && t.state !== 'knocked_down' && t.invuln <= 0 && !t.removed;
+    return t.state !== 'defeated' && t.state !== 'knocked_down' && t.invuln <= 0 && !t.removed && !this.rollSafe(t);
   }
 
   checkHits(att, a) {
     const cone = (CONFIG.combat.coneDeg * Math.PI) / 180;
     for (const t of this.fighters) {
-      if (t.team === att.team || t.removed || att.hitSet.has(t.uid) || !this.canBeHit(t)) continue;
+      if (t.team === att.team || t.removed || att.hitSet.has(t.uid)) continue;
+      const dodging = this.rollSafe(t);
+      if (!dodging && !this.canBeHit(t)) continue;
       const dx = t.x - att.x, dz = t.z - att.z, d = Math.hypot(dx, dz);
       if (d > a.reach + t.radius) continue;
       if (d > 0.05 && Math.abs(wrap(Math.atan2(dx, dz) - att.yaw)) > cone) continue;
+      if (dodging) { // it would have landed: this attack is spent on the roll
+        att.hitSet.add(t.uid);
+        this.emit({ type: 'dodged', attack: att.attack, x: t.x, z: t.z });
+        continue;
+      }
       this.applyHit(att, t, a, d, dx, dz);
     }
   }
@@ -323,7 +376,8 @@ export class Game {
   applyHit(att, t, a, d, dx, dz) {
     const cc = CONFIG.combat;
     att.hitSet.add(t.uid);
-    t.hp = Math.max(0, t.hp - a.damage);
+    const damage = Math.round(a.damage * this.modVal(t.team === 'player' ? 'toJuno' : 'toEnemies', 1));
+    t.hp = Math.max(0, t.hp - damage);
     t.invuln = cc.invuln;
     t.hurtBy = att.attack;
     const nx = d > 0.01 ? dx / d : Math.sin(att.yaw), nz = d > 0.01 ? dz / d : Math.cos(att.yaw);
@@ -334,7 +388,7 @@ export class Game {
 
     if (t.hp <= 0) {
       this.setState(t, 'defeated');
-      if (t.team === 'enemy') this.dropCoins(t.x, t.z, CONFIG.coins.drop[t.kind] || 0);
+      if (t.team === 'enemy') this.dropCoins(t.x, t.z, Math.round((CONFIG.coins.drop[t.kind] || 0) * this.modVal('coinMul', 1)));
       if (t.team === 'player') { this.phase = 'lost'; this.emit({ type: 'lost' }); }
     } else if (a.knockdown && cfgOf(t).downTime > 0) {
       this.setState(t, 'knocked_down');
@@ -344,7 +398,7 @@ export class Game {
     if (att.team === 'player') this.playerLanded(att, t);
     this.emit({
       type: 'hit', attack: att.attack, weapon: att.weapon, attacker: att.uid, target: t.uid, targetTeam: t.team,
-      damage: a.damage, defeated: t.hp <= 0, state: t.state,
+      damage, defeated: t.hp <= 0, state: t.state,
       x: (att.x + t.x) / 2, z: (att.z + t.z) / 2,
     });
   }
@@ -423,6 +477,10 @@ export class Game {
 
   tryBuy(pad) {
     const j = this.juno, w = CONFIG.weapons[pad.weapon];
+    if (this.modVal('fistsOnly', 0)) {
+      this.emit({ type: 'buyFail', weapon: pad.weapon, fists: true });
+      return;
+    }
     if (!this.unlocked(pad.weapon)) {
       this.emit({ type: 'buyFail', weapon: pad.weapon, locked: w.unlockWave });
       return;
@@ -479,7 +537,9 @@ export class Game {
     if (d >= min) return;
     const nx = d > 1e-4 ? dx / d : 1, nz = d > 1e-4 ? dz / d : 0;
     const ma = a.radius * a.radius, mb = b.radius * b.radius, over = min - d;
-    const sa = mb / (ma + mb), sb = ma / (ma + mb);
+    let sa = mb / (ma + mb), sb = ma / (ma + mb);
+    // a rolling fighter is fast enough to squash someone into a wall, so it gives way completely
+    if (a.state === 'roll') { sa = 1; sb = 0; } else if (b.state === 'roll') { sa = 0; sb = 1; }
     a.x -= nx * over * sa; a.z -= nz * over * sa;
     b.x += nx * over * sb; b.z += nz * over * sb;
   }
@@ -554,13 +614,17 @@ export class Game {
     // reinforcements climb in as others fall
     if (this.waveActive && this.queue.length && live < W.maxAlive) {
       this.reinforceTimer -= dt;
-      if (this.reinforceTimer <= 0) { this.spawnEnemy(this.queue.shift()); this.reinforceTimer = W.reinforceDelay; }
+      if (this.reinforceTimer <= 0) {
+        // only climb in when a spawn point is clear; otherwise try again shortly
+        if (this.spawnEnemy(this.queue[0])) { this.queue.shift(); this.reinforceTimer = W.reinforceDelay; } else this.reinforceTimer = 0.2;
+      }
     }
 
     if (this.waveActive && live === 0 && this.queue.length === 0) {
       this.waveActive = false;
       this.waveTimer = W.delay;
       this.wavesCleared = this.waveIndex + 1;
+      this.endModifier();
       this.juno.hp = Math.min(this.juno.maxHp, this.juno.hp + W.healOnClear);
       const boss = this.wavesCleared % W.bossEvery === 0;
       if (boss && (this.juno.state === 'idle' || this.juno.state === 'run')) this.setState(this.juno, 'win');
@@ -581,28 +645,73 @@ export class Game {
     this.waveIndex = i;
     this.waveActive = true;
     this.nextAttackTime = this.time + 1.0;
+    this.startModifier(i + 1);
     const roster = Game.roster(i + 1);
+    for (let k = 0; k < this.modVal('extraEnemies', 0); k++) roster.push('crow');
     const first = roster.splice(0, CONFIG.waves.maxAlive);
-    for (const kind of first) this.spawnEnemy(kind);
-    this.queue = roster;
+    const waiting = first.filter((kind) => !this.spawnEnemy(kind)); // no clear spot: climbs in a little later
+    this.queue = [...waiting, ...roster];
     this.reinforceTimer = CONFIG.waves.reinforceDelay;
     if (i + 1 > this.best) {
       this.best = i + 1;
       try { localStorage.setItem('trs-best-wave', String(this.best)); } catch { /* private window: keep it in memory */ }
     }
-    this.emit({ type: 'wave', wave: i + 1, boss: (i + 1) % CONFIG.waves.bossEvery === 0, size: first.length + roster.length });
+    this.emit({
+      type: 'wave', wave: i + 1, boss: (i + 1) % CONFIG.waves.bossEvery === 0, size: first.length + roster.length,
+      modifier: this.modKey, label: this.mod?.label ?? null,
+    });
+  }
+
+  // ---- wave modifiers --------------------------------------------------------------
+  // Which modifier wave `wave` (1-based) gets: a key of CONFIG.modifiers, or null for a plain wave.
+  // `previous` is the last modifier this round had (or null).
+  pickModifier(wave, previous) {
+    const W = CONFIG.waves;
+    if (wave < W.modifierFrom || wave % W.bossEvery === 0) return null; // Grudge is twist enough
+    if (Math.random() < W.plainChance) return null;                    // breathing room
+    const pool = Object.keys(CONFIG.modifiers)
+      .filter((k) => k !== previous && wave >= (CONFIG.modifiers[k].from ?? 1));
+    return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+  }
+
+  startModifier(wave) {
+    // ?mod=swift in the address forces one modifier on every wave (for testing); ?mod=none turns them off
+    const key = this.forceMod !== undefined ? this.forceMod : this.pickModifier(wave, this.lastModKey);
+    this.modKey = key && CONFIG.modifiers[key] ? key : null;
+    if (this.modKey) this.lastModKey = this.modKey;
+    const j = this.juno;
+    if (this.modVal('fistsOnly', 0) && j.weapon) { j.stashed = j.weapon; j.weapon = null; j.comboIndex = 0; }
+  }
+
+  endModifier() {
+    const j = this.juno;
+    if (j.stashed) { j.weapon = j.stashed; j.stashed = null; j.comboIndex = 0; this.emit({ type: 'weaponBack', weapon: j.weapon }); }
+    this.modKey = null;
   }
 
   spawnEnemy(kind) {
     const W = CONFIG.waves, n = this.waveIndex;
-    const x = SPAWN_X[this.spawnCount++ % SPAWN_X.length];
+    // climb in at the spawn point furthest from everyone, so nobody appears on top of a fighter
+    // pinned against the back wall (ties go round-robin so the points still take turns)
+    const start = this.spawnCount++ % SPAWN_X.length;
+    let x = SPAWN_X[start], bestGap = -1;
+    for (let i = 0; i < SPAWN_X.length; i++) {
+      const sx = SPAWN_X[(start + i) % SPAWN_X.length];
+      let gap = Infinity;
+      for (const f of this.fighters) if (f.state !== 'defeated') gap = Math.min(gap, Math.hypot(f.x - sx, f.z - SPAWN_Z));
+      if (gap > bestGap + 1e-6) { bestGap = gap; x = sx; }
+    }
+    if (bestGap < W.spawnClear) return false;
     const e = this.makeFighter(kind, 'enemy', x, SPAWN_Z);
     e.hp = e.maxHp = Math.round(e.maxHp * (1 + W.healthGrowth * n));
+    e.hp = e.maxHp = Math.round(e.maxHp * this.modVal('enemyHealth', 1));
+    e.speedMul = this.modVal('enemySpeed', 1);
     e.dmgMul = 1 + W.damageGrowth * n;
     e.entryZ = W.entryZ + rand(-0.4, 0.4);
     e.circleR = rand(CONFIG.ai.circleMin, CONFIG.ai.circleMax);
     e.strafeDir = Math.random() < 0.5 ? -1 : 1;
     e.cooldown = rand(0.2, 1.0);
     this.fighters.push(e);
+    return true;
   }
 }

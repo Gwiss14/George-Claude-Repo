@@ -4,9 +4,24 @@ You are **Juno**, a bike courier who boxes. The **Tin Crows** gang has taken ove
 
 ## Core loop
 
-Walk up to an enemy → press attack to throw a jab, keep pressing to chain cross and kick → back off when an enemy winds up → defeated enemies burst into coins → grab them → between waves, spend coins at the weapon rack → finish the wave → get a little health back → new weapons unlock → next, harder wave, forever.
+Walk up to an enemy → press attack to throw a jab, keep pressing to chain cross and kick → roll out of the way when an enemy winds up → defeated enemies burst into coins → grab them → between waves, spend coins at the weapon rack → finish the wave → get a little health back → new weapons unlock → next, harder wave, forever.
 
-One level (one rooftop), one loop. The only thing the player does besides moving is **attack**: one button, three-hit combo. The same button buys a weapon while standing on a pad at the rack. No jump, no block, no dodge button; you dodge by walking away.
+One level (one rooftop), one loop. Besides moving, the player does two things: **attack** (one button, three-hit combo; the same button buys a weapon while standing on a pad at the rack) and **roll**. No jump, no block.
+
+**Roll:** a quick forward roll the way the stick points (straight ahead if it is centred): about 2 m in 0.38 s, fast at first and slowing down. For the first 0.28 s nothing can hit Juno; an enemy attack that would have landed then pops "DODGE!" and is used up. 0.3 s after a roll ends Juno can roll again. A roll pressed during an attack waits until the hit is over and then cuts off the follow-through; an attack pressed during a roll comes out as a jab the moment the roll ends; a roll pressed up to 0.15 s too early still happens. Rolling resets the combo. A rolling Juno gives way to other fighters (she bounces off them, she never squashes them into a wall).
+
+**Wave modifiers:** from wave 2, a wave can get one rule that changes it. Its name shows in the wave banner and in a chip under the wave label for the whole wave, and it ends when the wave is cleared.
+
+| Modifier | What changes |
+|---|---|
+| Fast Crows | Enemies move 35 % faster |
+| Tough Crows | Enemies have 50 % more health and drop twice the coins |
+| Payday | Enemies drop twice the coins |
+| Glass Jaw | Every hit does 50 % more damage, both ways |
+| Fists Only | Juno's weapon is put away and comes back (same wear) when the wave is cleared; the rack is closed; her punches do 25 % more damage |
+| Swarm | 3 more Crows, every enemy has 40 % less health |
+
+Waves 1 and every boss wave are plain. From wave 2, about a quarter of waves stay plain and the rest get a random modifier, never the same one twice in a row; Fast Crows and Payday can come from wave 2, Tough Crows, Fists Only and Swarm from wave 3, Glass Jaw from wave 4 (all in `config.js`). Add `?mod=swift` (or any name above in code form: swift, tough, payday, glass, fists, swarm) to the address to force one on every wave, or `?mod=none` to turn them off.
 
 **Combo finisher:** when all three hits of one chain land (none miss), the third hit triggers a finisher: a short slow motion (0.12 s of game time at 30 % speed), a big "COMBO!" comic burst, a camera jolt, a sound, and 2 bonus coins. Every landed hit of the chain pops a comic word (BAP! WHAM! KA-POW!, or CLANG! KLONK! KRASH! with a weapon).
 
@@ -28,6 +43,7 @@ One level (one rooftop), one loop. The only thing the player does besides moving
 |---|---|---|
 | Move | WASD or arrow keys | Drag on the left half of the screen (floating thumb-stick) |
 | Attack (or buy, on a pad) | J or Space | Big button, bottom right |
+| Roll | K or Shift | ROLL button, left of the attack button |
 | Restart | R, or the Restart button | Restart button |
 | Debug panel | ` (backquote) | Add `?debug` to the address |
 
@@ -79,6 +95,7 @@ All three are people on the same skeleton. Fighters are solid to each other and 
 | run | run | Moving |
 | jab / cross / kick | see attacks | Attack pressed; a press during an attack queues the next in the chain |
 | swing / backswing / overhead | slash · backswing (Text to Motion) · overhead (Text to Motion) | Same chain while holding a weapon |
+| roll | roll (Text to Motion) | Roll pressed; 0.38 s, cannot be hit for the first 0.28 s; then idle, or a jab if attack was pressed during it |
 | hurt | hit_to_body_01 | Hit by a jab; 0.3 s |
 | knocked_down | defeat_02, then reversed to stand | Hit by Grudge's smash; 1.0 s down, then cannot be hit for 0.6 s |
 | defeated | defeat_02, held | Health zero |

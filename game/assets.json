@@ -62,6 +62,11 @@
         {
           "state": "overhead (weapon)",
           "clip": "overhead: a woman lifts a stick above her head with both hands and brings it down hard in front of her, then returns to a ready stance"
+        },
+        {
+          "state": "roll",
+          "clip": "roll: a woman tucks and does a quick forward roll along the ground and springs back up to a ready stance",
+          "check": "a ground motion, so Text to Motion should hold it; stay in place on export, the game moves her 2 m; trim to the part from tuck to standing"
         }
       ],
       "texture_prompt": "none",

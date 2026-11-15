@@ -109,6 +109,11 @@ export class View {
       this.burst(ev.x, 1.15, ev.z, big ? 12 : 7, ev.targetTeam === 'player' ? 0xff5050 : 0xffe14d);
       this.shake = Math.max(this.shake, big ? 0.18 : 0.07);
       this.sfx.hit(big);
+    } else if (ev.type === 'roll') {
+      this.sfx.roll();
+    } else if (ev.type === 'dodged') {
+      this.burst(ev.x, 0.6, ev.z, 6, 0x7fe0ff);
+      this.sfx.dodged();
     } else if (ev.type === 'attackStart') {
       this.sfx.whoosh(ev.team === 'player');
     } else if (ev.type === 'wave' || ev.type === 'won') {
