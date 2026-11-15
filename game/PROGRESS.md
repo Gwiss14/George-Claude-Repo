@@ -32,5 +32,7 @@
   - Canvas textures painted in code for roof, parapet, building, skyline, crates, tank, rack and pads.
 - Stage 3, Asset list: assets.json with 8 Tripo entries: juno, crow (+ crow_elite texture), grudge, crate, water_tank, weapon_rack, pipe, hammer. Lamp posts, coins, pads, roof, parapet and sky are built in code. Waiting for feedback.
 
+- Stage 4: TRIPO.md has the table of all 8 models and the export settings. Waiting for the player to make them in Tripo Studio and put the GLBs in public/assets/.
+
 ## Next
-- Stage 4: one table of every entry, then the player makes them in Tripo Studio.
+- Stage 5, Swap: load each GLB in place of its placeholder (when the player says they are in).
