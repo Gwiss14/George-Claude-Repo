@@ -4,7 +4,8 @@
     "Outlines and toon shading are added in code, so every prompt asks for flat colour and even light.",
     "All three fighters use the same humanoid rig (Humanoid, Mixamo preset, Auto Rig), so any clip can play on any of them.",
     "Export every rigged fighter as GLB with 2K textures (heroes: 4K as Tripo makes them), skeleton on, Number of Animations = Select All, Animation stay in Place = on.",
-    "Files go in public/assets/."
+    "Files go in public/assets/.",
+    "Weapons are separate models hung on Juno's hand_r attach point in code, not modelled into her hands."
   ],
   "entries": [
     {
@@ -16,17 +17,56 @@
       "file": "juno.glb",
       "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. Juno, a young woman bike courier who boxes, 1.7 metres tall with an athletic build, standing in a T-pose facing the camera, arms straight out to the sides level with her shoulders, hands open, feet apart with a clear gap between the legs. Her head is about one sixth of her height, her arms are long enough to reach mid-thigh, her body is no wider than her shoulders, and there is space between her arms, legs and body. Short dark hair tied in a tight bun under a snug teal cycling cap with a short peak. A zipped teal nylon courier jacket fitted to the body with stitched panel seams, thin reflective silver stripes on the sleeves and a small yellow lightning-bolt patch on the chest; fitted navy cycling trousers with darker knee patches; chunky yellow-and-white sneakers; bright yellow boxing hand wraps on both hands with visible wrapping. Fabric shows light scuffs at the knees and elbows. Nothing hangs loose: no bag, no straps, no scarf, no ponytail. Single isolated object, centered, on a plain white background.",
       "animations": [
-        { "state": "idle", "clip": "idle" },
-        { "state": "run", "clip": "run" },
-        { "state": "jab", "clip": "box_01" },
-        { "state": "cross", "clip": "box_02" },
-        { "state": "kick", "clip": "front_kick_01", "check": "may come out as a side kick; turn it in code if so" },
-        { "state": "hurt", "clip": "hit_to_body_01" },
-        { "state": "knocked_down / defeated", "clip": "defeat_02", "check": "must end lying on the ground; plain 'defeat' only sways" },
-        { "state": "win", "clip": "cheer" }
+        {
+          "state": "idle",
+          "clip": "idle"
+        },
+        {
+          "state": "run",
+          "clip": "run"
+        },
+        {
+          "state": "jab",
+          "clip": "box_01"
+        },
+        {
+          "state": "cross",
+          "clip": "box_02"
+        },
+        {
+          "state": "kick",
+          "clip": "front_kick_01",
+          "check": "may come out as a side kick; turn it in code if so"
+        },
+        {
+          "state": "hurt",
+          "clip": "hit_to_body_01"
+        },
+        {
+          "state": "knocked_down / defeated",
+          "clip": "defeat_02",
+          "check": "must end lying on the ground; plain 'defeat' only sways"
+        },
+        {
+          "state": "win",
+          "clip": "cheer"
+        },
+        {
+          "state": "swing (weapon)",
+          "clip": "slash"
+        },
+        {
+          "state": "backswing (weapon)",
+          "clip": "backswing: a woman swings a short stick held in her right hand backhand from her left side across to her right, then returns to a ready stance"
+        },
+        {
+          "state": "overhead (weapon)",
+          "clip": "overhead: a woman lifts a stick above her head with both hands and brings it down hard in front of her, then returns to a ready stance"
+        }
       ],
       "texture_prompt": "none",
-      "styles": "none"
+      "styles": "none",
+      "notes": "slash, backswing and overhead are only used while holding a weapon; the weapon hangs on the hand_r attach point in code, so Juno's model is made empty-handed."
     },
     {
       "id": "crow",
@@ -37,13 +77,34 @@
       "file": "crow.glb",
       "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. A Tin Crow gang scrapper, a lean adult man 1.7 metres tall, standing in a T-pose facing the camera, arms straight out to the sides level with his shoulders, hands open, feet apart with a clear gap between the legs. His head is about one sixth of his height, his arms reach mid-thigh, his body is no wider than his shoulders, and there is space between his arms, legs and body. He wears a dented grey-silver tin helmet shaped like a crow's head with a short pointed beak visor over the eyes, lower face visible; a slate-blue padded work jacket fitted to the body; charcoal trousers; grey boots; grey fingerless gloves. Nothing hangs loose: no feathers, no tail, no chains, no cape. Single isolated object, centered, on a plain white background.",
       "animations": [
-        { "state": "idle", "clip": "idle" },
-        { "state": "enter / circle / approach", "clip": "walk" },
-        { "state": "approach (elite)", "clip": "run" },
-        { "state": "windup + attack", "clip": "box_01" },
-        { "state": "hurt", "clip": "hit_to_body_01" },
-        { "state": "hurt by a kick", "clip": "hit_to_head" },
-        { "state": "knocked_down / defeated", "clip": "defeat_02" }
+        {
+          "state": "idle",
+          "clip": "idle"
+        },
+        {
+          "state": "enter / circle / approach",
+          "clip": "walk"
+        },
+        {
+          "state": "approach (elite)",
+          "clip": "run"
+        },
+        {
+          "state": "windup + attack",
+          "clip": "box_01"
+        },
+        {
+          "state": "hurt",
+          "clip": "hit_to_body_01"
+        },
+        {
+          "state": "hurt by a kick",
+          "clip": "hit_to_head"
+        },
+        {
+          "state": "knocked_down / defeated",
+          "clip": "defeat_02"
+        }
       ],
       "texture_prompt": {
         "for_id": "crow_elite",
@@ -61,13 +122,35 @@
       "file": "grudge.glb",
       "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. Grudge, the hulking boss of the Tin Crows gang, a huge broad man 2.2 metres tall with a barrel chest and thick arms, standing in a T-pose facing the camera, arms straight out to the sides level with his shoulders, hands open, legs apart with a clear gap between them. His head is small, about one sixth of his height, his arms are long enough to reach mid-thigh, his body is no wider than his shoulders, and there is space between his arms, legs and body. A heavy riveted iron helmet shaped like a crow's head with a short blunt beak and a cracked visor; a maroon sleeveless leather vest with visible stitching and brass buckles over a dark grey undershirt, with a faded white crow stencil on the chest; a wide brass-studded belt; black heavy work trousers; steel-toed boots; riveted iron knuckle plates on the backs of both hands. Painted metal with scratches and dents, worn leather. Nothing hangs loose: no chains, no cape, no coat tails. Single isolated object, centered, on a plain white background.",
       "animations": [
-        { "state": "idle", "clip": "idle" },
-        { "state": "enter / circle / approach", "clip": "walk" },
-        { "state": "jab", "clip": "box_01" },
-        { "state": "smash", "clip": "smash: a heavy man raises both fists high above his head and slams them down in front of him, then straightens up", "check": "Text to Motion; library 'slash' is a one-arm sword swing and is the fallback" },
-        { "state": "hurt", "clip": "hit_to_body_01" },
-        { "state": "hurt by a kick", "clip": "hit_to_head" },
-        { "state": "defeated", "clip": "defeat_02" }
+        {
+          "state": "idle",
+          "clip": "idle"
+        },
+        {
+          "state": "enter / circle / approach",
+          "clip": "walk"
+        },
+        {
+          "state": "jab",
+          "clip": "box_01"
+        },
+        {
+          "state": "smash",
+          "clip": "smash: a heavy man raises both fists high above his head and slams them down in front of him, then straightens up",
+          "check": "Text to Motion; library 'slash' is a one-arm sword swing and is the fallback"
+        },
+        {
+          "state": "hurt",
+          "clip": "hit_to_body_01"
+        },
+        {
+          "state": "hurt by a kick",
+          "clip": "hit_to_head"
+        },
+        {
+          "state": "defeated",
+          "clip": "defeat_02"
+        }
       ],
       "texture_prompt": "none",
       "styles": "none"
@@ -95,37 +178,63 @@
       "styles": "none"
     },
     {
-      "id": "lamp_post",
+      "id": "weapon_rack",
       "kind": "prop",
       "hero": false,
-      "size_m": 3.5,
+      "size_m": 2.0,
+      "polygon_budget": 2500,
+      "file": "weapon_rack.glb",
+      "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. A tool rack that stands against a wall, 1.8 metres wide, 2 metres tall and 0.5 metres deep: a tan pegboard back panel with rows of small holes, a red sign strip across the top with the word TOOLS in cream letters, two dark charcoal steel side posts, a low steel shelf and a steel top bar, with two empty steel hooks at chest height. Seen from the front, open side facing the camera, no tools on it. Single isolated object, centered, on a plain white background.",
+      "texture_prompt": "none",
+      "styles": "none"
+    },
+    {
+      "id": "pipe",
+      "kind": "prop",
+      "hero": false,
+      "size_m": 1.0,
+      "polygon_budget": 800,
+      "file": "pipe.glb",
+      "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. A steel water pipe used as a street weapon, 1 metre long and about 7 centimetres thick, light blue-grey steel with a chunky elbow joint at one end and black electrical tape wrapped around the other end as a grip. Lying straight, seen from the side. Single isolated object, centered, on a plain white background.",
+      "texture_prompt": "none",
+      "styles": "none"
+    },
+    {
+      "id": "hammer",
+      "kind": "prop",
+      "hero": false,
+      "size_m": 1.1,
       "polygon_budget": 1000,
-      "file": "lamp_post.glb",
-      "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. A rooftop lamp post 3.5 metres tall: a thin dark charcoal steel pole about 0.15 metres thick on a small square base plate, with a boxy lamp head 0.3 metres wide on top and a warm yellow light panel on its underside. Single isolated object, centered, on a plain white background.",
+      "file": "hammer.glb",
+      "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. A big two-handed hammer 1.1 metres long: a straight warm-brown wooden handle about 8 centimetres thick with a yellow metal band near the top, and a heavy dark grey iron block head 34 centimetres wide. Lying straight, seen from the side. Single isolated object, centered, on a plain white background.",
       "texture_prompt": "none",
       "styles": "none"
     }
   ],
   "builtInCode": {
-    "roof": "The ground stays built in code, no Tripo entry: a toon-shaded concrete slab in warm grey with darker tar seams, plus painted details added in code: a faded yellow boxing-ring square in the middle, oil stains and a few drain grates. A flat surface gets nothing from a 3D model, and code keeps it sharp at any size.",
-    "parapet": "The level edge stays built in code: a low wall with a lighter cap stone on top and a brick-red face, with the black outline like everything else.",
-    "sky": "Built in code: the banded sunset gradient that is there now, plus the far skyline blocks given rows of small lit windows and a few water tanks and antennas on top, all flat colours.",
-    "lights": "The lamp glow is a light added in code above each lamp_post model."
+    "roof": "Built in code with a painted canvas texture (done): stained concrete slabs, tar seams, a dashed yellow NO PARKING square, two drain grates and halftone dots.",
+    "parapet": "Built in code with a painted brick texture and a light cap stone (done).",
+    "sky": "Built in code (done): a banded sunset gradient and a ring of skyline blocks with lit windows.",
+    "lights": "The lamp glow is a light added in code above each lamp_post model.",
+    "lamp_post": "Built in code (pole, lamp box and a real light): it is thin and simple, and it frees a Tripo entry for the weapons.",
+    "coin": "Built in code: a gold toon cylinder with a mark, spun and bounced in code. Many coins can be on screen, so it stays a few dozen triangles.",
+    "weapon_pad": "Built in code: a hazard-striped floor ring texture."
   },
   "budget": {
     "busiestMoment": "Wave 3: Juno, Grudge and two Crows, plus all props.",
     "triangles": {
       "fighters": "juno 10000 + grudge 10000 + 2 x crow 6000 = 32000",
-      "props": "4 x crate 1200 + water_tank 3000 + 2 x lamp_post 1000 = 9800",
-      "models": 41800,
-      "withOutlines": "83600 (the outline is a second, inside-out copy of each model)",
-      "withShadowPass": "about 125000 triangles drawn per frame",
+      "props": "4 x crate 1200 + water_tank 3000 + weapon_rack 2500 + pipe 800 + hammer 1000 on display + 1 held weapon up to 1000 = 13100",
+      "coins": "up to about 25 at once, about 100 triangles each with outline = 2500",
+      "models": 47600,
+      "withOutlines": "about 95000",
+      "withShadowPass": "about 140000 triangles drawn per frame",
       "phone": "fine: mid-range phones handle a few hundred thousand triangles per frame"
     },
     "textureMemory": {
-      "asTripoMakesThem": "about 640 MB: each hero has three 4K maps (colour, normal, metal-rough) at about 89 MB each with mipmaps = 536 MB for two heroes; crow and crow_elite 2K colour maps 22 MB each; three props 22 MB each",
+      "asTripoMakesThem": "about 700 MB: two heroes with three 4K maps each = 536 MB, crow and crow_elite 2K colour maps 22 MB each, five props 22 MB each",
       "phone": "too much as-is",
-      "afterShrinkOnLoad": "about 50 MB: fighter maps shrunk to 1024 (heroes 3 x 5.6 MB each, crow and crow_elite 5.6 MB each), prop maps shrunk to 512 (1.4 MB each). Fighters never take more than about a third of the screen height, so 1024 is as sharp as they ever appear.",
+      "afterShrinkOnLoad": "about 52 MB: fighters shrunk to 1024 (heroes 3 x 5.6 MB each, crow and crow_elite 5.6 MB each), props shrunk to 512 (1.4 MB each), plus about 3 MB of canvas textures painted in code",
       "plan": "Shrink textures on load (stage 5) and ship WebP at those sizes (stage 6)."
     }
   }

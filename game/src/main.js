@@ -14,7 +14,7 @@ const view = new View(document.getElementById('app'), game);
 const restart = () => game.reset();
 const debug = new Debug(game, view, restart);
 const input = new Input({ onRestart: restart, onDebug: () => debug.toggle() });
-const hud = new Hud(game, restart);
+const hud = new Hud(game, restart, view);
 if (params.has('debug')) debug.toggle(true);
 
 if (window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) document.body.classList.add('touch');
@@ -33,7 +33,7 @@ function frame(now) {
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
   const step = 1 / CONFIG.sim.hz;
-  acc += dt * CONFIG.sim.timeScale;
+  acc += dt * CONFIG.sim.timeScale * game.timeWarp;
   const maxSteps = Math.ceil(14 * CONFIG.sim.timeScale);
   let n = 0;
   while (acc >= step && n < maxSteps) {

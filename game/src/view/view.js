@@ -3,9 +3,9 @@
 
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
-import { PROPS } from '../game/level.js';
+import { PROPS, WEAPON_PADS } from '../game/level.js';
 import { stateLabel } from '../game/game.js';
-import { build } from './registry.js';
+import { build, attach } from './registry.js';
 import { posePlaceholder } from './placeholderPose.js';
 import { Sfx } from './sfx.js';
 
@@ -47,6 +47,21 @@ export class View {
       this.props.push({ obj: o, def: p });
     }
 
+    // the weapons spot: pads on the floor, each weapon turning slowly above its pad
+    this.padWeapons = [];
+    for (const p of WEAPON_PADS) {
+      const pad = build('weapon_pad'); pad.position.set(p.x, 0, p.z); this.scene.add(pad);
+      const w = build(p.weapon);
+      const holder = new THREE.Group();
+      holder.position.set(p.x, 1.25, p.z);
+      w.rotation.x = -Math.PI / 2; // stand it up, grip at the bottom
+      w.position.y = -0.5;          // and spin it around its middle
+      holder.add(w);
+      this.scene.add(holder);
+      this.padWeapons.push(holder);
+    }
+    this.coins = new Map(); // coin id -> obj
+
     this.fighters = new Map(); // uid -> { obj, vis }
     this.sparks = this.makeSparks();
     this.shake = 0;
@@ -71,6 +86,22 @@ export class View {
     if (ev.type === 'reset') {
       for (const { obj } of this.fighters.values()) this.scene.remove(obj);
       this.fighters.clear();
+      for (const o of this.coins.values()) this.scene.remove(o);
+      this.coins.clear();
+    } else if (ev.type === 'combo') {
+      this.burst(ev.x, 1.3, ev.z, 18, 0xffffff);
+      this.shake = Math.max(this.shake, 0.25);
+      this.sfx.combo();
+    } else if (ev.type === 'coin') {
+      this.sfx.coin();
+    } else if (ev.type === 'buy') {
+      this.sfx.chime(false);
+    } else if (ev.type === 'buyFail') {
+      this.sfx.nope();
+    } else if (ev.type === 'weaponBreak') {
+      const j = this.game.juno;
+      this.burst(j.x, 1.2, j.z, 10, 0x9aa5b1);
+      this.sfx.snap();
     } else if (ev.type === 'hit') {
       const v = this.fighters.get(ev.target);
       if (v) v.vis.flash = CONFIG.look.flashTime;
@@ -138,6 +169,7 @@ export class View {
       obj.position.set(x, 0, z);
       obj.rotation.y = yaw;
       if (f.team === 'player') { jx = x; jz = z; }
+      if (vis.weapon !== f.weapon) { attach(obj, 'hand_r', f.weapon); vis.weapon = f.weapon; }
       const label = stateLabel(f);
       posePlaceholder(obj, f, label, vis, dt, now);
 
@@ -155,6 +187,20 @@ export class View {
         }
       }
     }
+
+    // coins
+    const seen = new Set();
+    for (const c of this.game.coins) {
+      seen.add(c.id);
+      let o = this.coins.get(c.id);
+      if (!o) { o = build('coin'); this.scene.add(o); this.coins.set(c.id, o); }
+      o.position.set(c.px + (c.x - c.px) * alpha, c.py + (c.y - c.py) * alpha, c.pz + (c.z - c.pz) * alpha);
+      o.rotation.y = now * 4 + c.id;
+      const left = CONFIG.coins.life - c.age;
+      o.visible = left > 3 || Math.floor(now * 8) % 2 === 0;
+    }
+    for (const [id, o] of this.coins) if (!seen.has(id)) { this.scene.remove(o); this.coins.delete(id); }
+    for (const h of this.padWeapons) h.rotation.y = now * 1.2;
 
     for (const s of this.sparks) {
       const u = s.userData;
@@ -193,6 +239,12 @@ export class View {
     const hgt = C.height * (portrait ? C.portraitTilt : 1);
     cam.position.set(this.camX + ox, hgt * k + oy, C.lookAtZ + this.camZ + C.back * k);
     cam.lookAt(this.camX, 0.6, C.lookAtZ + this.camZ);
+  }
+
+  // Screen position (CSS pixels) of a point in the world, for comic text pop-ups.
+  project(x, y, z) {
+    const v = new THREE.Vector3(x, y, z).project(this.camera);
+    return { x: (v.x + 1) / 2 * window.innerWidth, y: (1 - v.y) / 2 * window.innerHeight, behind: v.z > 1 };
   }
 
   // Debug: collision circles (what gameplay uses) and bounding boxes (what is drawn).

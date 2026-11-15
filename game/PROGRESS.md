@@ -22,10 +22,15 @@
 - From the playbook notes, for later stages: 2K textures, Select All animations and "stay in place" on export, recentre clips on the hips, front_kick_01 may really be a side kick, measure when each attack really lands, count the outline in the triangle budget.
 
 ## Known / open
+- New Juno states swing/backswing/overhead need animations: slash, plus two Text to Motion clips (listed in assets.json).
 - The good bot never needs to block, and loses only 8 health in a full round: the game may be too easy for a careful player. Tune enemy speed, attackGap or damage after the player tries it.
 - Draw calls are high (~170 at the busiest moment, half of it the shadow pass) because every placeholder part is its own mesh plus outline. Models in stage 5 will lower this.
 
-- Stage 3, Asset list: assets.json with 6 Tripo entries (juno and grudge are heroes; crow has a texture prompt for crow_elite). Roof, parapet and sky stay built in code. Waiting for feedback.
+- After stage 3, player asked for: combo animations, coins dropped by defeated enemies, weapons and a weapons spot, and textures. Done in the greybox:
+  - Combo finisher (all three hits land): slow motion, COMBO! burst, +2 coins; comic words on every hit.
+  - Coins drop and are collected; tool rack on the back wall with pipe (6) and hammer (12) pads; weapons hang on Juno's hand_r attach point and break after 15 / 10 hits.
+  - Canvas textures painted in code for roof, parapet, building, skyline, crates, tank, rack and pads.
+- Stage 3, Asset list: assets.json with 8 Tripo entries: juno, crow (+ crow_elite texture), grudge, crate, water_tank, weapon_rack, pipe, hammer. Lamp posts, coins, pads, roof, parapet and sky are built in code. Waiting for feedback.
 
 ## Next
 - Stage 4: one table of every entry, then the player makes them in Tripo Studio.

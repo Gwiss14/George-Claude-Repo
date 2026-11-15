@@ -130,6 +130,9 @@ for (const [name, r] of [['good bot', results.goodBot], ['bad bot', results.badB
   if (!r.restartFromEndScreen) fail(`${name}: restart from end screen`);
 }
 if (results.goodBot.result !== 'won') fail(`good bot did not win (${results.goodBot.result})`);
+if (!(results.goodBot.combos > 0)) fail('good bot never landed a full combo');
+if (!(results.goodBot.coinsCollected > 0)) fail('good bot collected no coins');
+if (!(results.goodBot.weaponsBought.length > 0 && results.goodBot.weaponHits > 0)) fail('good bot did not buy and use a weapon');
 if (results.badBot.escapeFailures) fail(`bad bot: Juno got stuck ${results.badBot.escapeFailures} times`);
 
 // ---- 4. phone held upright, touch ---------------------------------------------------

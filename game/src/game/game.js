@@ -3,7 +3,7 @@
 // Angles: yaw 0 faces +Z (south, toward the camera); yaw PI faces -Z (north).
 
 import { CONFIG } from '../config.js';
-import { PROPS, JUNO_START, SPAWN_X, SPAWN_Z } from './level.js';
+import { PROPS, JUNO_START, SPAWN_X, SPAWN_Z, WEAPON_PADS } from './level.js';
 
 const TAU = Math.PI * 2;
 const wrap = (a) => { a = (a + Math.PI) % TAU; if (a < 0) a += TAU; return a - Math.PI; };
@@ -12,16 +12,28 @@ const rand = (lo, hi) => lo + Math.random() * (hi - lo);
 
 const JUNO_CHAIN = ['junoJab', 'junoCross', 'junoKick'];
 const CHAIN_LABEL = { junoJab: 'jab', junoCross: 'cross', junoKick: 'kick' };
+const WEAPON_LABEL = { junoJab: 'swing', junoCross: 'backswing', junoKick: 'overhead' };
 const ENEMY_FREE = new Set(['enter', 'circle', 'approach']);
 
 export function cfgOf(f) {
   return f.team === 'player' ? CONFIG.juno : CONFIG.enemies[f.kind];
 }
 
+// The attack a fighter is doing right now, with Juno's weapon applied.
+export function attackOf(f) {
+  const a = CONFIG.attacks[f.attack];
+  if (f.team !== 'player' || !f.weapon) return a;
+  const w = CONFIG.weapons[f.weapon];
+  return {
+    ...a, length: a.length * w.lengthMul, reach: a.reach + w.reachAdd,
+    damage: Math.round(a.damage * w.damageMul), knockdown: a.knockdown || !!w.knockdownAll,
+  };
+}
+
 // The state name shown in the debug panel and used by the view to pick a pose/animation.
 export function stateLabel(f) {
   if (f.state !== 'attack') return f.state;
-  if (f.team === 'player') return CHAIN_LABEL[f.attack];
+  if (f.team === 'player') return (f.weapon ? WEAPON_LABEL : CHAIN_LABEL)[f.attack];
   const a = CONFIG.attacks[f.attack];
   return f.stateTime / a.length < a.lands ? 'windup' : 'attack';
 }
@@ -44,6 +56,9 @@ export class Game {
     this.waveTimer = 0.8;
     this.nextAttackTime = 0;
     this.spawnCount = 0;
+    this.coins = [];
+    this.coinUid = 1;
+    this.slowmo = 0;
     this.solids = PROPS.map((p) => ({ ...p.solid, x: p.x, z: p.z, id: p.id }));
     this.fighters = [];
     this.juno = this.makeFighter('juno', 'player', JUNO_START.x, JUNO_START.z);
@@ -66,8 +81,12 @@ export class Game {
       token: false, cooldown: 0, waitTime: 0, nextAttack: null, attackCount: 0,
       circleR: 3, strafeDir: 1, strafeTimer: 2, blockedTime: 0,
       entryX: x, entryZ: z, removed: false,
+      coins: 0, weapon: null, durability: 0, comboHits: 0, comboBroken: false,
     };
   }
+
+  // Game speed multiplier (slow motion after a full combo). The main loop applies it.
+  get timeWarp() { return this.slowmo > 0 ? CONFIG.combo.slowmoSpeed : 1; }
 
   get enemies() { return this.fighters.filter((f) => f.team === 'enemy'); }
   liveEnemies() { return this.fighters.filter((f) => f.team === 'enemy' && f.state !== 'defeated'); }
@@ -83,6 +102,8 @@ export class Game {
     for (const e of this.fighters) if (e.team === 'enemy') this.updateEnemy(e, dt);
     for (const f of this.fighters) this.advance(f, dt);
     this.physics(dt);
+    this.updateCoins(dt);
+    this.slowmo = Math.max(0, this.slowmo - dt);
     this.updateWaves(dt);
     this.fighters = this.fighters.filter((f) => !f.removed);
   }
@@ -102,7 +123,11 @@ export class Game {
     if (this.phase === 'won') { this.setState(j, 'win'); return; }
     if (this.phase !== 'playing') { this.setState(j, 'idle'); return; }
 
-    if (presses > 0) { this.startJunoAttack(); return; }
+    if (presses > 0) {
+      const pad = this.padUnder(j);
+      if (pad) this.tryBuy(pad); else this.startJunoAttack();
+      return;
+    }
 
     const m = Math.hypot(input.mx, input.mz);
     if (m > 0.08) {
@@ -119,6 +144,7 @@ export class Game {
   startJunoAttack() {
     const j = this.juno;
     const key = JUNO_CHAIN[j.comboIndex % JUNO_CHAIN.length];
+    if (key === JUNO_CHAIN[0]) { j.comboHits = 0; j.comboBroken = false; }
     j.comboIndex = (j.comboIndex + 1) % JUNO_CHAIN.length;
     j.comboTimer = 0;
     // Snap to face the nearest enemy in range, so attacks are easy to aim on a phone.
@@ -227,6 +253,7 @@ export class Game {
 
   endAttack(f) {
     if (f.team === 'player') {
+      if (f.hitSet.size === 0) f.comboBroken = true; // a miss breaks the finisher
       if (f.queued && this.phase === 'playing') { this.startJunoAttack(); return; }
       f.comboTimer = CONFIG.juno.comboReset;
       this.setState(f, 'idle');
@@ -248,7 +275,7 @@ export class Game {
     const c = cfgOf(f);
     switch (f.state) {
       case 'attack': {
-        const a = CONFIG.attacks[f.attack];
+        const a = attackOf(f);
         const frac = f.stateTime / a.length;
         if (frac >= a.lands && frac < a.ends) this.checkHits(f, a);
         if (frac >= 1) this.endAttack(f);
@@ -299,17 +326,101 @@ export class Game {
 
     if (t.hp <= 0) {
       this.setState(t, 'defeated');
+      if (t.team === 'enemy') this.dropCoins(t.x, t.z, CONFIG.coins.drop[t.kind] || 0);
       if (t.team === 'player') { this.phase = 'lost'; this.emit({ type: 'lost' }); }
     } else if (a.knockdown && cfgOf(t).downTime > 0) {
       this.setState(t, 'knocked_down');
     } else {
       this.setState(t, 'hurt');
     }
+    if (att.team === 'player') this.playerLanded(att, t);
     this.emit({
-      type: 'hit', attack: att.attack, attacker: att.uid, target: t.uid, targetTeam: t.team,
+      type: 'hit', attack: att.attack, weapon: att.weapon, attacker: att.uid, target: t.uid, targetTeam: t.team,
       damage: a.damage, defeated: t.hp <= 0, state: t.state,
       x: (att.x + t.x) / 2, z: (att.z + t.z) / 2,
     });
+  }
+
+  // Combo counting, finisher and weapon wear, after one of Juno's hits lands.
+  playerLanded(j, t) {
+    if (j.hitSet.size === 1) { // first target this attack: counts toward the combo
+      j.comboHits++;
+      this.emit({ type: 'comboHit', n: j.comboHits, x: t.x, z: t.z, weapon: j.weapon });
+      if (j.attack === JUNO_CHAIN[2] && j.comboHits === 3 && !j.comboBroken) {
+        this.slowmo = CONFIG.combo.slowmo;
+        this.dropCoins(t.x, t.z, CONFIG.coins.comboBonus);
+        this.emit({ type: 'combo', x: t.x, z: t.z, weapon: j.weapon });
+      }
+    }
+    if (j.weapon && --j.durability <= 0) {
+      this.emit({ type: 'weaponBreak', weapon: j.weapon });
+      j.weapon = null;
+    }
+  }
+
+  // ---- coins and the weapons spot ---------------------------------------------
+  dropCoins(x, z, n) {
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * TAU, sp = rand(1, 2.4);
+      this.coins.push({
+        id: this.coinUid++, x, z, y: 1.0, px: x, pz: z, py: 1.0, radius: 0.15,
+        vx: Math.cos(a) * sp, vz: Math.sin(a) * sp, vy: rand(3, 5), age: 0, taken: false,
+      });
+    }
+  }
+
+  updateCoins(dt) {
+    const C = CONFIG.coins, j = this.juno;
+    for (const c of this.coins) {
+      c.px = c.x; c.pz = c.z; c.py = c.y;
+      c.age += dt;
+      if (c.y > 0 || c.vy > 0) {
+        c.vy -= 20 * dt;
+        c.y += c.vy * dt;
+        if (c.y <= 0) {
+          c.y = 0;
+          c.vy = c.vy < -2 ? -c.vy * 0.35 : 0;
+          c.vx *= 0.5; c.vz *= 0.5;
+        }
+      } else {
+        const f = Math.exp(-6 * dt);
+        c.vx *= f; c.vz *= f;
+      }
+      c.x += c.vx * dt; c.z += c.vz * dt;
+      const dx = j.x - c.x, dz = j.z - c.z, d = Math.hypot(dx, dz);
+      const canTake = j.state !== 'defeated' && c.age > 0.35;
+      if (canTake && c.y < 0.4 && d < C.magnetRadius && d > 0.01) {
+        const step = Math.min(d, C.magnetSpeed * dt);
+        c.x += (dx / d) * step; c.z += (dz / d) * step;
+      }
+      this.keepOut(c);
+      if (canTake && Math.hypot(j.x - c.x, j.z - c.z) < C.pickupRadius) {
+        c.taken = true;
+        j.coins++;
+        this.emit({ type: 'coin', total: j.coins });
+      } else if (c.age > C.life) {
+        c.taken = true;
+      }
+    }
+    if (this.coins.some((c) => c.taken)) this.coins = this.coins.filter((c) => !c.taken);
+  }
+
+  padUnder(f) {
+    for (const p of WEAPON_PADS) if (Math.hypot(f.x - p.x, f.z - p.z) < CONFIG.weapons.padRadius) return p;
+    return null;
+  }
+
+  tryBuy(pad) {
+    const j = this.juno, w = CONFIG.weapons[pad.weapon];
+    if (j.coins < w.cost) {
+      this.emit({ type: 'buyFail', weapon: pad.weapon, need: w.cost - j.coins });
+      return;
+    }
+    j.coins -= w.cost;
+    j.weapon = pad.weapon;
+    j.durability = w.durability;
+    j.comboIndex = 0;
+    this.emit({ type: 'buy', weapon: pad.weapon });
   }
 
   // ---- movement and collisions ---------------------------------------------

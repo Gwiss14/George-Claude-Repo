@@ -3,10 +3,11 @@
 // When real models arrive, an AnimationMixer replaces this file's job; gameplay stays the same.
 
 import { CONFIG } from '../config.js';
+import { attackOf } from '../game/game.js';
 
 export const STATE_COLORS = {
   idle: 0x9fd3a6, run: 0x5aa9ff, enter: 0x7fe0ff, circle: 0x3fc7b0, approach: 0xff5ad1,
-  jab: 0xff4040, cross: 0xff4040, kick: 0xff4040, windup: 0xffd23f, attack: 0xff4040,
+  jab: 0xff4040, cross: 0xff4040, kick: 0xff4040, swing: 0xff4040, backswing: 0xff4040, overhead: 0xff4040, windup: 0xffd23f, attack: 0xff4040,
   hurt: 0xffffff, knocked_down: 0xa070ff, defeated: 0x222222, win: 0xffe066,
 };
 
@@ -16,7 +17,7 @@ const GUARD = -0.75;
 
 // three phases of an attack: 0..1 within windup, active, recovery
 function phases(f) {
-  const a = CONFIG.attacks[f.attack];
+  const a = attackOf(f);
   const p = f.stateTime / a.length;
   return { p, w: p / a.lands, act: p >= a.lands && p < a.ends, r: (p - a.ends) / (1 - a.ends), a };
 }
@@ -49,7 +50,23 @@ export function posePlaceholder(obj, f, label, vis, dt, now) {
     body.rotation.x = 0.04 + Math.sin(now * 2.2) * 0.015;
   }
 
-  if (f.state === 'attack') {
+  if (f.state === 'attack' && f.weapon) {
+    // weapon in the right hand: swing across, swing back, then overhead with both hands
+    const ph = phases(f);
+    const into = ph.p < ph.a.lands ? ease(ph.w) : 1, out = ph.p < ph.a.ends ? 0 : ease(ph.r);
+    if (f.attack === 'junoKick') {
+      const up = lerp(GUARD, -3.0, into), down = ph.p >= ph.a.lands ? lerp(-3.0, -1.1, Math.min(1, (ph.p - ph.a.lands) / 0.06)) : up;
+      arm_l.rotation.x = arm_r.rotation.x = lerp(ph.p >= ph.a.lands ? down : up, GUARD, out);
+      arm_l.rotation.z = 0.25; arm_r.rotation.z = -0.25;
+      body.rotation.x = ph.p < ph.a.lands ? -0.2 * into : lerp(0.35, 0, out);
+    } else {
+      const dir = f.attack === 'junoJab' ? 1 : -1; // swing right-to-left, then back
+      arm_r.rotation.x = lerp(GUARD, -1.5, into);
+      const sweep = ph.p < ph.a.lands ? -0.9 * dir * into : lerp(0.9 * dir, 0, out);
+      arm_r.rotation.z = -0.12 + sweep * 0.6;
+      body.rotation.y = sweep * 0.7;
+    }
+  } else if (f.state === 'attack') {
     const ph = phases(f);
     switch (f.attack) {
       case 'junoJab': case 'crowJab': case 'eliteJab': case 'grudgeJab':

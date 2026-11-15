@@ -84,8 +84,30 @@ export const CONFIG = {
       ['grudge', 'crow', 'crow'],
     ],
     healOnClear: 25,
-    delay: 1.6,          // s between waves
+    delay: 3.5,          // s between waves (time to grab coins or a weapon)
     entryZ: -2.6,        // where enemies walk to after climbing over the back wall
+  },
+
+  coins: {
+    drop: { crow: 3, crow_elite: 5, grudge: 10 }, // coins an enemy drops when defeated
+    comboBonus: 2,       // extra coins for landing all three hits of a combo
+    pickupRadius: 0.7,
+    magnetRadius: 2.0,   // coins slide toward Juno inside this range
+    magnetSpeed: 6,
+    life: 15,            // s before a coin on the floor disappears (it blinks for the last 3 s)
+  },
+
+  combo: {
+    slowmo: 0.12,        // s of game time in slow motion after a full combo lands
+    slowmoSpeed: 0.3,    // game speed during that slow motion
+  },
+
+  // Weapons are bought at the rack (stand on a pad, press attack). They change the
+  // combo into three swings and break after a number of landed hits.
+  weapons: {
+    pipe:   { cost: 6,  durability: 15, damageMul: 1.5, reachAdd: 0.4, lengthMul: 1.0,  knockdownAll: 0 },
+    hammer: { cost: 12, durability: 10, damageMul: 2.2, reachAdd: 0.5, lengthMul: 1.35, knockdownAll: 1 },
+    padRadius: 0.45,
   },
 
   look: {

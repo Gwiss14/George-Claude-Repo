@@ -8,6 +8,10 @@
 
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
+import {
+  roofTexture, brickTexture, facadeTexture, skylineTexture, crateTexture, fragileTexture,
+  tankTexture, pegboardTexture, padTexture, repeated,
+} from './textures.js';
 
 let gradientMap = null;
 function toonGradient() {
@@ -116,6 +120,16 @@ function buildPerson({ height, width, skin, top, bottom, accent, visor }) {
     const fist = k.mesh(box(armW * 1.3, armW * 1.3, armW * 1.3), mSkin);
     fist.position.y = -armL;
     arm.add(fist);
+    if (side === 'r') {
+      // Attach point for a held weapon: at the fist. A weapon's +Z (its length, grip at its origin)
+      // points along the arm, away from the shoulder.
+      const hand = new THREE.Group();
+      hand.name = 'hand_r';
+      hand.position.y = -armL;
+      hand.rotation.x = Math.PI / 2;
+      arm.add(hand);
+      arms.hand = hand;
+    }
     body.add(arm);
     arms[side] = arm;
   }
@@ -128,7 +142,7 @@ function buildPerson({ height, width, skin, top, bottom, accent, visor }) {
   root.add(ring);
 
   return k.finish(root, 'person', {
-    pose, body, head, arm_l: arms.l, arm_r: arms.r, leg_l: legs.l, leg_r: legs.r, state_ring: ring,
+    pose, body, head, arm_l: arms.l, arm_r: arms.r, leg_l: legs.l, leg_r: legs.r, state_ring: ring, hand_r: arms.hand,
   });
 }
 
@@ -136,14 +150,9 @@ function buildPerson({ height, width, skin, top, bottom, accent, visor }) {
 function buildCrate() {
   const k = new Kit();
   const root = new THREE.Group();
-  const wood = k.toon(0xb57a3c), dark = k.toon(0x7a4d22);
-  const c = k.mesh(box(1, 1, 1), wood); c.position.y = 0.5; root.add(c);
-  for (const y of [0.12, 0.88]) {
-    const plank = k.mesh(box(1.02, 0.12, 1.02), dark, { outline: false });
-    plank.position.y = y; root.add(plank);
-  }
-  const mark = k.mesh(box(0.35, 0.35, 0.03), k.toon(0xe8d6a0), { outline: false }); // stencil on the +Z face
-  mark.position.set(0, 0.5, 0.51); root.add(mark);
+  const c = k.mesh(box(1, 1, 1), k.toon(0xffffff, { map: crateTexture() })); c.position.y = 0.5; root.add(c);
+  const label = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.35), new THREE.MeshBasicMaterial({ map: fragileTexture(), transparent: true, depthWrite: false }));
+  label.position.set(0, 0.5, 0.505); root.add(label); // stencil on the +Z face
   return k.finish(root, 'prop');
 }
 
@@ -154,7 +163,7 @@ function buildWaterTank() {
   for (const [x, z] of [[0.6, 0.6], [-0.6, 0.6], [0.6, -0.6], [-0.6, -0.6]]) {
     const leg = k.mesh(box(0.14, 0.9, 0.14), dark); leg.position.set(x, 0.45, z); root.add(leg);
   }
-  const tank = k.mesh(cyl(1.0, 1.0, 1.25, 24), metal); tank.position.y = 0.9 + 0.625; root.add(tank);
+  const tank = k.mesh(cyl(1.0, 1.0, 1.25, 24), k.toon(0xffffff, { map: repeated(tankTexture(), 2, 1) })); tank.position.y = 0.9 + 0.625; root.add(tank);
   const cap = k.mesh(cyl(0.25, 1.0, 0.35, 24), dark); cap.position.y = 2.15 + 0.175; root.add(cap);
   const band = k.mesh(cyl(1.02, 1.02, 0.1, 24), dark, { outline: false }); band.position.y = 1.5; root.add(band);
   const hatch = k.mesh(box(0.4, 0.5, 0.05), dark, { outline: false }); hatch.position.set(0, 1.5, 1.0); root.add(hatch);
@@ -180,15 +189,10 @@ function buildRoof() {
   const root = new THREE.Group();
   const slab = k.mesh(box(A.width, 0.5, A.depth), k.toon(0x8d8a86), { outline: false });
   slab.position.y = -0.25; root.add(slab);
-  const seam = k.toon(0x6e6b68);
-  for (let x = -A.width / 2 + 2; x < A.width / 2; x += 2) {
-    const s = k.mesh(box(0.05, 0.01, A.depth), seam, { outline: false, shadow: false }); s.position.set(x, 0.005, 0); root.add(s);
-  }
-  for (let z = -A.depth / 2 + 2; z < A.depth / 2; z += 2) {
-    const s = k.mesh(box(A.width, 0.01, 0.05), seam, { outline: false, shadow: false }); s.position.set(0, 0.005, z); root.add(s);
-  }
+  const top = new THREE.Mesh(new THREE.PlaneGeometry(A.width, A.depth), k.toon(0xffffff, { map: roofTexture(A.width, A.depth) }));
+  top.rotation.x = -Math.PI / 2; top.position.y = 0.002; top.receiveShadow = true; root.add(top);
   // building below the roof, so the edge reads as a rooftop
-  const wall = k.mesh(box(A.width, 12, A.depth), k.toon(0x5b5068), { outline: false });
+  const wall = k.mesh(box(A.width, 12, A.depth), k.toon(0xffffff, { map: repeated(facadeTexture(), A.width / 4, 4) }), { outline: false });
   wall.position.y = -6.5; root.add(wall);
   return k.finish(root, 'ground');
 }
@@ -197,13 +201,16 @@ function buildParapet() {
   const k = new Kit();
   const A = CONFIG.arena, t = A.wallThickness, h = A.wallHeight;
   const root = new THREE.Group();
-  const mat = k.toon(0xa49a8c);
+  const cap = k.toon(0xc9bca8);
   const parts = [
     [A.width, t, 0, -A.depth / 2 + t / 2], [A.width, t, 0, A.depth / 2 - t / 2],
     [t, A.depth, -A.width / 2 + t / 2, 0], [t, A.depth, A.width / 2 - t / 2, 0],
   ];
   for (const [w, d, x, z] of parts) {
-    const m = k.mesh(box(w, h, d), mat); m.position.set(x, h / 2, z); root.add(m);
+    const len = Math.max(w, d);
+    const m = k.mesh(box(w, h - 0.08, d), k.toon(0xffffff, { map: repeated(brickTexture(), len / 2, 1) }));
+    m.position.set(x, (h - 0.08) / 2, z); root.add(m);
+    const c = k.mesh(box(w + 0.06, 0.08, d + 0.06), cap); c.position.set(x, h - 0.04, z); root.add(c);
   }
   return k.finish(root, 'edge');
 }
@@ -221,7 +228,7 @@ function buildSky() {
   });
   root.add(new THREE.Mesh(geo, mat));
   // far skyline: flat dark blocks in a ring (one draw call)
-  const blocks = new THREE.InstancedMesh(box(1, 1, 1), new THREE.MeshBasicMaterial({ color: 0x241c3a, fog: false }), 70);
+  const blocks = new THREE.InstancedMesh(box(1, 1, 1), new THREE.MeshBasicMaterial({ map: repeated(skylineTexture(), 1, 2), fog: false }), 70);
   const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3();
   let seed = 7;
   const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
@@ -236,6 +243,66 @@ function buildSky() {
   root.add(blocks);
   root.userData = { look: 'placeholder', kind: 'sky' };
   return root;
+}
+
+// The weapons spot: a pegboard rack, 1.8 m wide, 2 m tall, 0.5 m deep, open side facing +Z.
+function buildWeaponRack() {
+  const k = new Kit();
+  const root = new THREE.Group();
+  const frame = k.toon(0x3a3f4a);
+  const back = k.mesh(box(1.8, 1.9, 0.08), k.toon(0xffffff, { map: pegboardTexture() }));
+  back.position.set(0, 1.0, -0.2); root.add(back);
+  for (const x of [-0.88, 0.88]) {
+    const post = k.mesh(box(0.08, 2.0, 0.45), frame); post.position.set(x, 1.0, 0); root.add(post);
+  }
+  const shelf = k.mesh(box(1.8, 0.08, 0.45), frame); shelf.position.set(0, 0.45, 0); root.add(shelf);
+  const roofBar = k.mesh(box(1.9, 0.1, 0.5), frame); roofBar.position.set(0, 2.0, 0); root.add(roofBar);
+  for (const x of [-0.45, 0.45]) {
+    const peg = k.mesh(box(0.05, 0.05, 0.25), frame); peg.position.set(x, 1.45, -0.05); root.add(peg);
+  }
+  return k.finish(root, 'prop');
+}
+
+function buildWeaponPad() {
+  const root = new THREE.Group();
+  const d = CONFIG.weapons.padRadius * 2;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(d, d), new THREE.MeshBasicMaterial({ map: padTexture(), transparent: true, depthWrite: false }));
+  m.rotation.x = -Math.PI / 2; m.position.y = 0.006;
+  root.add(m);
+  root.userData = { look: 'placeholder', kind: 'marking' };
+  return root;
+}
+
+// Coin: 0.3 m across, standing on its edge facing +Z (the view spins it).
+function buildCoin() {
+  const k = new Kit();
+  const root = new THREE.Group();
+  const c = k.mesh(cyl(0.15, 0.15, 0.04, 20), k.toon(0xffc93c, { emissive: 0x6b4a00, emissiveIntensity: 0.5 }), { shadow: false });
+  c.rotation.x = Math.PI / 2; c.position.y = 0.17; root.add(c);
+  const mark = k.mesh(box(0.06, 0.14, 0.05), k.toon(0xe0a020), { outline: false, shadow: false });
+  mark.position.y = 0.17; root.add(mark);
+  return k.finish(root, 'prop');
+}
+
+// Weapons: grip at the origin, length along +Z.
+function buildPipe() {
+  const k = new Kit();
+  const root = new THREE.Group();
+  const steel = k.toon(0x9aa5b1), tape = k.toon(0x1d1f26);
+  const p = k.mesh(cyl(0.035, 0.035, 0.95, 10), steel); p.rotation.x = Math.PI / 2; p.position.z = 0.42; root.add(p);
+  const grip = k.mesh(cyl(0.045, 0.045, 0.22, 10), tape); grip.rotation.x = Math.PI / 2; grip.position.z = 0.02; root.add(grip);
+  const elbow = k.mesh(box(0.11, 0.11, 0.11), steel); elbow.position.z = 0.9; root.add(elbow);
+  return k.finish(root, 'prop');
+}
+
+function buildHammer() {
+  const k = new Kit();
+  const root = new THREE.Group();
+  const wood = k.toon(0xb57a3c), iron = k.toon(0x4a4f5c);
+  const h = k.mesh(cyl(0.035, 0.04, 0.95, 10), wood); h.rotation.x = Math.PI / 2; h.position.z = 0.4; root.add(h);
+  const head = k.mesh(box(0.34, 0.18, 0.18), iron); head.position.z = 0.95; root.add(head);
+  const band = k.mesh(box(0.2, 0.2, 0.05), k.toon(0xe0b040), { outline: false }); band.position.z = 0.84; root.add(band);
+  return k.finish(root, 'prop');
 }
 
 const PEOPLE = {
@@ -256,7 +323,30 @@ export const REGISTRY = {
   roof: buildRoof,
   parapet: buildParapet,
   sky: buildSky,
+  weapon_rack: buildWeaponRack,
+  weapon_pad: buildWeaponPad,
+  coin: buildCoin,
+  pipe: buildPipe,
+  hammer: buildHammer,
 };
+
+// Swappable parts hang on named attach points and are scaled to fit the slot.
+export const SLOTS = {
+  hand_r: { length: { pipe: 1.0, hammer: 1.1 } },
+};
+
+export function attach(owner, slot, id) {
+  const point = owner.userData.parts?.[slot];
+  if (!point) return null;
+  point.clear();
+  if (!id) return null;
+  const part = build(id);
+  const size = new THREE.Box3().setFromObject(part).getSize(new THREE.Vector3());
+  const want = SLOTS[slot].length[id] ?? Math.max(size.x, size.y, size.z);
+  part.scale.setScalar(want / Math.max(size.x, size.y, size.z));
+  point.add(part);
+  return part;
+}
 
 export function build(id) {
   const make = REGISTRY[id];

@@ -5,6 +5,7 @@
 // Both also check that nobody ends up inside a wall or prop, and that nothing gets stuck.
 
 import { CONFIG } from './config.js';
+import { WEAPON_PADS } from './game/level.js';
 
 const dist = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 
@@ -30,6 +31,7 @@ export class Bot {
       enemyAttacks: 0, maxEnemiesAttackingAtOnce: 0, minGapBetweenEnemyAttacks: null,
       doubleHits: 0, maxWallPenetration: 0, maxFighterOverlap: 0,
       escapeChecks: 0, escapeFailures: 0, enemyStuck: 0, enemyTurnsGivenUp: 0, lowestHp: 100,
+      coinsCollected: 0, combos: 0, weaponsBought: [], weaponHits: 0, weaponBreaks: 0, buyFails: 0,
     };
   }
 
@@ -57,6 +59,12 @@ export class Bot {
       this.lastEnemyAttack = ev.time;
     }
     if (ev.type === 'waveClear') r.wavesCleared = ev.wave;
+    if (ev.type === 'coin') r.coinsCollected++;
+    if (ev.type === 'combo') r.combos++;
+    if (ev.type === 'buy') r.weaponsBought.push(ev.weapon);
+    if (ev.type === 'buyFail') r.buyFails++;
+    if (ev.type === 'weaponBreak') r.weaponBreaks++;
+    if (ev.type === 'hit' && ev.weapon && ev.targetTeam === 'enemy') r.weaponHits++;
     if (ev.type === 'won') { r.wavesCleared = CONFIG.waves.list.length; r.result = 'won'; }
     if (ev.type === 'lost') r.result = 'lost';
   }
@@ -90,7 +98,7 @@ export class Bot {
   thinkGood(dt) {
     const g = this.game, j = g.juno;
     const live = g.liveEnemies();
-    if (!live.length) { this.setMove(-j.x, -j.z); if (Math.hypot(j.x, j.z) < 0.5) this.setMove(0, 0); return; }
+    if (!live.length) { this.shop(dt); return; }
 
     // back off from a smash that is winding up nearby
     for (const e of live) {
@@ -109,6 +117,25 @@ export class Bot {
     if (d > 1.1 + t.radius) { this.setMove(t.x - j.x, t.z - j.z); return; }
     this.setMove(0, 0);
     if (t.state !== 'knocked_down') this.press(dt, 0.12);
+  }
+
+  // Between waves: pick up coins, then buy the best weapon it can afford if empty-handed.
+  shop(dt) {
+    const g = this.game, j = g.juno;
+    if (g.coins.length) {
+      let c = g.coins[0];
+      for (const k of g.coins) if (dist(k, j) < dist(c, j)) c = k;
+      this.setMove(c.x - j.x, c.z - j.z);
+      return;
+    }
+    const want = !j.weapon && [...WEAPON_PADS].reverse().find((p) => j.coins >= CONFIG.weapons[p.weapon].cost);
+    if (want) {
+      if (dist(want, j) < CONFIG.weapons.padRadius * 0.6) { this.setMove(0, 0); this.press(dt, 0.3); }
+      else this.setMove(want.x - j.x, want.z - j.z);
+      return;
+    }
+    this.setMove(-j.x, -j.z);
+    if (Math.hypot(j.x, j.z) < 0.5) this.setMove(0, 0);
   }
 
   thinkBad(dt) {
