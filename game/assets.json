@@ -1,0 +1,132 @@
+{
+  "artStyle": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights.",
+  "notes": [
+    "Outlines and toon shading are added in code, so every prompt asks for flat colour and even light.",
+    "All three fighters use the same humanoid rig (Humanoid, Mixamo preset, Auto Rig), so any clip can play on any of them.",
+    "Export every rigged fighter as GLB with 2K textures (heroes: 4K as Tripo makes them), skeleton on, Number of Animations = Select All, Animation stay in Place = on.",
+    "Files go in public/assets/."
+  ],
+  "entries": [
+    {
+      "id": "juno",
+      "kind": "person",
+      "hero": true,
+      "size_m": 1.7,
+      "polygon_budget": 10000,
+      "file": "juno.glb",
+      "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. Juno, a young woman bike courier who boxes, 1.7 metres tall with an athletic build, standing in a T-pose facing the camera, arms straight out to the sides level with her shoulders, hands open, feet apart with a clear gap between the legs. Her head is about one sixth of her height, her arms are long enough to reach mid-thigh, her body is no wider than her shoulders, and there is space between her arms, legs and body. Short dark hair tied in a tight bun under a snug teal cycling cap with a short peak. A zipped teal nylon courier jacket fitted to the body with stitched panel seams, thin reflective silver stripes on the sleeves and a small yellow lightning-bolt patch on the chest; fitted navy cycling trousers with darker knee patches; chunky yellow-and-white sneakers; bright yellow boxing hand wraps on both hands with visible wrapping. Fabric shows light scuffs at the knees and elbows. Nothing hangs loose: no bag, no straps, no scarf, no ponytail. Single isolated object, centered, on a plain white background.",
+      "animations": [
+        { "state": "idle", "clip": "idle" },
+        { "state": "run", "clip": "run" },
+        { "state": "jab", "clip": "box_01" },
+        { "state": "cross", "clip": "box_02" },
+        { "state": "kick", "clip": "front_kick_01", "check": "may come out as a side kick; turn it in code if so" },
+        { "state": "hurt", "clip": "hit_to_body_01" },
+        { "state": "knocked_down / defeated", "clip": "defeat_02", "check": "must end lying on the ground; plain 'defeat' only sways" },
+        { "state": "win", "clip": "cheer" }
+      ],
+      "texture_prompt": "none",
+      "styles": "none"
+    },
+    {
+      "id": "crow",
+      "kind": "person",
+      "hero": false,
+      "size_m": 1.7,
+      "polygon_budget": 6000,
+      "file": "crow.glb",
+      "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. A Tin Crow gang scrapper, a lean adult man 1.7 metres tall, standing in a T-pose facing the camera, arms straight out to the sides level with his shoulders, hands open, feet apart with a clear gap between the legs. His head is about one sixth of his height, his arms reach mid-thigh, his body is no wider than his shoulders, and there is space between his arms, legs and body. He wears a dented grey-silver tin helmet shaped like a crow's head with a short pointed beak visor over the eyes, lower face visible; a slate-blue padded work jacket fitted to the body; charcoal trousers; grey boots; grey fingerless gloves. Nothing hangs loose: no feathers, no tail, no chains, no cape. Single isolated object, centered, on a plain white background.",
+      "animations": [
+        { "state": "idle", "clip": "idle" },
+        { "state": "enter / circle / approach", "clip": "walk" },
+        { "state": "approach (elite)", "clip": "run" },
+        { "state": "windup + attack", "clip": "box_01" },
+        { "state": "hurt", "clip": "hit_to_body_01" },
+        { "state": "hurt by a kick", "clip": "hit_to_head" },
+        { "state": "knocked_down / defeated", "clip": "defeat_02" }
+      ],
+      "texture_prompt": {
+        "for_id": "crow_elite",
+        "file": "crow_elite.glb",
+        "prompt": "A Tin Crow elite scrapper, a lean adult man: a polished bright copper-orange tin helmet shaped like a crow's head with a short pointed beak visor, tan skin on the visible lower face, a bright orange padded work jacket with black stitched seams and a black crow emblem on the chest, charcoal trousers, black boots and black fingerless gloves. Flat solid colours with no gradients, even flat lighting, no baked shadows or highlights."
+      },
+      "styles": "none"
+    },
+    {
+      "id": "grudge",
+      "kind": "person",
+      "hero": true,
+      "size_m": 2.2,
+      "polygon_budget": 10000,
+      "file": "grudge.glb",
+      "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. Grudge, the hulking boss of the Tin Crows gang, a huge broad man 2.2 metres tall with a barrel chest and thick arms, standing in a T-pose facing the camera, arms straight out to the sides level with his shoulders, hands open, legs apart with a clear gap between them. His head is small, about one sixth of his height, his arms are long enough to reach mid-thigh, his body is no wider than his shoulders, and there is space between his arms, legs and body. A heavy riveted iron helmet shaped like a crow's head with a short blunt beak and a cracked visor; a maroon sleeveless leather vest with visible stitching and brass buckles over a dark grey undershirt, with a faded white crow stencil on the chest; a wide brass-studded belt; black heavy work trousers; steel-toed boots; riveted iron knuckle plates on the backs of both hands. Painted metal with scratches and dents, worn leather. Nothing hangs loose: no chains, no cape, no coat tails. Single isolated object, centered, on a plain white background.",
+      "animations": [
+        { "state": "idle", "clip": "idle" },
+        { "state": "enter / circle / approach", "clip": "walk" },
+        { "state": "jab", "clip": "box_01" },
+        { "state": "smash", "clip": "smash: a heavy man raises both fists high above his head and slams them down in front of him, then straightens up", "check": "Text to Motion; library 'slash' is a one-arm sword swing and is the fallback" },
+        { "state": "hurt", "clip": "hit_to_body_01" },
+        { "state": "hurt by a kick", "clip": "hit_to_head" },
+        { "state": "defeated", "clip": "defeat_02" }
+      ],
+      "texture_prompt": "none",
+      "styles": "none"
+    },
+    {
+      "id": "crate",
+      "kind": "prop",
+      "hero": false,
+      "size_m": 1.0,
+      "polygon_budget": 1200,
+      "file": "crate.glb",
+      "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. A sturdy wooden shipping crate, a perfect cube 1 metre on every side, made of warm orange-brown planks with darker brown battens around the edges of every face and dark metal corner brackets. The top shows clear plank lines, and the front face has a pale cream stencilled arrow and the word FRAGILE. Single isolated object, centered, on a plain white background.",
+      "texture_prompt": "none",
+      "styles": "none"
+    },
+    {
+      "id": "water_tank",
+      "kind": "prop",
+      "hero": false,
+      "size_m": 2.5,
+      "polygon_budget": 3000,
+      "file": "water_tank.glb",
+      "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. A rooftop water tank 2.5 metres tall: a squat round steel-blue cylinder 2 metres wide and 1.25 metres tall with a shallow cone roof and a small round hatch on top, two dark bands around its middle, standing on four dark steel legs 0.9 metres tall joined by cross braces. A square inspection hatch and a round pressure gauge on the front. Single isolated object, centered, on a plain white background.",
+      "texture_prompt": "none",
+      "styles": "none"
+    },
+    {
+      "id": "lamp_post",
+      "kind": "prop",
+      "hero": false,
+      "size_m": 3.5,
+      "polygon_budget": 1000,
+      "file": "lamp_post.glb",
+      "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. A rooftop lamp post 3.5 metres tall: a thin dark charcoal steel pole about 0.15 metres thick on a small square base plate, with a boxy lamp head 0.3 metres wide on top and a warm yellow light panel on its underside. Single isolated object, centered, on a plain white background.",
+      "texture_prompt": "none",
+      "styles": "none"
+    }
+  ],
+  "builtInCode": {
+    "roof": "The ground stays built in code, no Tripo entry: a toon-shaded concrete slab in warm grey with darker tar seams, plus painted details added in code: a faded yellow boxing-ring square in the middle, oil stains and a few drain grates. A flat surface gets nothing from a 3D model, and code keeps it sharp at any size.",
+    "parapet": "The level edge stays built in code: a low wall with a lighter cap stone on top and a brick-red face, with the black outline like everything else.",
+    "sky": "Built in code: the banded sunset gradient that is there now, plus the far skyline blocks given rows of small lit windows and a few water tanks and antennas on top, all flat colours.",
+    "lights": "The lamp glow is a light added in code above each lamp_post model."
+  },
+  "budget": {
+    "busiestMoment": "Wave 3: Juno, Grudge and two Crows, plus all props.",
+    "triangles": {
+      "fighters": "juno 10000 + grudge 10000 + 2 x crow 6000 = 32000",
+      "props": "4 x crate 1200 + water_tank 3000 + 2 x lamp_post 1000 = 9800",
+      "models": 41800,
+      "withOutlines": "83600 (the outline is a second, inside-out copy of each model)",
+      "withShadowPass": "about 125000 triangles drawn per frame",
+      "phone": "fine: mid-range phones handle a few hundred thousand triangles per frame"
+    },
+    "textureMemory": {
+      "asTripoMakesThem": "about 640 MB: each hero has three 4K maps (colour, normal, metal-rough) at about 89 MB each with mipmaps = 536 MB for two heroes; crow and crow_elite 2K colour maps 22 MB each; three props 22 MB each",
+      "phone": "too much as-is",
+      "afterShrinkOnLoad": "about 50 MB: fighter maps shrunk to 1024 (heroes 3 x 5.6 MB each, crow and crow_elite 5.6 MB each), prop maps shrunk to 512 (1.4 MB each). Fighters never take more than about a third of the screen height, so 1024 is as sharp as they ever appear.",
+      "plan": "Shrink textures on load (stage 5) and ship WebP at those sizes (stage 6)."
+    }
+  }
+}

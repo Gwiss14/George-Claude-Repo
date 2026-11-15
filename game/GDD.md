@@ -86,7 +86,7 @@ All three are people on the same skeleton. Fighters are solid to each other and 
 | Juno | kick | front_kick_01 | 20 | 0.50 s | 0.45 | 0.65 | 1.7 m | Push 2.5 m, knocks Crows down |
 | Crow | jab | box_01 | 8 (elite 10) | 0.70 s | 0.60 | 0.75 | 1.3 m | Push 0.4 m |
 | Grudge | jab | box_01 | 10 | 0.70 s | 0.60 | 0.75 | 1.6 m | Push 0.6 m |
-| Grudge | smash | slash | 22 | 1.20 s | 0.62 | 0.76 | 2.0 m | Push 2.0 m, knocks Juno down |
+| Grudge | smash | smash (Text to Motion; fallback slash) | 22 | 1.20 s | 0.62 | 0.76 | 2.0 m | Push 2.0 m, knocks Juno down |
 
 Fight feel: a landed hit freezes both fighters for 0.07 s. A fighter that was just hit cannot be hit again for 0.25 s. The combo resets 0.5 s after Juno's last attack. Enemies take turns: only one may attack at a time (two in wave 3), with at least 0.8 s between enemy attacks; the rest circle. Grudge uses the smash every third attack.
 
