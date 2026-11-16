@@ -3,7 +3,7 @@
 import { build } from 'vite';
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 
-const out = process.argv[2] || 'dist-single/tank-roof-scrap.html';
+const out = process.argv[2] || 'dist-single/soluna-rooftop.html';
 await build({
   logLevel: 'error',
   build: { outDir: 'dist-single/tmp', emptyOutDir: true, rollupOptions: { output: { inlineDynamicImports: true } } },
@@ -14,7 +14,7 @@ const js = readFileSync(dir + files.find((f) => f.endsWith('.js')), 'utf8').repl
 const css = readFileSync(dir + files.find((f) => f.endsWith('.css')), 'utf8');
 const html = readFileSync('dist-single/tmp/index.html', 'utf8');
 const body = html.slice(html.indexOf('<body>') + 6, html.indexOf('</body>')).replace(/<script[^>]*src=[^>]*><\/script>/g, '');
-const page = `<title>Tank Roof Scrap</title>
+const page = `<title>Soluna Rooftop</title>
 <meta name="theme-color" content="#2b2a5e">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&display=swap">

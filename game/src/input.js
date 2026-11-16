@@ -1,18 +1,20 @@
-// Keyboard and touch input, merged into one move vector and a count of attack presses.
+// Keyboard and touch input, merged into one move vector and counts of attack and roll presses.
 // move.y is "up the screen" (north, -Z in the world).
 
 export class Input {
   constructor({ onRestart, onDebug }) {
     this.keys = new Set();
     this.attackPresses = 0;
+    this.dodgePresses = 0;
     this.stick = { id: null, ox: 0, oy: 0, x: 0, y: 0 };
-    this.bot = null; // test bots write { mx, my, attack } here
+    this.bot = null; // test bots write { mx, my, attack, dodge } here
     this.maxStick = 55; // px
 
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Backquote') { onDebug(); e.preventDefault(); return; }
       if (e.repeat) return;
       if (e.code === 'KeyJ' || e.code === 'Space') { this.attackPresses++; e.preventDefault(); }
+      if (e.code === 'KeyK' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') { this.dodgePresses++; e.preventDefault(); }
       if (e.code === 'KeyR') onRestart();
       this.keys.add(e.code);
       if (e.code.startsWith('Arrow')) e.preventDefault();
@@ -49,12 +51,16 @@ export class Input {
     zone.addEventListener('pointerup', end);
     zone.addEventListener('pointercancel', end);
 
-    const atk = document.getElementById('attack-btn');
-    atk.addEventListener('pointerdown', (e) => { this.attackPresses++; atk.classList.add('down'); e.preventDefault(); });
-    const up = () => atk.classList.remove('down');
-    atk.addEventListener('pointerup', up);
-    atk.addEventListener('pointercancel', up);
-    atk.addEventListener('pointerleave', up);
+    const button = (id, press) => {
+      const b = document.getElementById(id);
+      b.addEventListener('pointerdown', (e) => { press(); b.classList.add('down'); e.preventDefault(); });
+      const up = () => b.classList.remove('down');
+      b.addEventListener('pointerup', up);
+      b.addEventListener('pointercancel', up);
+      b.addEventListener('pointerleave', up);
+    };
+    button('attack-btn', () => this.attackPresses++);
+    button('roll-btn', () => this.dodgePresses++);
   }
 
   move() {
@@ -73,6 +79,13 @@ export class Input {
     let n = this.attackPresses;
     this.attackPresses = 0;
     if (this.bot && this.bot.attack) { n++; this.bot.attack = false; }
+    return n;
+  }
+
+  takeDodges() {
+    let n = this.dodgePresses;
+    this.dodgePresses = 0;
+    if (this.bot && this.bot.dodge) { n++; this.bot.dodge = false; }
     return n;
   }
 }

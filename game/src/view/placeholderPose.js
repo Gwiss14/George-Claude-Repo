@@ -8,7 +8,7 @@ import { attackOf } from '../game/game.js';
 export const STATE_COLORS = {
   idle: 0x9fd3a6, run: 0x5aa9ff, enter: 0x7fe0ff, circle: 0x3fc7b0, approach: 0xff5ad1,
   jab: 0xff4040, cross: 0xff4040, kick: 0xff4040, swing: 0xff4040, backswing: 0xff4040, overhead: 0xff4040, windup: 0xffd23f, attack: 0xff4040,
-  hurt: 0xffffff, knocked_down: 0xa070ff, defeated: 0x222222, win: 0xffe066,
+  roll: 0x00e5ff, hurt: 0xffffff, knocked_down: 0xa070ff, defeated: 0x222222, win: 0xffe066,
 };
 
 const lerp = (a, b, t) => a + (b - a) * Math.max(0, Math.min(1, t));
@@ -111,6 +111,15 @@ export function posePlaceholder(obj, f, label, vis, dt, now) {
     pose.rotation.x = -Math.PI / 2 * lie * 0.97;
     pose.position.y = 0.12 * lie;
     arm_l.rotation.set(-2.6 * lie, 0, 0.3 * lie); arm_r.rotation.set(-2.6 * lie, 0, -0.3 * lie);
+  } else if (label === 'roll') {
+    // forward somersault around a point at hip height, tucked and low
+    const p = Math.min(1, f.stateTime / CONFIG.juno.roll.time), a = Math.PI * 2 * ease(p), h = 0.55;
+    pose.rotation.x = a;
+    pose.position.y = h - h * Math.cos(a) - 0.35 * Math.sin(p * Math.PI);
+    pose.position.z = -h * Math.sin(a);
+    body.rotation.x = 0.6; head.rotation.x = 0.4;
+    arm_l.rotation.set(-1.2, 0, 0.2); arm_r.rotation.set(-1.2, 0, -0.2);
+    leg_l.rotation.x = leg_r.rotation.x = -1.3;
   } else if (label === 'win') {
     arm_l.rotation.set(-2.9, 0, 0.3); arm_r.rotation.set(-2.9, 0, -0.3);
     pose.position.y = Math.abs(Math.sin(now * 6)) * 0.18;

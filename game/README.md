@@ -1,4 +1,4 @@
-# Tank Roof Scrap
+# Soluna Rooftop
 
 A small 3D browser brawler. Three.js + Vite, no game engine.
 

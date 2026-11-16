@@ -46,5 +46,7 @@ export class Sfx {
   coin() { this.tone(1320, 1320, 0.05, 'square', 0.07); this.tone(1760, 1760, 0.09, 'square', 0.07, 0.05); }
   nope() { this.tone(180, 140, 0.15, 'square', 0.1); }
   snap() { this.noise(0.12, 0.3); this.tone(400, 90, 0.15, 'sawtooth', 0.12); }
+  roll() { this.noise(0.14, 0.08); this.tone(260, 120, 0.12, 'triangle', 0.06); }
+  dodged() { this.tone(880, 1320, 0.1, 'triangle', 0.12); }
   lose() { this.tone(300, 60, 0.7, 'sawtooth', 0.12); }
 }

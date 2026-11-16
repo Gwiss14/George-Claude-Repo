@@ -1,7 +1,7 @@
 # Progress
 
 ## Done
-- Stage 1, Design: GDD.md for "Tank Roof Scrap" (fighting game). Player approved and chose the comic look.
+- Stage 1, Design: GDD.md for the fighting game (first called "Tank Roof Scrap", renamed "Soluna Rooftop" at the player's request). Player approved and chose the comic look.
 - Stage 2, Greybox: playable in the browser with keyboard and touch. Three.js + Vite, no engine.
   - `src/config.js`: every tunable number. Debug panel (` key or ?debug) has sliders for all of them.
   - `src/view/registry.js`: the only place that decides looks (id -> builder). Placeholders face +Z, people have named parts with their own hinges.
@@ -24,7 +24,13 @@
 - Endless waves (player asked): wave rosters grow from config numbers, Grudge every 5th wave, reinforcements climb in (max 5 on the roof), enemies +8 % health / +5 % damage per wave, best wave kept in the browser. No win screen any more.
 - More weapons unlock as waves are cleared (player asked): pipe 1, hammer 2, wrench 4, shovel 6, axe 9; five pads in front of the rack. The five weapons are now one Tripo 'parts' model (`weapons.glb`), replacing the pipe and hammer entries, so assets.json has 7 entries. TRIPO.md regenerated.
 
+- Dodge roll and wave modifiers (player asked): roll on K / Shift / ROLL button, 0.28 s of i-frames, a "DODGE!" pop when it saves Juno, roll-cancel out of an attack's follow-through and roll-into-jab. Six wave modifiers in config (Fast Crows, Tough Crows, Payday, Glass Jaw, Fists Only, Swarm) with a chip under the wave label; `?mod=<name>` forces one. A rolling fighter gives way completely in collisions (otherwise a roll squashed pinned Crows into walls, 0.27 m overlap).
+- Enemies now climb in only where nobody stands within 1 m (`waves.spawnClear`), at the clearest of the five spawn points; otherwise they wait in the wave's queue. Before, a Crow could appear on top of Juno or a pinned Crow at the back wall (up to 0.34 m overlap); Swarm made it common.
+- Tests now drive the Chrome already installed on this PC via `playwright-core` when the full `playwright` package is missing (`npm install --no-save playwright-core`); no browser is downloaded. Output path fixed for Windows; empty inline favicon stops a 404 in real Chrome.
+
 ## Known / open
+- New Juno state `roll` needs a Text to Motion clip (added to assets.json; TRIPO.md not regenerated yet).
+- Modifiers are random from wave 2 (boss waves plain, no repeats, 25 % plain). Tune plainChance and each modifier's `from` after playing.
 - New Juno states swing/backswing/overhead need animations: slash, plus two Text to Motion clips (listed in assets.json).
 - The good bot never needs to block, and loses only 8 health in a full round: the game may be too easy for a careful player. Tune enemy speed, attackGap or damage after the player tries it.
 - Draw calls are high (~170 at the busiest moment, half of it the shadow pass) because every placeholder part is its own mesh plus outline. Models in stage 5 will lower this.

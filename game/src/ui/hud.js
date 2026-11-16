@@ -20,6 +20,8 @@ export class Hud {
     this.hpFill = this.el('hp-fill');
     this.hpText = this.el('hp-text');
     this.wave = this.el('wave');
+    this.modChip = this.el('mod-chip');
+    this.shownMod = undefined;
     this.boss = this.el('boss');
     this.bossFill = this.el('boss-fill');
     this.banner = this.el('banner');
@@ -32,7 +34,8 @@ export class Hud {
       this.el(id).addEventListener('click', (e) => { e.stopPropagation(); onRestart(); });
     }
     game.on((ev) => {
-      if (ev.type === 'wave') this.show(ev.boss ? `Wave ${ev.wave}: Grudge!` : `Wave ${ev.wave}`);
+      if (ev.type === 'wave') this.show(`${ev.boss ? `Wave ${ev.wave}: Grudge!` : `Wave ${ev.wave}`}${ev.label ? `
+${ev.label.toUpperCase()}` : ''}`);
       if (ev.type === 'waveClear') this.show(`Wave ${ev.wave} cleared  +${CONFIG.waves.healOnClear}`);
       if (ev.type === 'unlock') setTimeout(() => this.show(`New weapon: ${ev.weapon.toUpperCase()}!`), 1700);
       if (ev.type === 'reset') { this.end.classList.remove('show'); this.endTimer = 0; }
@@ -40,7 +43,9 @@ export class Hud {
       if (ev.type === 'combo') this.popAt(ev.x, 2.6, ev.z, `COMBO! +${CONFIG.coins.comboBonus}`, 'big', -8);
       if (ev.type === 'coin') { const j = this.game.juno; this.popAt(j.x, 1.9, j.z, '+1', 'coin', 0); }
       if (ev.type === 'buy') this.show(`Got the ${ev.weapon}!`);
-      if (ev.type === 'buyFail') { const j = this.game.juno; this.popAt(j.x, 2.0, j.z, ev.locked ? `Wave ${ev.locked}` : `Need ${ev.need} more`, 'bad', 0); }
+      if (ev.type === 'buyFail') { const j = this.game.juno; this.popAt(j.x, 2.0, j.z, ev.fists ? 'Fists only!' : ev.locked ? `Wave ${ev.locked}` : `Need ${ev.need} more`, 'bad', 0); }
+      if (ev.type === 'dodged') this.popAt(ev.x, 1.9, ev.z, 'DODGE!', 'dodge', -6);
+      if (ev.type === 'weaponBack') { const j = this.game.juno; this.popAt(j.x, 2.1, j.z, `${ev.weapon} back!`, 'coin', 4); }
       if (ev.type === 'weaponBreak') { const j = this.game.juno; this.popAt(j.x, 2.1, j.z, `${ev.weapon} broke!`, 'bad', 5); }
     });
   }
@@ -70,6 +75,12 @@ export class Hud {
     this.hpFill.style.width = `${(j.hp / j.maxHp) * 100}%`;
     this.hpText.textContent = `${Math.ceil(j.hp)}`;
     this.wave.textContent = g.waveIndex < 0 ? 'Get ready' : `Wave ${g.waveIndex + 1}${g.best > 1 ? ` · best ${g.best}` : ''}`;
+    const mod = g.mod?.label ?? null;
+    if (mod !== this.shownMod) {
+      this.shownMod = mod;
+      this.modChip.textContent = mod ?? '';
+      this.modChip.classList.toggle('show', !!mod);
+    }
     const boss = g.fighters.find((f) => f.kind === 'grudge');
     this.boss.style.display = boss ? 'block' : 'none';
     if (boss) this.bossFill.style.width = `${(boss.hp / boss.maxHp) * 100}%`;
@@ -88,7 +99,7 @@ export class Hud {
     if (pad) {
       const w = CONFIG.weapons[pad.weapon], touch = document.body.classList.contains('touch');
       const rich = j.coins >= w.cost && g.unlocked(pad.weapon);
-      this.padPrompt.textContent = !g.unlocked(pad.weapon) ? `${pad.weapon.toUpperCase()} unlocks at wave ${w.unlockWave}` : rich ? `${touch ? 'HIT' : 'J'} to buy ${pad.weapon.toUpperCase()} · ${w.cost} coins` : `${pad.weapon.toUpperCase()} costs ${w.cost} coins`;
+      this.padPrompt.textContent = g.modVal('fistsOnly', 0) ? 'Rack closed: fists only this wave' : !g.unlocked(pad.weapon) ? `${pad.weapon.toUpperCase()} unlocks at wave ${w.unlockWave}` : rich ? `${touch ? 'HIT' : 'J'} to buy ${pad.weapon.toUpperCase()} · ${w.cost} coins` : `${pad.weapon.toUpperCase()} costs ${w.cost} coins`;
       this.padPrompt.classList.toggle('poor', !rich);
     }
     this.padPrompt.classList.toggle('show', !!pad);

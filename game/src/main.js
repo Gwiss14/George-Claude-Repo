@@ -16,6 +16,7 @@ const debug = new Debug(game, view, restart);
 const input = new Input({ onRestart: restart, onDebug: () => debug.toggle() });
 const hud = new Hud(game, restart, view);
 if (params.has('debug')) debug.toggle(true);
+if (params.has('mod')) game.forceMod = params.get('mod'); // e.g. ?mod=swift on every wave, ?mod=none for none
 
 if (window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) document.body.classList.add('touch');
 window.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') document.body.classList.add('touch'); });
@@ -39,7 +40,7 @@ function frame(now) {
   while (acc >= step && n < maxSteps) {
     if (bot) bot.think(step);
     const m = input.move();
-    game.step(step, { mx: m.x, mz: -m.y, attackPresses: input.takeAttacks() });
+    game.step(step, { mx: m.x, mz: -m.y, attackPresses: input.takeAttacks(), dodgePresses: input.takeDodges() });
     acc -= step;
     n++;
   }

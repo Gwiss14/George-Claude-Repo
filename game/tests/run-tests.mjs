@@ -5,14 +5,19 @@
 import { preview } from 'vite';
 import { createRequire } from 'node:module';
 // Playwright is pre-installed on the machine (not a project dependency); load it the CommonJS way.
-const { chromium, devices } = createRequire(import.meta.url)('playwright');
+// Without the full 'playwright' package, 'playwright-core' drives the Chrome already installed here.
+const req = createRequire(import.meta.url);
+let pw, channel;
+try { pw = req('playwright'); } catch { pw = req('playwright-core'); channel = 'chrome'; }
+const { chromium, devices } = pw;
 import { mkdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
-const OUT = new URL('./out/', import.meta.url).pathname;
+const OUT = fileURLToPath(new URL('./out/', import.meta.url));
 mkdirSync(OUT, { recursive: true });
 const server = await preview({ preview: { port: 4317, strictPort: true, host: '127.0.0.1' }, logLevel: 'error' });
 const BASE = 'http://127.0.0.1:4317/';
-const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+const browser = await chromium.launch({ channel, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const results = {};
 let failed = false;
 const fail = (msg) => { failed = true; console.log('FAIL', msg); };
@@ -68,6 +73,37 @@ const state = (page) => page.evaluate(() => {
   }
   await simWait(0.8);
   const seen = await page.evaluate(() => window.__atk.slice());
+
+  // roll: hold D and press K -> Juno rolls right, further and faster than running
+  const r0 = await state(page);
+  await page.keyboard.down('KeyD'); await page.keyboard.press('KeyK');
+  await page.waitForFunction(() => window.__game.juno.state === 'roll', null, { timeout: 5000 }).catch(() => {});
+  const rollSeen = (await state(page)).state === 'roll';
+  await page.keyboard.up('KeyD');
+  await page.waitForFunction(() => window.__game.juno.state !== 'roll', null, { timeout: 5000 }).catch(() => {});
+  const r1 = await state(page);
+  // i-frames, stepped by hand so the timing is exact: a Crow jab that lands mid-roll is dodged;
+  // the same jab without the roll hits (shows the setup is right)
+  const iframes = await page.evaluate(() => {
+    const g = window.__game, C = window.__config, dt = 1 / C.sim.hz;
+    const run = (roll) => {
+      const j = g.juno;
+      g.fighters = [j]; g.waveActive = false; g.waveTimer = 999;
+      Object.assign(j, { x: 0, z: 0, yaw: Math.PI, hp: 100, invuln: 0, freeze: 0, state: 'idle', stateTime: 0, rollCooldown: 0 });
+      const e = g.makeFighter('crow', 'enemy', 0, 1.0); e.yaw = Math.PI; e.state = 'circle'; g.fighters.push(e);
+      let dodged = 0; const off = (ev) => { if (ev.type === 'dodged') dodged++; }; g.on(off);
+      g.startAttack(e, 'crowJab');
+      const a = C.attacks.crowJab; e.stateTime = a.length * a.lands - 0.05; // 0.05 s before the jab lands
+      if (roll) { j.yaw = Math.PI; j.wantX = j.wantZ = 0; g.startRoll(j); }
+      for (let i = 0; i < 30; i++) g.step(dt, { mx: 0, mz: 0, attackPresses: 0, dodgePresses: 0 });
+      g.listeners = g.listeners.filter((f) => f !== off);
+      return { hp: j.hp, dodged };
+    };
+    const out = { withRoll: run(true), withoutRoll: run(false) };
+    g.fighters = [g.juno];
+    return out;
+  });
+
   await page.evaluate(() => { window.__game.waveTimer = 0; });
   await simWait(2.5); // let wave 1 climb in
   await page.screenshot({ path: OUT + 'desktop.png' });
@@ -87,6 +123,7 @@ const state = (page) => page.evaluate(() => {
     attackAfterJ: s3.attacks, comboAttacksSeen: seen,
     debugOpen: dbg.open, debugSliders: dbg.sliders, debugReadoutHasFps: /FPS \d+/.test(dbg.text) && /draw calls \d+/.test(dbg.text),
     restartResets: s4.wave === -1 && s4.hp === 100,
+    rollFromK: rollSeen, rollMetres: +(r1.x - r0.x).toFixed(2), iframes,
     consoleErrors: errs(),
   };
   if (!(s1.x - s0.x > 1)) fail('D key did not move Juno right');
@@ -95,6 +132,10 @@ const state = (page) => page.evaluate(() => {
   if (seen.join() !== 'junoJab,junoCross,junoKick') fail(`combo did not chain jab, cross, kick: ${seen}`);
   if (!dbg.open || dbg.sliders < 40) fail('debug panel');
   if (!results.desktop.restartResets) fail('restart');
+  if (!rollSeen) fail('K did not start a roll');
+  if (!(r1.x - r0.x > 1.5)) fail(`roll moved only ${(r1.x - r0.x).toFixed(2)} m`);
+  if (!(iframes.withRoll.hp === 100 && iframes.withRoll.dodged === 1)) fail(`roll did not dodge the jab: ${JSON.stringify(iframes.withRoll)}`);
+  if (!(iframes.withoutRoll.hp < 100)) fail('the same jab without a roll did not hit (test setup is wrong)');
   await page.close();
 }
 
@@ -141,6 +182,51 @@ if (!(results.goodBot.coinsCollected > 0)) fail('good bot collected no coins');
 if (!(results.goodBot.weaponsBought.length > 0 && results.goodBot.weaponHits > 0)) fail('good bot did not buy and use a weapon');
 if (results.badBot.escapeFailures) fail(`bad bot: Juno got stuck ${results.badBot.escapeFailures} times`);
 
+// ---- 3b. wave modifiers, each forced with ?mod= --------------------------------------
+{
+  const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+  const errs = watchConsole(page, 'modifiers');
+  await page.goto(BASE + '?mod=swift');
+  await page.waitForFunction(() => window.__game);
+  const mods = await page.evaluate(() => {
+    const g = window.__game, out = {};
+    const clear = () => { for (const e of g.liveEnemies()) { e.hp = 0; e.state = 'defeated'; } g.queue = []; g.updateWaves(0.01); };
+    // swift, tough, swarm: enemies of the wave
+    for (const key of ['swift', 'tough', 'swarm']) {
+      g.reset(); g.forceMod = key; g.startWave(1);
+      const live = g.liveEnemies();
+      out[key] = { speedMul: live[0].speedMul, crowHp: live.find((e) => e.kind === 'crow')?.maxHp, total: live.length + g.queue.length, label: g.mod.label };
+    }
+    g.reset(); g.forceMod = 'none'; g.startWave(1);
+    out.none = { crowHp: g.liveEnemies().find((e) => e.kind === 'crow')?.maxHp, total: g.liveEnemies().length + g.queue.length, mod: g.modKey };
+    // fists: weapon put away, rack closed, weapon back after the wave
+    g.reset(); g.forceMod = 'fists';
+    const j = g.juno; j.weapon = 'pipe'; j.durability = 9; j.coins = 50;
+    g.startWave(1);
+    const during = { weapon: j.weapon, stashed: j.stashed };
+    let failEv = null; const off = (ev) => { if (ev.type === 'buyFail') failEv = ev; }; g.on(off);
+    g.tryBuy({ weapon: 'pipe' });
+    clear();
+    out.fists = { during, buyBlocked: !!(failEv && failEv.fists), coinsKept: j.coins, after: { weapon: j.weapon, durability: j.durability, mod: g.modKey } };
+    g.listeners = g.listeners.filter((f) => f !== off);
+    g.forceMod = 'swift'; g.reset(); g.startWave(1);
+    return out;
+  });
+  await page.waitForTimeout(400);
+  const chip = await page.evaluate(() => ({ text: document.getElementById('mod-chip').textContent, shown: document.getElementById('mod-chip').classList.contains('show') }));
+  await page.screenshot({ path: OUT + 'modifier.png' });
+  results.modifiers = { ...mods, chip, consoleErrors: errs() };
+  if (mods.swift.speedMul !== 1.35) fail('swift did not speed enemies up');
+  if (!(mods.tough.crowHp > mods.none.crowHp * 1.4)) fail('tough did not raise enemy health');
+  if (mods.swarm.total !== mods.none.total + 3) fail('swarm did not add 3 enemies');
+  if (mods.none.mod !== null) fail('?mod=none still had a modifier');
+  if (!(mods.fists.during.weapon === null && mods.fists.during.stashed === 'pipe')) fail('fists only did not put the weapon away');
+  if (!mods.fists.buyBlocked || mods.fists.coinsKept !== 50) fail('fists only did not close the rack');
+  if (!(mods.fists.after.weapon === 'pipe' && mods.fists.after.durability === 9 && mods.fists.after.mod === null)) fail(`weapon not back after fists only: ${JSON.stringify(mods.fists.after)}`);
+  if (!(chip.shown && chip.text === 'Fast Crows')) fail(`modifier chip: ${JSON.stringify(chip)}`);
+  await page.close();
+}
+
 // ---- 4. phone held upright, touch ---------------------------------------------------
 {
   const ctx = await browser.newContext({ ...devices['iPhone 13'] });
@@ -157,7 +243,15 @@ if (results.badBot.escapeFailures) fail(`bad bot: Juno got stuck ${results.badBo
   await page.waitForTimeout(60);
   const s2 = { stateAtTap: (await state(page)).state, attacks: await page.evaluate(() => window.__atk) };
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-  await page.waitForTimeout(400);
+  await page.waitForTimeout(700);
+  await page.evaluate(() => { window.__rolled = 0; window.__game.on((ev) => { if (ev.type === 'roll') window.__rolled++; }); });
+  const rb0 = await page.locator('#roll-btn').boundingBox();
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: rb0.x + rb0.width / 2, y: rb0.y + rb0.height / 2, id: 3 }] });
+  await page.waitForTimeout(60);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await page.waitForFunction(() => window.__rolled > 0, null, { timeout: 5000 }).catch(() => {});
+  const rolledFromTap = await page.evaluate(() => window.__rolled);
+  await page.waitForTimeout(600);
   const s0 = await state(page);
   // drag up and to the right on the left half of the screen
   await touch('touchStart', 100, 600);
@@ -175,11 +269,12 @@ if (results.badBot.escapeFailures) fail(`bad bot: Juno got stuck ${results.badBo
   const s3 = await state(page);
   results.phone = {
     dragMoved: { right: +(s1.x - s0.x).toFixed(2), up: +(s0.z - s1.z).toFixed(2) },
-    attackButtonShown: vis.attack !== 'none', attackFromTap: s2.attacks > 0, stateAtTap: s2.stateAtTap,
+    attackButtonShown: vis.attack !== 'none', attackFromTap: s2.attacks > 0, stateAtTap: s2.stateAtTap, rollFromTap: rolledFromTap > 0,
     restartButtonTap: s3.wave === -1, consoleErrors: errs(),
   };
   if (!(s1.x - s0.x > 0.5 && s0.z - s1.z > 0.5)) fail('touch drag did not move Juno');
   if (!(s2.attacks > 0)) fail('attack button tap did not attack');
+  if (!(rolledFromTap > 0)) fail('roll button tap did not roll');
   if (!results.phone.restartButtonTap) fail('restart button tap');
   await ctx.close();
 }
