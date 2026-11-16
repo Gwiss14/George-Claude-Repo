@@ -2,9 +2,13 @@
   "extraKnownMarketplaces": {
     "george-claude-repo": {
       "source": { "source": "github", "repo": "Gwiss14/George-Claude-Repo" }
+    },
+    "thedotmack": {
+      "source": { "source": "github", "repo": "thedotmack/claude-mem" }
     }
   },
   "enabledPlugins": {
-    "boot-hud@george-claude-repo": true
+    "boot-hud@george-claude-repo": true,
+    "claude-mem@thedotmack": true
   }
 }
