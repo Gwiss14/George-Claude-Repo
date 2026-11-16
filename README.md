@@ -32,6 +32,21 @@ Start a new session after installing so the mods load.
 
 `boot-hud` needs no install in this repo: `.claude/settings.json` adds the marketplace and turns it on, so it loads in every session opened here. To have it in every session on a machine, whatever the project, install it there once with the line above.
 
+## Memory (claude-mem)
+
+[claude-mem](https://github.com/thedotmack/claude-mem) gives Claude Code persistent memory:
+it records what happens in a session, compresses it, and feeds the relevant bits into the
+next session in the same project. `.claude/settings.json` adds its marketplace and turns it
+on, so it loads in every session opened here.
+
+- Memory is stored in `~/.claude-mem` on the machine running Claude Code. Cloud sessions
+  start in a fresh container, so memory only builds up across sessions on your own computer.
+- To have it everywhere on a machine, run `npx claude-mem install` there (it also sets up
+  the background worker), or `/plugin marketplace add thedotmack/claude-mem` then
+  `/plugin install claude-mem`.
+- It sends anonymous usage analytics by default; `npx claude-mem telemetry disable` turns
+  them off.
+
 ## Daily Ops Brief
 
 Answers one question each morning: **what is waiting on me, and what will quietly slip
