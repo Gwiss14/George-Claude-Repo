@@ -1,7 +1,8 @@
 // First-person controls.
 // Desktop: click to lock the mouse for aiming (Esc frees it; dragging also aims), WASD / arrows
 // to move (left/right arrows turn), click or Space to shoot, R to reload, E to buy.
-// Touch: drag on the left to move, drag on the right to aim, FIRE (hold) and BUY buttons.
+// Touch: drag on the left to move, drag on the right to aim. Shoot with a quick tap on the right,
+// with a second finger anywhere while the first one aims or moves (hold to keep firing), or FIRE.
 
 import { CONFIG } from '../config.js';
 
@@ -13,6 +14,7 @@ export class FpsInput {
     this.bot = null;
     this.stick = { id: null, ox: 0, oy: 0, x: 0, y: 0 };
     this.look = { id: null, x: 0, y: 0 };
+    this.fireTouches = new Set(); // extra fingers held down while aiming or moving: they shoot
     this.drag = null;
     this.canvas = canvas;
     const S = this.state, look = (dx, dy) => {
@@ -52,9 +54,12 @@ export class FpsInput {
     const moveZone = document.getElementById('touch-zone');
     const lookZone = document.getElementById('look-zone');
     const base = document.getElementById('stick-base'), knob = document.getElementById('stick-knob');
+    const extraFinger = (e) => { this.fireTouches.add(e.pointerId); S.firePresses++; e.preventDefault(); };
+    const liftFinger = (e) => this.fireTouches.delete(e.pointerId);
+    for (const z of [moveZone, lookZone]) { z.addEventListener('pointerup', liftFinger); z.addEventListener('pointercancel', liftFinger); }
     moveZone.addEventListener('pointerdown', (e) => {
-      if (this.stick.id !== null) return;
-      this.stick = { id: e.pointerId, ox: e.clientX, oy: e.clientY, x: 0, y: 0 };
+      if (this.stick.id !== null) { extraFinger(e); return; }
+      this.stick = { id: e.pointerId, ox: e.clientX, oy: e.clientY, x: 0, y: 0, sx: e.clientX, sy: e.clientY, t: e.timeStamp };
       moveZone.setPointerCapture(e.pointerId);
       base.style.display = 'block'; base.style.left = `${e.clientX}px`; base.style.top = `${e.clientY}px`;
       knob.style.transform = 'translate(-50%, -50%)';
@@ -68,12 +73,19 @@ export class FpsInput {
       this.stick.x = dx / m; this.stick.y = -dy / m;
       knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
     });
-    const endStick = (e) => { if (e.pointerId === this.stick.id) { this.stick = { id: null, ox: 0, oy: 0, x: 0, y: 0 }; base.style.display = 'none'; } };
+    const isTap = (e, start) => e.type === 'pointerup' && e.timeStamp - start.t < CONFIG.fps.tapTime * 1000
+      && Math.hypot(e.clientX - start.sx, e.clientY - start.sy) < CONFIG.fps.tapSlop;
+    const endStick = (e) => {
+      if (e.pointerId !== this.stick.id) return;
+      if (isTap(e, this.stick)) S.firePresses++; // a tap on the move side shoots too
+      this.stick = { id: null, ox: 0, oy: 0, x: 0, y: 0 };
+      base.style.display = 'none';
+    };
     moveZone.addEventListener('pointerup', endStick);
     moveZone.addEventListener('pointercancel', endStick);
     lookZone.addEventListener('pointerdown', (e) => {
-      if (this.look.id !== null) return;
-      this.look = { id: e.pointerId, x: e.clientX, y: e.clientY };
+      if (this.look.id !== null) { extraFinger(e); return; }
+      this.look = { id: e.pointerId, x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, t: e.timeStamp };
       lookZone.setPointerCapture(e.pointerId);
       e.preventDefault();
     });
@@ -82,7 +94,12 @@ export class FpsInput {
       look((e.clientX - this.look.x) * 1.4, (e.clientY - this.look.y) * 1.4);
       this.look.x = e.clientX; this.look.y = e.clientY;
     });
-    const endLook = (e) => { if (e.pointerId === this.look.id) this.look.id = null; };
+    const endLook = (e) => {
+      if (e.pointerId !== this.look.id) return;
+      // a quick tap that barely moved is a shot, not an aim
+      if (isTap(e, this.look)) S.firePresses++; // timed from when the finger touched and lifted
+      this.look.id = null;
+    };
     lookZone.addEventListener('pointerup', endLook);
     lookZone.addEventListener('pointercancel', endLook);
 
@@ -114,7 +131,7 @@ export class FpsInput {
     S.yaw += turn * CONFIG.fps.turnKeys * dt;
     S.forward = fwd + this.stick.y;
     S.strafe = str + this.stick.x;
-    S.fireHeld = this.mouseFire || this.touchFire || k.has('Space');
+    S.fireHeld = this.mouseFire || this.touchFire || this.fireTouches.size > 0 || k.has('Space');
     return S;
   }
 }

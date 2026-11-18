@@ -10,6 +10,8 @@ CONFIG.fps = {
   moveMul: 1.1,          // Juno walks a little faster than in the brawler
   lookSpeed: 0.0026,     // radians per pixel of mouse or finger movement
   turnKeys: 2.4,         // radians per second with the left/right arrow keys
+  tapTime: 0.3,          // s: a touch on the aiming side shorter than this, that barely moves, is a shot
+  tapSlop: 14,           // px it may move and still count as a tap
   comboEvery: 5,         // hits in a row without missing for a COMBO
   staggerEvery: 0.5,     // s: a Crow flinches at most this often, so fast guns do not stun-lock
   headshotTop: 0.18,     // the top 18 % of a fighter's height counts as the head

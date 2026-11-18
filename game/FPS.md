@@ -12,7 +12,7 @@ Aim and shoot the Crows climbing over the back wall → back away from the ones 
 |---|---|---|
 | Aim | Mouse (click to lock it, Esc to free it; dragging also aims) · left/right arrows turn | Drag on the right half |
 | Move | WASD / up and down arrows, relative to where you look | Drag on the left half (thumb-stick) |
-| Shoot | Click or Space (hold for automatic fire) | Hold FIRE |
+| Shoot | Click or Space (hold for automatic fire) | Tap anywhere (a quick touch that doesn't drag) · or, while one finger aims or moves, put another finger down (hold to keep firing) · or hold FIRE |
 | Reload | R (also automatic when the magazine is empty) | RELOAD (shown when it helps) |
 | Buy | E on a pad | BUY (shown on a pad) |
 | Debug panel | ` | add `?debug` |

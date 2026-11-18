@@ -118,13 +118,48 @@ if (results.badBot.result !== 'lost') fail(`bad bot should lose (${results.badBo
   await simWait(page, 0.6);
   await t('touchEnd', []);
   const shots = await page.evaluate(() => window.__shots);
+  // quick tap on the aiming side shoots (this software-rendered browser delivers touches slowly, so allow a longer tap)
+  await page.evaluate(() => { window.__config.fps.tapTime = 3; });
+  await simWait(page, 0.4);
+  let before = await page.evaluate(() => window.__shots);
+  // tap on open sky, clear of the RELOAD button
+  await t('touchStart', [{ x: 260, y: 300, id: 4 }]); await page.waitForTimeout(60); await t('touchEnd', []);
+  await simWait(page, 0.1);
+  const tapShots = (await page.evaluate(() => window.__shots)) - before;
+  // aim with one finger, then put a second finger down: it shoots while held
+  await simWait(page, 0.4);
+  before = await page.evaluate(() => window.__shots);
+  await t('touchStart', [{ x: 260, y: 320, id: 5 }]);
+  await t('touchMove', [{ x: 280, y: 320, id: 5 }]);
+  await t('touchStart', [{ x: 280, y: 320, id: 5 }, { x: 330, y: 250, id: 6 }]);
+  await simWait(page, 0.8);
+  await t('touchEnd', []);
+  const secondFingerShots = (await page.evaluate(() => window.__shots)) - before;
+  // a quick tap on the move side shoots too
+  await simWait(page, 0.4);
+  before = await page.evaluate(() => window.__shots);
+  await t('touchStart', [{ x: 100, y: 300, id: 8 }]); await page.waitForTimeout(60); await t('touchEnd', []);
+  await simWait(page, 0.1);
+  const leftTapShots = (await page.evaluate(() => window.__shots)) - before;
+  // a drag that aims does not shoot
+  await simWait(page, 0.4);
+  before = await page.evaluate(() => window.__shots);
+  await t('touchStart', [{ x: 260, y: 320, id: 7 }]);
+  for (let i = 1; i <= 6; i++) { await t('touchMove', [{ x: 260 + i * 10, y: 320, id: 7 }]); await page.waitForTimeout(16); }
+  await t('touchEnd', []);
+  await simWait(page, 0.1);
+  const dragShots = (await page.evaluate(() => window.__shots)) - before;
   await page.evaluate(() => { window.__game.waveTimer = 0; });
   await simWait(page, 2.5);
   await page.screenshot({ path: OUT + 'fps-phone.png' });
-  results.phone = { moved: +(s0.z - s1.z).toFixed(2), turned: +wrap(s1.yaw - s2.yaw).toFixed(2), shotsWhileHoldingFire: shots, consoleErrors: errs() };
+  results.phone = { moved: +(s0.z - s1.z).toFixed(2), turned: +wrap(s1.yaw - s2.yaw).toFixed(2), shotsWhileHoldingFire: shots, tapShots, leftTapShots, secondFingerShots, dragShots, consoleErrors: errs() };
   if (!(s0.z - s1.z > 0.5)) fail('left-side drag did not move forward');
   if (!(wrap(s1.yaw - s2.yaw) > 0.05)) fail('right-side drag did not turn right');
   if (!(shots >= 2)) fail('holding FIRE did not keep shooting');
+  if (tapShots !== 1) fail(`a quick tap fired ${tapShots} shots (want 1)`);
+  if (!(secondFingerShots >= 2)) fail(`a second finger while aiming fired ${secondFingerShots} shots`);
+  if (dragShots !== 0) fail(`an aiming drag fired ${dragShots} shots`);
+  if (leftTapShots !== 1) fail(`a quick tap on the move side fired ${leftTapShots} shots (want 1)`);
   await ctx.close();
 }
 
