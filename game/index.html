@@ -4,39 +4,47 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#2b2a5e" />
-  <title>Tank Roof Scrap</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./icons/icon-180.png" />
+  <link rel="icon" type="image/png" href="./icons/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Roof Rumble" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>Roof Rumble</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <div id="app"></div>
+  <main id="menu">
+    <header>
+      <h1>ROOF<br />RUMBLE</h1>
+      <p class="tag">The Tin Crows want the roof. Two ways to say no.</p>
+    </header>
 
-  <div id="hud">
-    <div id="hp"><span class="name">JUNO</span><div class="bar"><div id="hp-fill"></div></div><span id="hp-text">100</span></div>
-    <div id="wave">Get ready</div>
-    <div id="purse"><span class="coin-icon"></span><span id="coin-count">0</span>
-      <span id="weapon-chip"><span id="weapon-name"></span><span id="weapon-pips"></span></span></div>
-    <div id="pad-prompt"></div>
-    <div id="pops"></div>
-    <button id="restart-btn" aria-label="Restart">↻</button>
-    <div id="boss"><span class="name">GRUDGE</span><div class="bar"><div id="boss-fill"></div></div></div>
-    <div id="banner"></div>
-    <div id="hint" class="desktop-only">WASD / arrows move · J or Space attack (press again to combo) · stand on a pad at the rack and attack to buy · R restart · ` debug</div>
-  </div>
+    <nav class="modes">
+      <a class="mode brawl" id="go-brawler" href="./brawler.html">
+        <span class="kicker">Third person</span>
+        <span class="name">Tank Roof Scrap</span>
+        <span class="about">Fists, three-hit combos, pipes and hammers.</span>
+        <span class="best" id="best-brawler">Best: no waves yet</span>
+      </a>
+      <a class="mode shoot" id="go-fps" href="./fps.html">
+        <span class="kicker">First person</span>
+        <span class="name">Rooftop Shootout</span>
+        <span class="about">Aim, shoot, dodge wrenches. Five guns to unlock.</span>
+        <span class="best" id="best-fps">Best: no waves yet</span>
+      </a>
+    </nav>
 
-  <div id="touch-zone"></div>
-  <div id="stick-base"><div id="stick-knob"></div></div>
-  <button id="attack-btn" aria-label="Attack">HIT</button>
-
-  <div id="end">
-    <div class="card">
-      <h1 id="end-title">Knocked out</h1>
-      <p id="end-sub"></p>
-      <button id="end-restart">Fight again</button>
-    </div>
-  </div>
-
-  <div id="debug"></div>
-  <script type="module" src="/src/main.js"></script>
+    <aside id="install" hidden>
+      <b>Make it an app:</b> tap <span class="share" aria-label="Share">Share</span> below, then <b>Add to Home Screen</b>.
+      It opens full screen and works offline.
+    </aside>
+    <p class="foot">Waves never end. Your best wave in each game is kept on this phone.</p>
+  </main>
+  <div id="skyline" aria-hidden="true"></div>
+  <script type="module" src="/src/menu/main.js"></script>
 </body>
 </html>

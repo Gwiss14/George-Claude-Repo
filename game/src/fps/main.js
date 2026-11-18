@@ -1,4 +1,5 @@
 import '../style.css';
+import { hapticsFor } from '../app/app.js';
 import './fps.css';
 import './setup.js';
 import { CONFIG } from '../config.js';
@@ -17,6 +18,7 @@ const restart = () => game.reset();
 const debug = new Debug(game, view, restart);
 const input = new FpsInput({ canvas: view.renderer.domElement, onDebug: () => debug.toggle() });
 const hud = new FpsHud(game, restart, view, input);
+hapticsFor(game);
 if (params.has('debug')) debug.toggle(true);
 
 if (window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) document.body.classList.add('touch');

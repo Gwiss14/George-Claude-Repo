@@ -10,6 +10,7 @@
 
 * { box-sizing: border-box; }
 html, body {
+  -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%;
   margin: 0; height: 100%; overflow: hidden; background: #2b2a5e; color: var(--paper);
   font-family: var(--font); letter-spacing: 0.04em;
   touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
@@ -37,6 +38,11 @@ html, body {
   position: absolute; top: calc(10px + env(safe-area-inset-top)); right: calc(16px + env(safe-area-inset-right));
   pointer-events: auto; width: 44px; height: 44px; font-size: 24px; line-height: 1; cursor: pointer;
   background: var(--paper); color: var(--ink); border: 3px solid var(--ink); border-radius: 8px; box-shadow: 3px 3px 0 var(--ink);
+}
+#menu-btn {
+  position: absolute; top: calc(10px + env(safe-area-inset-top)); right: calc(68px + env(safe-area-inset-right));
+  pointer-events: auto; width: 44px; height: 44px; display: grid; place-items: center; font-size: 22px; line-height: 1;
+  text-decoration: none; background: var(--paper); color: var(--ink); border: 3px solid var(--ink); border-radius: 8px; box-shadow: 3px 3px 0 var(--ink);
 }
 #banner {
   position: absolute; top: 34%; left: 50%; transform: translate(-50%, -50%) scale(0.8) rotate(-3deg);
@@ -147,4 +153,11 @@ body.touch #attack-btn {
   #pad-prompt { bottom: calc(140px + env(safe-area-inset-bottom)); font-size: 18px; }
   .bar { width: min(52vw, 240px); }
   .name { font-size: 18px; }
+}
+
+/* phones held sideways: the screen is short, so the wave label sits beside the corner buttons */
+@media (max-height: 500px) and (min-width: 601px) {
+  #wave { left: auto; right: calc(130px + env(safe-area-inset-right)); transform: none; font-size: 22px; }
+  .bar { width: min(28vw, 200px); }
+  #boss { top: calc(50px + env(safe-area-inset-top)); }
 }

@@ -11,7 +11,7 @@ import { mkdirSync } from 'node:fs';
 const OUT = new URL('./out/', import.meta.url).pathname;
 mkdirSync(OUT, { recursive: true });
 const server = await preview({ preview: { port: 4317, strictPort: true, host: '127.0.0.1' }, logLevel: 'error' });
-const BASE = 'http://127.0.0.1:4317/';
+const BASE = 'http://127.0.0.1:4317/brawler.html';
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const results = {};
 let failed = false;

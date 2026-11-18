@@ -27,7 +27,11 @@
 - Shooter mode (player asked in a comment on the game page: "Make this a FPS"; chose a shooter with guns, on a separate new page): `fps.html` + `src/fps/`, design in FPS.md. First-person camera, mouse/touch aim, pistol plus five rack guns (smg, shotgun, rifle, splat launcher, minigun), headshots, hit streak combos, elites throw wrenches. Reuses the brawler's waves, enemies, coins and rack by extending Game and View. `npm run test:fps` checks controls, a good bot (7 waves incl. a boss wave) and a bad bot.
 - The live brawler page (claude.ai artifact) was republished from elsewhere as "Soluna Rooftop" with a roll/dodge and wave modifiers. That source is not in this repository; it was left untouched.
 
+- iPhone app (player asked "Dedicate this for an iPhone app"; chose both a Home Screen web app and a native Xcode project, with both games in one app): start menu `index.html` (brawler moved to `brawler.html`), Home Screen manifest, icons and offline service worker, a Capacitor `ios/` project with haptics, full screen and no status bar. Instructions in IPHONE.md. `npm run test:app` checks the menu, Home Screen files, offline play and iPhone portrait/landscape.
+
 ## Known / open
+- The Home Screen web app needs a public https address; no host chosen yet (must ask the player before creating any public page or account).
+- The native app was generated on Linux and has not been built in Xcode yet (needs the player's Mac).
 - New Juno states swing/backswing/overhead need animations: slash, plus two Text to Motion clips (listed in assets.json).
 - The good bot never needs to block, and loses only 8 health in a full round: the game may be too easy for a careful player. Tune enemy speed, attackGap or damage after the player tries it.
 - Draw calls are high (~170 at the busiest moment, half of it the shadow pass) because every placeholder part is its own mesh plus outline. Models in stage 5 will lower this.

@@ -40,6 +40,8 @@ export function stateLabel(f) {
 }
 
 export class Game {
+  static bestKey = 'trs-best-wave'; // where the best wave is remembered (one key per game)
+
   constructor() {
     this.listeners = [];
     this.reset();
@@ -56,7 +58,7 @@ export class Game {
     this.wavesCleared = 0;
     this.queue = [];           // enemies of this wave still waiting to climb in
     this.reinforceTimer = 0;
-    try { this.best = Number(localStorage.getItem('trs-best-wave')) || 0; } catch { this.best = 0; }
+    try { this.best = Number(localStorage.getItem(this.constructor.bestKey)) || 0; } catch { this.best = 0; }
     this.waveActive = false;
     this.waveTimer = 0.8;
     this.nextAttackTime = 0;
@@ -588,7 +590,7 @@ export class Game {
     this.reinforceTimer = CONFIG.waves.reinforceDelay;
     if (i + 1 > this.best) {
       this.best = i + 1;
-      try { localStorage.setItem('trs-best-wave', String(this.best)); } catch { /* private window: keep it in memory */ }
+      try { localStorage.setItem(this.constructor.bestKey, String(this.best)); } catch { /* private window: keep it in memory */ }
     }
     this.emit({ type: 'wave', wave: i + 1, boss: (i + 1) % CONFIG.waves.bossEvery === 0, size: first.length + roster.length });
   }

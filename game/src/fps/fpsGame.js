@@ -11,6 +11,8 @@ const rand = (lo, hi) => lo + Math.random() * (hi - lo);
 const SOLID_HEIGHT = { water_tank: 2.5, lamp_post: 3.5, crate: 1.0, weapon_rack: 2.0 };
 
 export class FpsGame extends Game {
+  static bestKey = 'trs-best-wave-fps';
+
   reset() {
     super.reset();
     this.juno.pitch = 0;

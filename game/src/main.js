@@ -1,4 +1,5 @@
 import './style.css';
+import { hapticsFor } from './app/app.js';
 import { CONFIG } from './config.js';
 import { Game } from './game/game.js';
 import { View } from './view/view.js';
@@ -15,6 +16,7 @@ const restart = () => game.reset();
 const debug = new Debug(game, view, restart);
 const input = new Input({ onRestart: restart, onDebug: () => debug.toggle() });
 const hud = new Hud(game, restart, view);
+hapticsFor(game);
 if (params.has('debug')) debug.toggle(true);
 
 if (window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) document.body.classList.add('touch');

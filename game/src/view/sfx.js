@@ -11,6 +11,10 @@ export class Sfx {
     };
     window.addEventListener('pointerdown', unlock, { passive: true });
     window.addEventListener('keydown', unlock);
+    window.addEventListener('touchend', unlock, { passive: true }); // iPhone only allows sound to start here
+    window.addEventListener('click', unlock);
+    // after the app comes back from the background, iOS leaves the sound suspended
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && this.ctx?.state === 'suspended') this.ctx.resume().catch(() => {}); });
   }
 
   tone(freq, endFreq, dur, type = 'square', vol = 0.15, delay = 0) {
