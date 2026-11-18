@@ -94,7 +94,11 @@ export class Bot {
       if (g.time - this.endTime > 1) r.done = true;
       return;
     }
-    if (this.mode === 'good' && g.wavesCleared >= this.targetWaves) { r.result = `cleared ${g.wavesCleared} waves`; r.done = true; return; }
+    if (this.mode === 'good' && g.wavesCleared >= this.targetWaves) {
+      r.result = `cleared ${g.wavesCleared} waves`; r.done = true;
+      CONFIG.sim.timeScale = 0; // freeze the roof so the next wave cannot change what the test checks
+      return;
+    }
     if (g.time > 600) { r.result = r.result ?? 'timeout'; r.done = true; return; }
     if (this.mode === 'bad') this.thinkBad(dt); else this.thinkGood(dt);
   }

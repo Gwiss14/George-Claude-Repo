@@ -24,6 +24,9 @@
 - Endless waves (player asked): wave rosters grow from config numbers, Grudge every 5th wave, reinforcements climb in (max 5 on the roof), enemies +8 % health / +5 % damage per wave, best wave kept in the browser. No win screen any more.
 - More weapons unlock as waves are cleared (player asked): pipe 1, hammer 2, wrench 4, shovel 6, axe 9; five pads in front of the rack. The five weapons are now one Tripo 'parts' model (`weapons.glb`), replacing the pipe and hammer entries, so assets.json has 7 entries. TRIPO.md regenerated.
 
+- Shooter mode (player asked in a comment on the game page: "Make this a FPS"; chose a shooter with guns, on a separate new page): `fps.html` + `src/fps/`, design in FPS.md. First-person camera, mouse/touch aim, pistol plus five rack guns (smg, shotgun, rifle, splat launcher, minigun), headshots, hit streak combos, elites throw wrenches. Reuses the brawler's waves, enemies, coins and rack by extending Game and View. `npm run test:fps` checks controls, a good bot (7 waves incl. a boss wave) and a bad bot.
+- The live brawler page (claude.ai artifact) was republished from elsewhere as "Soluna Rooftop" with a roll/dodge and wave modifiers. That source is not in this repository; it was left untouched.
+
 ## Known / open
 - New Juno states swing/backswing/overhead need animations: slash, plus two Text to Motion clips (listed in assets.json).
 - The good bot never needs to block, and loses only 8 health in a full round: the game may be too easy for a careful player. Tune enemy speed, attackGap or damage after the player tries it.

@@ -84,6 +84,11 @@ export function posePlaceholder(obj, f, label, vis, dt, now) {
         else leg_r.rotation.x = lerp(-1.45, 0, ease(ph.r));
         body.rotation.x = ph.p >= ph.a.lands && (ph.act || ph.r < 0.5) ? -0.3 : 0;
         break;
+      case 'eliteThrow':
+        if (ph.p < ph.a.lands) arm_r.rotation.x = lerp(GUARD, -2.9, ease(ph.w));
+        else arm_r.rotation.x = lerp(-1.2, GUARD, ease((ph.p - ph.a.lands) / (1 - ph.a.lands)));
+        body.rotation.y = ph.p < ph.a.lands ? 0.4 * ease(ph.w) : -0.3;
+        break;
       case 'grudgeSmash': {
         let arms;
         if (ph.p < ph.a.lands) { arms = lerp(GUARD, -3.0, ease(ph.w)); body.rotation.x = lerp(0, -0.25, ease(ph.w)); }

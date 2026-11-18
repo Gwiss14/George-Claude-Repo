@@ -1,20 +1,22 @@
 // Builds the game as ONE self-contained HTML page (CSS and JS inlined), for sharing as a single file.
-//   node scripts/build-artifact.mjs <output.html>
+//   node scripts/build-artifact.mjs <output.html> [entry.html]   (entry: index.html = brawler, fps.html = shooter)
 import { build } from 'vite';
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 
 const out = process.argv[2] || 'dist-single/tank-roof-scrap.html';
+const entry = process.argv[3] || 'index.html';
 await build({
   logLevel: 'error',
-  build: { outDir: 'dist-single/tmp', emptyOutDir: true, rollupOptions: { output: { inlineDynamicImports: true } } },
+  build: { outDir: 'dist-single/tmp', emptyOutDir: true, rollupOptions: { input: entry, output: { inlineDynamicImports: true } } },
 });
 const dir = 'dist-single/tmp/assets/';
 const files = readdirSync(dir);
 const js = readFileSync(dir + files.find((f) => f.endsWith('.js')), 'utf8').replace(/<\/script/gi, '<\\/script');
 const css = readFileSync(dir + files.find((f) => f.endsWith('.css')), 'utf8');
-const html = readFileSync('dist-single/tmp/index.html', 'utf8');
+const html = readFileSync(`dist-single/tmp/${entry}`, 'utf8');
 const body = html.slice(html.indexOf('<body>') + 6, html.indexOf('</body>')).replace(/<script[^>]*src=[^>]*><\/script>/g, '');
-const page = `<title>Tank Roof Scrap</title>
+const title = (html.match(/<title>([^<]*)<\/title>/) || [, 'Tank Roof Scrap'])[1];
+const page = `<title>${title}</title>
 <meta name="theme-color" content="#2b2a5e">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&display=swap">

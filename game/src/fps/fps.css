@@ -1,0 +1,50 @@
+/* shooter-only HUD */
+#crosshair {
+  position: fixed; left: 50%; top: 50%; width: 26px; height: 26px; transform: translate(-50%, -50%); pointer-events: none;
+}
+#crosshair::before, #crosshair::after {
+  content: ""; position: absolute; background: var(--paper); box-shadow: 0 0 0 2px var(--ink);
+}
+#crosshair::before { left: 12px; top: 0; width: 2px; height: 26px; }
+#crosshair::after { top: 12px; left: 0; height: 2px; width: 26px; }
+#crosshair.hit::before, #crosshair.hit::after { background: var(--accent); }
+#crosshair.hit.head::before, #crosshair.hit.head::after { background: var(--hp-low); }
+#crosshair.hit { transform: translate(-50%, -50%) rotate(45deg) scale(1.2); }
+
+#ammo {
+  position: fixed; right: calc(16px + env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom));
+  text-align: right; pointer-events: none; text-shadow: 2px 2px 0 var(--ink);
+}
+#ammo-name { font-size: 18px; color: var(--accent); }
+#ammo-count { font-size: 34px; line-height: 1; }
+#ammo-count.low { color: var(--hp-low); }
+#reload-bar { width: 120px; height: 6px; margin-left: auto; margin-top: 4px; background: rgba(11, 11, 16, 0.5); }
+#reload-fill { height: 100%; width: 0; background: var(--paper); }
+body.touch #ammo { bottom: auto; top: calc(118px + env(safe-area-inset-top)); }
+
+#vignette {
+  position: fixed; inset: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(255, 40, 40, 0.55) 100%);
+}
+#vignette.show { animation: hurt 0.45s ease-out; }
+@keyframes hurt { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+#aim-hint {
+  position: fixed; left: 50%; top: 58%; transform: translateX(-50%); display: none; pointer-events: none;
+  padding: 6px 14px; font-size: 20px; color: var(--ink); background: var(--paper); border: 3px solid var(--ink); box-shadow: 3px 3px 0 var(--ink);
+}
+#aim-hint.show { display: block; }
+
+/* touch: left half moves, right half aims */
+#look-zone { position: fixed; right: 0; top: 70px; bottom: 0; width: 50%; display: none; touch-action: none; }
+body.touch #look-zone { display: block; }
+body.touch #touch-zone { width: 50%; }
+#buy-btn, #reload-btn { display: none; }
+body.touch #attack-btn { right: calc(22px + env(safe-area-inset-right)); bottom: calc(40px + env(safe-area-inset-bottom)); }
+body.touch #buy-btn.show, body.touch #reload-btn.show {
+  display: block; position: fixed; width: 70px; height: 70px; border-radius: 50%; font-family: var(--font); font-size: 20px;
+  color: var(--ink); border: 4px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); touch-action: none;
+}
+body.touch #buy-btn.show { right: calc(132px + env(safe-area-inset-right)); bottom: calc(52px + env(safe-area-inset-bottom)); background: #3ee08f; }
+body.touch #reload-btn.show { right: calc(36px + env(safe-area-inset-right)); bottom: calc(150px + env(safe-area-inset-bottom)); background: var(--paper); }
+#buy-btn.down, #reload-btn.down { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }

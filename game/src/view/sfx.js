@@ -46,5 +46,13 @@ export class Sfx {
   coin() { this.tone(1320, 1320, 0.05, 'square', 0.07); this.tone(1760, 1760, 0.09, 'square', 0.07, 0.05); }
   nope() { this.tone(180, 140, 0.15, 'square', 0.1); }
   snap() { this.noise(0.12, 0.3); this.tone(400, 90, 0.15, 'sawtooth', 0.12); }
+  shot(gun) {
+    if (gun === 'shotgun') { this.noise(0.14, 0.32); this.tone(160, 60, 0.12, 'square', 0.14); }
+    else if (gun === 'rifle') { this.noise(0.1, 0.3); this.tone(900, 120, 0.12, 'sawtooth', 0.1); }
+    else if (gun === 'launcher') { this.tone(300, 120, 0.15, 'triangle', 0.15); this.noise(0.06, 0.15); }
+    else { this.noise(0.04, gun === 'minigun' ? 0.12 : 0.2); this.tone(gun === 'smg' || gun === 'minigun' ? 700 : 520, 200, 0.05, 'square', 0.07); }
+  }
+  boom() { this.noise(0.35, 0.4); this.tone(120, 40, 0.35, 'sawtooth', 0.16); }
+  reload() { this.tone(1100, 1100, 0.03, 'square', 0.05); this.tone(800, 800, 0.04, 'square', 0.05, 0.12); }
   lose() { this.tone(300, 60, 0.7, 'sawtooth', 0.12); }
 }
