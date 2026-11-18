@@ -17,34 +17,63 @@
   <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <main id="menu">
-    <header>
-      <h1>ROOF<br />RUMBLE</h1>
-      <p class="tag">The Tin Crows want the roof. Two ways to say no.</p>
-    </header>
+  <div id="app"></div>
+  <div id="stick-base"><div id="stick-knob"></div></div>
+  <div id="pops"></div>
 
-    <nav class="modes">
-      <a class="mode brawl" id="go-brawler" href="./brawler.html">
-        <span class="kicker">Third person</span>
-        <span class="name">Tank Roof Scrap</span>
-        <span class="about">Fists, three-hit combos, pipes and hammers.</span>
-        <span class="best" id="best-brawler">Best: no waves yet</span>
-      </a>
-      <a class="mode shoot" id="go-fps" href="./fps.html">
-        <span class="kicker">First person</span>
-        <span class="name">Rooftop Shootout</span>
-        <span class="about">Aim, shoot, dodge wrenches. Five guns to unlock.</span>
-        <span class="best" id="best-fps">Best: no waves yet</span>
-      </a>
-    </nav>
+  <!-- title -->
+  <section id="title" class="screen">
+    <h1>ROOF<br />RUMBLE</h1>
+    <p class="sub" id="title-best">Hold the roof for 5:00</p>
+    <button id="play-btn" class="big">PLAY</button>
+    <button id="shop-btn" class="small">UPGRADES <span class="coin"></span><span id="title-bank">0</span></button>
+    <p class="howto">Drag anywhere to move. Juno punches on her own.</p>
+    <a class="classic" href="./modes.html">Classic modes</a>
+  </section>
 
-    <aside id="install" hidden>
-      <b>Make it an app:</b> tap <span class="share" aria-label="Share">Share</span> below, then <b>Add to Home Screen</b>.
-      It opens full screen and works offline.
-    </aside>
-    <p class="foot">Waves never end. Your best wave in each game is kept on this phone.</p>
-  </main>
-  <div id="skyline" aria-hidden="true"></div>
-  <script type="module" src="/src/menu/main.js"></script>
+  <!-- in-run HUD -->
+  <section id="hud" hidden>
+    <div id="xp"><div id="xp-fill"></div><span id="level">LV 1</span></div>
+    <div id="timer">5:00</div>
+    <div id="hp"><div id="hp-fill"></div></div>
+    <div id="tally"><span class="ko">KO</span> <span id="kills">0</span> <span class="coin"></span><span id="run-coins">0</span></div>
+    <button id="pause-btn" aria-label="Pause">II</button>
+    <div id="banner"></div>
+  </section>
+
+  <section id="levelup" class="screen dim" hidden>
+    <h2 id="levelup-title">LEVEL UP!</h2>
+    <p class="sub">Pick one</p>
+    <div id="cards"></div>
+  </section>
+
+  <section id="paused" class="screen dim" hidden>
+    <h2>PAUSED</h2>
+    <button id="resume-btn" class="big">RESUME</button>
+    <button id="quit-btn" class="small">GIVE UP</button>
+  </section>
+
+  <section id="results" class="screen dim" hidden>
+    <h2 id="results-title">KNOCKED OUT</h2>
+    <div class="stats">
+      <div><span>Time</span><b id="res-time">0:00</b></div>
+      <div><span>KOs</span><b id="res-kills">0</b></div>
+      <div><span>Level</span><b id="res-level">1</b></div>
+      <div><span>Coins</span><b id="res-coins">+0</b></div>
+    </div>
+    <p class="sub" id="res-best"></p>
+    <button id="again-btn" class="big">PLAY AGAIN</button>
+    <button id="end-shop-btn" class="small">UPGRADES</button>
+  </section>
+
+  <section id="shop" class="screen dim" hidden>
+    <h2>UPGRADES</h2>
+    <p class="sub">Kept forever. You have <span class="coin"></span><b id="shop-bank">0</b></p>
+    <div id="shop-list"></div>
+    <button id="shop-close" class="small">DONE</button>
+  </section>
+
+  <div id="debug"></div>
+  <script type="module" src="/src/survivor/main.js"></script>
 </body>
 </html>

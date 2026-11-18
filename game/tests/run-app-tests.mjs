@@ -21,7 +21,7 @@ const realErrors = (list) => list.filter((e) => !/fonts\.(googleapis|gstatic)|ne
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
-  await page.goto(BASE);
+  await page.goto(BASE + 'modes.html');
   await page.evaluate(() => { localStorage.setItem('trs-best-wave', '7'); localStorage.setItem('trs-best-wave-fps', '4'); });
   await page.reload();
   await page.waitForTimeout(600);
@@ -84,7 +84,7 @@ const realErrors = (list) => list.filter((e) => !/fonts\.(googleapis|gstatic)|ne
   await page.evaluate(() => navigator.serviceWorker.ready);
   await ctx.setOffline(true);
   const offline = {};
-  for (const [name, path, ready] of [['menu', '', () => !!document.getElementById('go-fps')], ['brawler', 'brawler.html', () => !!window.__game], ['shooter', 'fps.html', () => !!window.__game]]) {
+  for (const [name, path, ready] of [['game', '', () => !!window.__run], ['classic menu', 'modes.html', () => !!document.getElementById('go-fps')], ['brawler', 'brawler.html', () => !!window.__game], ['shooter', 'fps.html', () => !!window.__game]]) {
     try {
       await page.goto(BASE + path, { timeout: 10000 });
       await page.waitForFunction(ready, null, { timeout: 10000 });
@@ -103,14 +103,15 @@ const realErrors = (list) => list.filter((e) => !/fonts\.(googleapis|gstatic)|ne
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
   const layout = {};
-  for (const [name, path] of [['brawler', 'brawler.html'], ['shooter', 'fps.html']]) {
+  for (const [name, path] of [['brawler', 'brawler.html'], ['shooter', 'fps.html'], ['survivor', '?bot=1&speed=1']]) {
     await page.goto(BASE + path);
-    await page.waitForFunction(() => window.__game);
+    await page.waitForFunction(() => window.__game || window.__run);
     await page.waitForTimeout(2500);
     await page.screenshot({ path: OUT + `app-${name}-landscape.png` });
     layout[name] = await page.evaluate(() => {
       const box = (id) => { const r = document.getElementById(id)?.getBoundingClientRect(); return r && r.width ? r : null; };
       const inside = (r) => r && r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= innerHeight;
+      if (window.__run) return { pause: inside(box('pause-btn')), timer: inside(box('timer')), hp: inside(box('hp')) };
       return { fire: inside(box('attack-btn')), restart: inside(box('restart-btn')), menu: inside(box('menu-btn')), hp: inside(box('hp')) };
     });
   }

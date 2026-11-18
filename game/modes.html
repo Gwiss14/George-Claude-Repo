@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#2b2a5e" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./icons/icon-180.png" />
+  <link rel="icon" type="image/png" href="./icons/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Roof Rumble" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>Roof Rumble Classic Modes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <main id="menu">
+    <header>
+      <h1>ROOF<br />RUMBLE</h1>
+      <p class="tag">The Tin Crows want the roof. Two ways to say no.</p>
+    </header>
+
+    <nav class="modes">
+      <a class="mode brawl" id="go-brawler" href="./brawler.html">
+        <span class="kicker">Third person</span>
+        <span class="name">Tank Roof Scrap</span>
+        <span class="about">Fists, three-hit combos, pipes and hammers.</span>
+        <span class="best" id="best-brawler">Best: no waves yet</span>
+      </a>
+      <a class="mode shoot" id="go-fps" href="./fps.html">
+        <span class="kicker">First person</span>
+        <span class="name">Rooftop Shootout</span>
+        <span class="about">Aim, shoot, dodge wrenches. Five guns to unlock.</span>
+        <span class="best" id="best-fps">Best: no waves yet</span>
+      </a>
+    </nav>
+
+    <aside id="install" hidden>
+      <b>Make it an app:</b> tap <span class="share" aria-label="Share">Share</span> below, then <b>Add to Home Screen</b>.
+      It opens full screen and works offline.
+    </aside>
+    <p class="foot">Waves never end. Your best wave in each game is kept on this phone.</p>
+  </main>
+  <div id="skyline" aria-hidden="true"></div>
+  <script type="module" src="/src/menu/main.js"></script>
+</body>
+</html>

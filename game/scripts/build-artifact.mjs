@@ -15,7 +15,8 @@ const js = readFileSync(dir + files.find((f) => f.endsWith('.js')), 'utf8').repl
 const css = readFileSync(dir + files.find((f) => f.endsWith('.css')), 'utf8');
 const html = readFileSync(`dist-single/tmp/${entry}`, 'utf8');
 const body = html.slice(html.indexOf('<body>') + 6, html.indexOf('</body>')).replace(/<script[^>]*src=[^>]*><\/script>/g, '')
-  .replace(/\s*<a id="menu-btn"[^>]*>[^<]*<\/a>/, ''); // no menu page to go back to
+  .replace(/\s*<a id="menu-btn"[^>]*>[^<]*<\/a>/, '') // no menu page to go back to
+  .replace(/\s*<a class="classic"[^>]*>[^<]*<\/a>/, ''); // nor the classic modes
 const title = (html.match(/<title>([^<]*)<\/title>/) || [, 'Tank Roof Scrap'])[1];
 const page = `<title>${title}</title>
 <meta name="theme-color" content="#2b2a5e">

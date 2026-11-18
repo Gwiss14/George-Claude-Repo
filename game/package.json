@@ -12,7 +12,8 @@
     "ios": "vite build && cap sync ios",
     "ios:open": "cap open ios",
     "icons": "node scripts/make-icons.mjs",
-    "test:app": "vite build && node tests/run-app-tests.mjs"
+    "test:app": "vite build && node tests/run-app-tests.mjs",
+    "test:survivor": "vite build && node tests/run-survivor-tests.mjs"
   },
   "dependencies": {
     "@capacitor/core": "8.6.0",

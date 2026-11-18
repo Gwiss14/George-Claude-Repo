@@ -29,7 +29,10 @@
 
 - iPhone app (player asked "Dedicate this for an iPhone app"; chose both a Home Screen web app and a native Xcode project, with both games in one app): start menu `index.html` (brawler moved to `brawler.html`), Home Screen manifest, icons and offline service worker, a Capacitor `ios/` project with haptics, full screen and no status bar. Instructions in IPHONE.md. `npm run test:app` checks the menu, Home Screen files, offline play and iPhone portrait/landscape.
 
+- PIVOT (player: "These games absolutely suck", then "Think like an App Store game dev"): Roof Rumble is now a one-thumb portrait survivor (ROOF-RUMBLE.md, `index.html`, `src/survivor/`). Auto-attacking Juno, swarms of Crows drawn as instanced parts, level-up cards, Grudge bosses, 5-minute runs, permanent shop. The brawler and the shooter moved under "Classic modes" (`modes.html`). `npm run test:survivor`.
+
 ## Known / open
+- Survivor difficulty is tuned against a simple bot (first runs 1:30–3:00 with no shop upgrades). Needs real playtesting on a phone.
 - The Home Screen web app needs a public https address; no host chosen yet (must ask the player before creating any public page or account).
 - The native app was generated on Linux and has not been built in Xcode yet (needs the player's Mac).
 - New Juno states swing/backswing/overhead need animations: slash, plus two Text to Motion clips (listed in assets.json).

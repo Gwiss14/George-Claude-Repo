@@ -1,6 +1,6 @@
 # Roof Rumble on iPhone
 
-Both games, *Tank Roof Scrap* (brawler) and *Rooftop Shootout* (shooter), are one app called **Roof Rumble**, with a start menu. There are two ways to get it on an iPhone.
+The app is **Roof Rumble**, a one-thumb rooftop survivor. The earlier brawler and shooter are inside it under Classic modes. There are two ways to get it on an iPhone.
 
 | | Home Screen web app | App Store / native app |
 |---|---|---|
@@ -75,7 +75,8 @@ For the App Store listing:
 
 | Path | What it is |
 |---|---|
-| `index.html`, `src/menu/` | the start menu |
+| `index.html`, `src/survivor/` | Roof Rumble, the game |
+| `modes.html`, `src/menu/` | the Classic modes menu |
 | `brawler.html`, `fps.html` | the two games |
 | `src/app/app.js` | offline, vibration and "am I an app" helpers shared by all pages |
 | `public/manifest.webmanifest`, `public/icons/` | Home Screen name and icons |
