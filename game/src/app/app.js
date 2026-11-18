@@ -26,7 +26,7 @@ export function buzz(kind = 'light') {
       if (kind === 'success') h.notification({ type: 'SUCCESS' });
       else if (kind === 'error') h.notification({ type: 'ERROR' });
       else h.impact({ style: kind === 'heavy' ? 'HEAVY' : kind === 'medium' ? 'MEDIUM' : 'LIGHT' });
-    } else {
+    } else if (navigator.userActivation?.hasBeenActive) { // browsers refuse vibration before the first tap
       navigator.vibrate?.(kind === 'heavy' ? 40 : kind === 'medium' ? 22 : 8);
     }
   } catch { /* no vibration here */ }
