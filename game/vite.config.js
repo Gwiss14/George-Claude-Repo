@@ -7,7 +7,7 @@ function offlineCache() {
     name: 'offline-cache',
     apply: 'build',
     generateBundle(_options, bundle) {
-      const pages = ['./index.html', './modes.html', './brawler.html', './fps.html'];
+      const pages = ['./index.html'];
       const files = ['./', ...pages, ...Object.keys(bundle).filter((f) => !f.endsWith('.html')).map((f) => `./${f}`),
         './manifest.webmanifest', './icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png'];
       const version = createHash('sha1').update(files.join()).digest('hex').slice(0, 10);
@@ -38,7 +38,7 @@ export default defineConfig({
   plugins: [offlineCache()],
   build: {
     target: 'es2022', chunkSizeWarningLimit: 1000,
-    rollupOptions: { input: { game: 'index.html', modes: 'modes.html', brawler: 'brawler.html', fps: 'fps.html' } },
+    rollupOptions: { input: { game: 'index.html' } },
   },
   esbuild: { target: 'es2022' },
 });

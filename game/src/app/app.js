@@ -32,16 +32,4 @@ export function buzz(kind = 'light') {
   } catch { /* no vibration here */ }
 }
 
-// Game events that should be felt.
-export function hapticsFor(game) {
-  game.on((ev) => {
-    if (ev.type === 'hit' && ev.targetTeam === 'player') buzz(ev.state === 'knocked_down' ? 'heavy' : 'medium');
-    else if (ev.type === 'hit' && ev.defeated) buzz('medium');
-    else if (ev.type === 'hit') buzz('light');
-    else if (ev.type === 'combo' || ev.type === 'boom') buzz('heavy');
-    else if (ev.type === 'buy') buzz('success');
-    else if (ev.type === 'lost' || ev.type === 'buyFail') buzz('error');
-  });
-}
-
 registerOffline();

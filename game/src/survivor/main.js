@@ -1,5 +1,5 @@
 import './survivor.css';
-import { buzz } from '../app/app.js';
+import { buzz, isIOS, isStandalone } from '../app/app.js';
 import { S, UPGRADES } from './config.js';
 import { Run } from './sim.js';
 import { RunView } from './view.js';
@@ -16,6 +16,7 @@ const ui = new UI({
   onQuit: () => { setPaused(false); run.phase = 'dead'; ui.showResults(run, false); },
 });
 const run = new Run(ui.save.shop);
+document.getElementById('install').hidden = !(isIOS && !isStandalone); // iPhone Safari: how to install
 const view = new RunView(document.getElementById('app'), run);
 const debug = new SurvivorDebug(run, view.renderer, () => startRun());
 if (params.has('debug')) debug.toggle(true);

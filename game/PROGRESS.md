@@ -31,6 +31,8 @@
 
 - PIVOT (player: "These games absolutely suck", then "Think like an App Store game dev"): Roof Rumble is now a one-thumb portrait survivor (ROOF-RUMBLE.md, `index.html`, `src/survivor/`). Auto-attacking Juno, swarms of Crows drawn as instanced parts, level-up cards, Grudge bosses, 5-minute runs, permanent shop. The brawler and the shooter moved under "Classic modes" (`modes.html`). `npm run test:survivor`.
 
+- Player chose to keep only Roof Rumble ("Keep the rooftop brawl game. Stop the other game." → picked Roof Rumble). The brawler (Tank Roof Scrap) and the shooter (Rooftop Shootout) were removed from the app and the repository (still in git history). GDD.md is now the Roof Rumble design; assets.json lists only what Roof Rumble shows.
+
 ## Known / open
 - Survivor difficulty is tuned against a simple bot (first runs 1:30–3:00 with no shop upgrades). Needs real playtesting on a phone.
 - The Home Screen web app needs a public https address; no host chosen yet (must ask the player before creating any public page or account).

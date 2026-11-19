@@ -1,6 +1,6 @@
 # Roof Rumble on iPhone
 
-The app is **Roof Rumble**, a one-thumb rooftop survivor. The earlier brawler and shooter are inside it under Classic modes. There are two ways to get it on an iPhone.
+The app is **Roof Rumble**, a one-thumb rooftop survivor. There are two ways to get it on an iPhone.
 
 | | Home Screen web app | App Store / native app |
 |---|---|---|
@@ -17,7 +17,7 @@ What is already set up:
 - **App identity:** the name *Roof Rumble*, app icons and a dusk theme colour (`public/manifest.webmanifest`, `public/icons/`).
 - **Full screen:** it opens without Safari's bars, and the game draws under the notch and home bar while the controls stay clear of them.
 - **Offline:** it works offline after one visit, because the build writes `sw.js` with every file the app needs.
-- **Install hint:** the menu shows "Share → Add to Home Screen" in Safari, and hides it once installed.
+- **Install hint:** the title screen shows "Share → Add to Home Screen" in Safari, and hides it once installed.
 
 To install, once the game is on a public `https://` address:
 
@@ -68,7 +68,7 @@ For the App Store listing:
 
 - **Screenshots:** take them from the app on your phone (side button + volume up).
 - **Privacy:** "Data Not Collected". The game only keeps your best wave on the phone.
-- **Age rating:** the games have cartoon fist fights and cartoon guns, so answer "Cartoon or Fantasy Violence" in the questionnaire.
+- **Age rating:** the game has cartoon fist fights, so answer "Cartoon or Fantasy Violence" in the questionnaire.
 - **Review risk:** Apple sometimes rejects apps that are "just a website". This is a full game that runs offline, with native haptics, which usually passes. If it is rejected, the reviewer's note will say what they want.
 
 ## Files
@@ -76,11 +76,9 @@ For the App Store listing:
 | Path | What it is |
 |---|---|
 | `index.html`, `src/survivor/` | Roof Rumble, the game |
-| `modes.html`, `src/menu/` | the Classic modes menu |
-| `brawler.html`, `fps.html` | the two games |
-| `src/app/app.js` | offline, vibration and "am I an app" helpers shared by all pages |
+| `src/app/app.js` | offline, vibration and "am I an app" helpers |
 | `public/manifest.webmanifest`, `public/icons/` | Home Screen name and icons |
 | `vite.config.js` | also writes `sw.js`, the offline file list |
 | `capacitor.config.json`, `ios/` | the native iPhone project |
 | `scripts/make-icons.mjs` | draws the icon and launch screen (`npm run icons`) |
-| `tests/run-app-tests.mjs` | checks the menu, Home Screen files, offline play and iPhone layouts (`npm run test:app`) |
+| `tests/run-app-tests.mjs` | checks the Home Screen files, install hint, offline play and iPhone layouts (`npm run test:app`) |

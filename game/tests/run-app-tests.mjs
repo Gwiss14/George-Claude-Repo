@@ -1,4 +1,4 @@
-// Checks the app shell: menu, Home Screen files, offline play, and iPhone layouts.
+// Checks the iPhone app shell: Home Screen files, install hint, offline play, and layouts.
 //   node tests/run-app-tests.mjs      (after `npm run build`; `npm run test:app` does both)
 import { preview } from 'vite';
 import { createRequire } from 'node:module';
@@ -15,38 +15,28 @@ let failed = false;
 const fail = (m) => { failed = true; console.log('FAIL', m); };
 const realErrors = (list) => list.filter((e) => !/fonts\.(googleapis|gstatic)|net::ERR/.test(e));
 
-// ---- 1. menu on an iPhone held upright: layout, install hint, best waves, links ------
+// ---- 1. title on an iPhone held upright: install hint, no sideways scroll -------------------
 {
   const ctx = await browser.newContext({ ...devices['iPhone 13'] });
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
-  await page.goto(BASE + 'modes.html');
-  await page.evaluate(() => { localStorage.setItem('trs-best-wave', '7'); localStorage.setItem('trs-best-wave-fps', '4'); });
-  await page.reload();
-  await page.waitForTimeout(600);
-  const m = await page.evaluate(() => ({
+  await page.goto(BASE);
+  await page.waitForFunction(() => window.__run);
+  await page.waitForTimeout(500);
+  const t = await page.evaluate(() => ({
     title: document.title,
-    best: [document.getElementById('best-brawler').textContent, document.getElementById('best-fps').textContent],
     installHint: !document.getElementById('install').hidden,
     sideScroll: document.documentElement.scrollWidth > window.innerWidth,
-    links: [...document.querySelectorAll('.mode')].map((a) => a.getAttribute('href')),
+    otherGames: document.querySelectorAll('a[href$=".html"]').length,
   }));
-  await page.screenshot({ path: OUT + 'app-menu-iphone.png' });
-  await page.tap('#go-fps');
-  await page.waitForFunction(() => window.__game, null, { timeout: 10000 });
-  const fpsLoaded = await page.evaluate(() => document.title);
-  await page.tap('#menu-btn');
-  await page.waitForSelector('#go-brawler');
-  await page.tap('#go-brawler');
-  await page.waitForFunction(() => window.__game, null, { timeout: 10000 });
-  const brawlerLoaded = await page.evaluate(() => document.title);
-  results.menu = { ...m, fpsLoaded, brawlerLoaded, errors: realErrors(errors) };
-  if (m.best.join() !== 'Best: wave 7,Best: wave 4') fail(`best waves on the menu: ${m.best}`);
-  if (!m.installHint) fail('Add to Home Screen hint not shown in iPhone Safari');
-  if (m.sideScroll) fail('menu scrolls sideways on an iPhone');
-  if (fpsLoaded !== 'Rooftop Shootout' || brawlerLoaded !== 'Tank Roof Scrap') fail(`menu links: ${fpsLoaded} / ${brawlerLoaded}`);
-  if (results.menu.errors.length) fail(`menu errors: ${results.menu.errors}`);
+  await page.screenshot({ path: OUT + 'app-title-iphone.png' });
+  results.title = { ...t, errors: realErrors(errors) };
+  if (t.title !== 'Roof Rumble') fail(`title: ${t.title}`);
+  if (!t.installHint) fail('Add to Home Screen hint not shown in iPhone Safari');
+  if (t.sideScroll) fail('title scrolls sideways on an iPhone');
+  if (t.otherGames) fail('the title still links to other games');
+  if (results.title.errors.length) fail(`title errors: ${results.title.errors}`);
   await ctx.close();
 }
 
@@ -73,7 +63,7 @@ const realErrors = (list) => list.filter((e) => !/fonts\.(googleapis|gstatic)|ne
   await page.close();
 }
 
-// ---- 3. offline: after one visit, the menu and both games load with no network ------------
+// ---- 3. offline: after one visit, the game loads and plays with no network -------------------
 {
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
@@ -83,40 +73,27 @@ const realErrors = (list) => list.filter((e) => !/fonts\.(googleapis|gstatic)|ne
   await page.reload(); // now controlled by the service worker
   await page.evaluate(() => navigator.serviceWorker.ready);
   await ctx.setOffline(true);
-  const offline = {};
-  for (const [name, path, ready] of [['game', '', () => !!window.__run], ['classic menu', 'modes.html', () => !!document.getElementById('go-fps')], ['brawler', 'brawler.html', () => !!window.__game], ['shooter', 'fps.html', () => !!window.__game]]) {
-    try {
-      await page.goto(BASE + path, { timeout: 10000 });
-      await page.waitForFunction(ready, null, { timeout: 10000 });
-      offline[name] = 'loads offline';
-    } catch (e) { offline[name] = `FAILED: ${String(e).split('\n')[0]}`; }
-  }
-  results.offline = offline;
-  for (const [k, v] of Object.entries(offline)) if (v !== 'loads offline') fail(`offline ${k}: ${v}`);
+  try {
+    await page.goto(BASE + '?bot=1&speed=4', { timeout: 10000 });
+    await page.waitForFunction(() => window.__run && window.__run.time > 3, null, { timeout: 20000 });
+    results.offline = 'loads and plays offline';
+  } catch (e) { results.offline = `FAILED: ${String(e).split('\n')[0]}`; fail(`offline: ${results.offline}`); }
   await ctx.close();
 }
 
-// ---- 4. both games on an iPhone held sideways -------------------------------------------
+// ---- 4. an iPhone held sideways: HUD and level-up cards fit -------------------------------
 {
   const ctx = await browser.newContext({ ...devices['iPhone 13 landscape'] });
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
-  const layout = {};
-  for (const [name, path] of [['brawler', 'brawler.html'], ['shooter', 'fps.html'], ['survivor', '?bot=1&speed=1']]) {
-    await page.goto(BASE + path);
-    await page.waitForFunction(() => window.__game || window.__run);
-    await page.waitForTimeout(2500);
-    await page.screenshot({ path: OUT + `app-${name}-landscape.png` });
-    layout[name] = await page.evaluate(() => {
-      const box = (id) => { const r = document.getElementById(id)?.getBoundingClientRect(); return r && r.width ? r : null; };
-      const inside = (r) => r && r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= innerHeight;
-      if (window.__run) return { pause: inside(box('pause-btn')), timer: inside(box('timer')), hp: inside(box('hp')) };
-      return { fire: inside(box('attack-btn')), restart: inside(box('restart-btn')), menu: inside(box('menu-btn')), hp: inside(box('hp')) };
-    });
-  }
+  await page.goto(BASE + '?bot=1&speed=1');
+  await page.waitForFunction(() => window.__run && window.__run.time > 2);
+  await page.screenshot({ path: OUT + 'app-landscape.png' });
+  const inside = (id) => page.evaluate((id) => { const r = document.getElementById(id).getBoundingClientRect(); return r.width > 0 && r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= innerHeight; }, id);
+  const layout = { pause: await inside('pause-btn'), timer: await inside('timer'), hp: await inside('hp') };
   results.landscape = { ...layout, errors: realErrors(errors) };
-  for (const [g, l] of Object.entries(layout)) for (const [k, v] of Object.entries(l)) if (!v) fail(`${g} landscape: ${k} is off screen`);
+  for (const [k, v] of Object.entries(layout)) if (!v) fail(`landscape: ${k} is off screen`);
   if (results.landscape.errors.length) fail(`landscape errors: ${results.landscape.errors}`);
   await ctx.close();
 }

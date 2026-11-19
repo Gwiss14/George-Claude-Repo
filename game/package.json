@@ -1,5 +1,5 @@
 {
-  "name": "tank-roof-scrap",
+  "name": "roof-rumble",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -7,13 +7,11 @@
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview --host",
-    "test": "vite build && node tests/run-tests.mjs",
-    "test:fps": "vite build && node tests/run-fps-tests.mjs",
+    "test": "vite build && node tests/run-survivor-tests.mjs && node tests/run-app-tests.mjs",
     "ios": "vite build && cap sync ios",
     "ios:open": "cap open ios",
     "icons": "node scripts/make-icons.mjs",
-    "test:app": "vite build && node tests/run-app-tests.mjs",
-    "test:survivor": "vite build && node tests/run-survivor-tests.mjs"
+    "test:app": "vite build && node tests/run-app-tests.mjs"
   },
   "dependencies": {
     "@capacitor/core": "8.6.0",

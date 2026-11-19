@@ -10,7 +10,7 @@ import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import {
   roofTexture, brickTexture, facadeTexture, skylineTexture, crateTexture, fragileTexture,
-  tankTexture, pegboardTexture, padTexture, repeated,
+  tankTexture, repeated,
 } from './textures.js';
 
 let gradientMap = null;
@@ -245,34 +245,6 @@ function buildSky() {
   return root;
 }
 
-// The weapons spot: a pegboard rack, 1.8 m wide, 2 m tall, 0.5 m deep, open side facing +Z.
-function buildWeaponRack() {
-  const k = new Kit();
-  const root = new THREE.Group();
-  const frame = k.toon(0x3a3f4a);
-  const back = k.mesh(box(1.8, 1.9, 0.08), k.toon(0xffffff, { map: pegboardTexture() }));
-  back.position.set(0, 1.0, -0.2); root.add(back);
-  for (const x of [-0.88, 0.88]) {
-    const post = k.mesh(box(0.08, 2.0, 0.45), frame); post.position.set(x, 1.0, 0); root.add(post);
-  }
-  const shelf = k.mesh(box(1.8, 0.08, 0.45), frame); shelf.position.set(0, 0.45, 0); root.add(shelf);
-  const roofBar = k.mesh(box(1.9, 0.1, 0.5), frame); roofBar.position.set(0, 2.0, 0); root.add(roofBar);
-  for (const x of [-0.45, 0.45]) {
-    const peg = k.mesh(box(0.05, 0.05, 0.25), frame); peg.position.set(x, 1.45, -0.05); root.add(peg);
-  }
-  return k.finish(root, 'prop');
-}
-
-function buildWeaponPad() {
-  const root = new THREE.Group();
-  const d = CONFIG.weapons.padRadius * 2;
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(d, d), new THREE.MeshBasicMaterial({ map: padTexture(), transparent: true, depthWrite: false }));
-  m.rotation.x = -Math.PI / 2; m.position.y = 0.006;
-  root.add(m);
-  root.userData = { look: 'placeholder', kind: 'marking' };
-  return root;
-}
-
 // Coin: 0.3 m across, standing on its edge facing +Z (the view spins it).
 function buildCoin() {
   const k = new Kit();
@@ -337,35 +309,6 @@ function buildAxe() {
   return k.finish(root, 'prop');
 }
 
-// Guns for the shooter: grip at the origin, barrel along +Z, sized in metres.
-function buildGun({ body, barrel, extra }) {
-  return () => {
-    const k = new Kit();
-    const root = new THREE.Group();
-    const dark = k.toon(0x2c2f38);
-    const grip = k.mesh(box(0.05, 0.12, 0.06), dark); grip.position.set(0, -0.06, -0.02); root.add(grip);
-    const b = k.mesh(box(body.w, body.h, body.l), k.toon(body.color)); b.position.set(0, 0.02, body.l / 2 - 0.08); root.add(b);
-    const bar = k.mesh(cyl(barrel.r, barrel.r, barrel.l, 10), k.toon(barrel.color));
-    bar.rotation.x = Math.PI / 2; bar.position.set(0, barrel.y ?? 0.03, body.l - 0.08 + barrel.l / 2); root.add(bar);
-    const muzzle = new THREE.Group(); muzzle.name = 'muzzle'; muzzle.position.set(0, barrel.y ?? 0.03, body.l - 0.08 + barrel.l); root.add(muzzle);
-    if (extra) extra(k, root);
-    return k.finish(root, 'prop', { muzzle });
-  };
-}
-
-const GUNS = {
-  pistol: buildGun({ body: { w: 0.05, h: 0.07, l: 0.2, color: 0x3a3f4a }, barrel: { r: 0.012, l: 0.04, color: 0x1d1f26 } }),
-  smg: buildGun({ body: { w: 0.06, h: 0.09, l: 0.36, color: 0x2fb6a8 }, barrel: { r: 0.015, l: 0.12, color: 0x1d1f26 },
-    extra: (k, r) => { const m = k.mesh(box(0.04, 0.16, 0.05), k.toon(0x1d1f26)); m.position.set(0, -0.1, 0.12); r.add(m); } }),
-  shotgun: buildGun({ body: { w: 0.07, h: 0.09, l: 0.5, color: 0x8a5a2b }, barrel: { r: 0.022, l: 0.28, color: 0x4a4f5c },
-    extra: (k, r) => { const p = k.mesh(box(0.08, 0.06, 0.14), k.toon(0x5a3a1b)); p.position.set(0, -0.04, 0.5); r.add(p); } }),
-  rifle: buildGun({ body: { w: 0.06, h: 0.09, l: 0.7, color: 0x5d6b4a }, barrel: { r: 0.012, l: 0.3, color: 0x1d1f26 },
-    extra: (k, r) => { const s = k.mesh(cyl(0.025, 0.025, 0.22, 10), k.toon(0x1d1f26)); s.rotation.x = Math.PI / 2; s.position.set(0, 0.1, 0.3); r.add(s); } }),
-  launcher: buildGun({ body: { w: 0.12, h: 0.12, l: 0.45, color: 0xff7a2a }, barrel: { r: 0.06, l: 0.3, color: 0xffd23f, y: 0.04 } }),
-  minigun: buildGun({ body: { w: 0.14, h: 0.14, l: 0.4, color: 0x9aa5b1 }, barrel: { r: 0.05, l: 0.45, color: 0x3a3f4a },
-    extra: (k, r) => { for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2; const t = k.mesh(cyl(0.012, 0.012, 0.47, 6), k.toon(0x1d1f26), { outline: false }); t.rotation.x = Math.PI / 2; t.position.set(Math.cos(a) * 0.035, 0.03 + Math.sin(a) * 0.035, 0.55); r.add(t); } } }),
-};
-
 const PEOPLE = {
   juno:       { height: CONFIG.juno.height, width: 0.6, skin: 0xe8b48a, top: 0x2fb6a8, bottom: 0x27324a, accent: 0xf2d14b, visor: 0x111111 },
   crow:       { height: CONFIG.enemies.crow.height, width: 0.6, skin: 0xc9a27e, top: 0x3d4a6b, bottom: 0x23262e, accent: 0x9aa3b5, visor: 0xd7e0f0 },
@@ -384,20 +327,17 @@ export const REGISTRY = {
   roof: buildRoof,
   parapet: buildParapet,
   sky: buildSky,
-  weapon_rack: buildWeaponRack,
-  weapon_pad: buildWeaponPad,
   coin: buildCoin,
   pipe: buildPipe,
   hammer: buildHammer,
   wrench: buildWrench,
   shovel: buildShovel,
   axe: buildAxe,
-  ...GUNS,
 };
 
 // Swappable parts hang on named attach points and are scaled to fit the slot.
 export const SLOTS = {
-  hand_r: { length: { pipe: 1.0, hammer: 1.1, wrench: 0.75, shovel: 1.15, axe: 1.0, smg: 0.48, shotgun: 0.78, rifle: 1.0, launcher: 0.75, minigun: 0.85 } },
+  hand_r: { length: { pipe: 1.0, hammer: 1.1, wrench: 0.75, shovel: 1.15, axe: 1.0 } },
 };
 
 export function attach(owner, slot, id) {

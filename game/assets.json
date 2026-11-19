@@ -5,7 +5,7 @@
     "All three fighters use the same humanoid rig (Humanoid, Mixamo preset, Auto Rig), so any clip can play on any of them.",
     "Export every rigged fighter as GLB with 2K textures (heroes: 4K as Tripo makes them), skeleton on, Number of Animations = Select All, Animation stay in Place = on.",
     "Files go in public/assets/.",
-    "The five weapons are one Tripo model with parts (kind 'parts'); each part hangs on Juno's hand_r attach point in code."
+    "Crows are drawn as instanced body parts in the game (one draw call per part for the whole swarm); the Tripo crow model will replace those parts in stage 5."
   ],
   "entries": [
     {
@@ -50,67 +50,58 @@
         {
           "state": "win",
           "clip": "cheer"
-        },
-        {
-          "state": "swing (weapon)",
-          "clip": "slash"
-        },
-        {
-          "state": "backswing (weapon)",
-          "clip": "backswing: a woman swings a short stick held in her right hand backhand from her left side across to her right, then returns to a ready stance"
-        },
-        {
-          "state": "overhead (weapon)",
-          "clip": "overhead: a woman lifts a stick above her head with both hands and brings it down hard in front of her, then returns to a ready stance"
         }
       ],
       "texture_prompt": "none",
-      "styles": "none",
-      "notes": "slash, backswing and overhead are only used while holding a weapon; the weapon hangs on the hand_r attach point in code, so Juno's model is made empty-handed."
+      "styles": "none"
     },
     {
       "id": "crow",
       "kind": "person",
       "hero": false,
       "size_m": 1.7,
-      "polygon_budget": 6000,
+      "polygon_budget": 3000,
       "file": "crow.glb",
       "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. A Tin Crow gang scrapper, a lean adult man 1.7 metres tall, standing in a T-pose facing the camera, arms straight out to the sides level with his shoulders, hands open, feet apart with a clear gap between the legs. His head is about one sixth of his height, his arms reach mid-thigh, his body is no wider than his shoulders, and there is space between his arms, legs and body. He wears a dented grey-silver tin helmet shaped like a crow's head with a short pointed beak visor over the eyes, lower face visible; a slate-blue padded work jacket fitted to the body; charcoal trousers; grey boots; grey fingerless gloves. Nothing hangs loose: no feathers, no tail, no chains, no cape. Single isolated object, centered, on a plain white background.",
       "animations": [
         {
-          "state": "idle",
-          "clip": "idle"
-        },
-        {
-          "state": "enter / circle / approach",
+          "state": "walk (all Crows)",
           "clip": "walk"
         },
         {
-          "state": "approach (elite)",
+          "state": "run (runners)",
           "clip": "run"
         },
         {
-          "state": "windup + attack",
-          "clip": "box_01"
+          "state": "throw (throwers)",
+          "clip": "throw: a man winds back his right arm and throws a small object overhand, then returns to a ready stance"
         },
         {
-          "state": "hurt",
+          "state": "hit",
           "clip": "hit_to_body_01"
         },
         {
-          "state": "hurt by a kick",
-          "clip": "hit_to_head"
-        },
-        {
-          "state": "knocked_down / defeated",
+          "state": "knocked out",
           "clip": "defeat_02"
         }
       ],
-      "texture_prompt": {
-        "for_id": "crow_elite",
-        "file": "crow_elite.glb",
-        "prompt": "A Tin Crow elite scrapper, a lean adult man: a polished bright copper-orange tin helmet shaped like a crow's head with a short pointed beak visor, tan skin on the visible lower face, a bright orange padded work jacket with black stitched seams and a black crow emblem on the chest, charcoal trousers, black boots and black fingerless gloves. Flat solid colours with no gradients, even flat lighting, no baked shadows or highlights."
-      },
+      "texture_prompt": [
+        {
+          "for_id": "runner",
+          "file": "crow_runner.glb",
+          "prompt": "A Tin Crow runner, a lean adult man: a dented grey-silver tin helmet shaped like a crow's head with a short pointed beak visor, a purple padded work jacket with black stitched seams, charcoal trousers, grey boots and grey fingerless gloves. Flat solid colours with no gradients, even flat lighting, no baked shadows or highlights."
+        },
+        {
+          "for_id": "thrower",
+          "file": "crow_thrower.glb",
+          "prompt": "A Tin Crow elite scrapper, a lean adult man: a polished bright copper-orange tin helmet shaped like a crow's head with a short pointed beak visor, tan skin on the visible lower face, a bright orange padded work jacket with black stitched seams and a black crow emblem on the chest, charcoal trousers, black boots and black fingerless gloves. Flat solid colours with no gradients, even flat lighting, no baked shadows or highlights."
+        },
+        {
+          "for_id": "brute",
+          "file": "crow_brute.glb",
+          "prompt": "A Tin Crow brute, a lean adult man: a dark iron tin helmet shaped like a crow's head with a short pointed beak visor, a maroon padded work jacket with black stitched seams, black trousers, black boots and black fingerless gloves. Flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. (Shown 1.35 times bigger in the game.)"
+        }
+      ],
       "styles": "none"
     },
     {
@@ -123,16 +114,8 @@
       "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. Grudge, the hulking boss of the Tin Crows gang, a huge broad man 2.2 metres tall with a barrel chest and thick arms, standing in a T-pose facing the camera, arms straight out to the sides level with his shoulders, hands open, legs apart with a clear gap between them. His head is small, about one sixth of his height, his arms are long enough to reach mid-thigh, his body is no wider than his shoulders, and there is space between his arms, legs and body. A heavy riveted iron helmet shaped like a crow's head with a short blunt beak and a cracked visor; a maroon sleeveless leather vest with visible stitching and brass buckles over a dark grey undershirt, with a faded white crow stencil on the chest; a wide brass-studded belt; black heavy work trousers; steel-toed boots; riveted iron knuckle plates on the backs of both hands. Painted metal with scratches and dents, worn leather. Nothing hangs loose: no chains, no cape, no coat tails. Single isolated object, centered, on a plain white background.",
       "animations": [
         {
-          "state": "idle",
-          "clip": "idle"
-        },
-        {
-          "state": "enter / circle / approach",
+          "state": "walk",
           "clip": "walk"
-        },
-        {
-          "state": "jab",
-          "clip": "box_01"
         },
         {
           "state": "smash",
@@ -142,10 +125,6 @@
         {
           "state": "hurt",
           "clip": "hit_to_body_01"
-        },
-        {
-          "state": "hurt by a kick",
-          "clip": "hit_to_head"
         },
         {
           "state": "defeated",
@@ -178,82 +157,42 @@
       "styles": "none"
     },
     {
-      "id": "weapon_rack",
-      "kind": "prop",
-      "hero": false,
-      "size_m": 2.0,
-      "polygon_budget": 2500,
-      "file": "weapon_rack.glb",
-      "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. A tool rack that stands against a wall, 1.8 metres wide, 2 metres tall and 0.5 metres deep: a tan pegboard back panel with rows of small holes, a red sign strip across the top with the word TOOLS in cream letters, two dark charcoal steel side posts, a low steel shelf and a steel top bar, with two empty steel hooks at chest height. Seen from the front, open side facing the camera, no tools on it. Single isolated object, centered, on a plain white background.",
-      "texture_prompt": "none",
-      "styles": "none"
-    },
-    {
       "id": "weapons",
       "kind": "parts",
       "hero": false,
       "size_m": 1.15,
       "polygon_budget": 10000,
       "file": "weapons.glb",
-      "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. A set of five street-fight tools laid side by side in a neat row with a clear gap between each one, all lying flat and parallel, handles at the bottom: a light blue-grey steel water pipe 1 metre long with a chunky elbow joint at the top end and black tape on the grip; a big hammer 1.1 metres long with a brown wooden handle and a dark grey iron block head; a chrome-silver adjustable wrench 0.75 metres long with a red rubber grip; a shovel 1.15 metres long with a pale wooden handle, a black T-grip and a green steel blade; a fire axe 1 metre long with a dark brown handle, a red head and a bright silver blade edge. Each tool is one main colour of its own and none of them touch. Seen from directly above. Single isolated object, centered, on a plain white background.",
+      "prompt": "Comic-book style 3D game asset: chunky simplified shapes, flat solid colours with no gradients, even flat lighting, no baked shadows or highlights. Two street-fight tools laid side by side with a clear gap between them, lying flat and parallel, handles at the bottom: a light blue-grey steel water pipe 1 metre long with a chunky elbow joint at the top end and black tape on the grip; and a chrome-silver adjustable wrench 0.75 metres long with a red rubber grip. Each tool is one main colour of its own and they do not touch. Seen from directly above. Single isolated object, centered, on a plain white background.",
       "parts": [
         {
           "name": "pipe",
-          "slot": "hand_r",
+          "use": "Orbit Pipes upgrade",
           "length_m": 1.0
-        },
-        {
-          "name": "hammer",
-          "slot": "hand_r",
-          "length_m": 1.1
         },
         {
           "name": "wrench",
-          "slot": "hand_r",
+          "use": "Wrench Toss upgrade and the throwers' wrenches",
           "length_m": 0.75
-        },
-        {
-          "name": "shovel",
-          "slot": "hand_r",
-          "length_m": 1.15
-        },
-        {
-          "name": "axe",
-          "slot": "hand_r",
-          "length_m": 1.0
         }
       ],
-      "notes": "Tripo splits this into five pieces; in code each piece is matched to a weapon, re-pivoted to its grip, turned so its length runs along +Z and scaled to its slot length. Each is shown above its pad and hung on Juno's hand_r attach point when bought.",
+      "notes": "Tripo splits this into two pieces: the pipe spins around Juno (Orbit Pipes) and the wrench is thrown (by Juno and by thrower Crows).",
       "texture_prompt": "none",
       "styles": "none"
     }
   ],
   "builtInCode": {
-    "roof": "Built in code with a painted canvas texture (done): stained concrete slabs, tar seams, a dashed yellow NO PARKING square, two drain grates and halftone dots.",
+    "roof": "Built in code (done): stained concrete slabs, tar seams, a dashed yellow NO PARKING square, drain grates and halftone dots, sized to the 18 x 28 m roof.",
     "parapet": "Built in code with a painted brick texture and a light cap stone (done).",
     "sky": "Built in code (done): a banded sunset gradient and a ring of skyline blocks with lit windows.",
     "lights": "The lamp glow is a light added in code above each lamp_post model.",
     "lamp_post": "Built in code (pole, lamp box and a real light): it is thin and simple, and it frees a Tripo entry for the weapons.",
-    "coin": "Built in code: a gold toon cylinder with a mark, spun and bounced in code. Many coins can be on screen, so it stays a few dozen triangles.",
-    "weapon_pad": "Built in code: a hazard-striped floor ring texture, dimmed while its weapon is locked."
+    "coin": "Built in code: gold coins drawn as one instanced mesh, so hundreds cost one draw call.",
+    "neighbourhood": "Built in code (done): neighbouring rooftops lower down and the street far below, seen past the roof edge.",
+    "soda_can": "Built in code: the red healing soda can."
   },
   "budget": {
-    "busiestMoment": "A boss wave late in a run: Juno, Grudge and four Crows (5 enemies on the roof is the cap), plus all props and the five weapons on display.",
-    "triangles": {
-      "fighters": "juno 10000 + grudge 10000 + 4 x crow 6000 = 44000",
-      "props": "4 x crate 1200 + water_tank 3000 + weapon_rack 2500 = 10300",
-      "weapons": "the weapons model 10000 x 1.5 (split model) = 15000, shown once on the pads plus one held piece (up to about 3000)",
-      "coins": "up to about 25 at once, about 100 triangles each with outline = 2500",
-      "models": 74800,
-      "withOutlines": "about 150000",
-      "withShadowPass": "about 220000 triangles drawn per frame",
-      "phone": "OK for most phones from the last few years; on an old phone, turn off outlines on the weapons on display and shadows on coins first"
-    },
-    "textureMemory": {
-      "asTripoMakesThem": "about 700 MB: two heroes with three 4K maps each = 536 MB, crow and crow_elite 2K colour maps 22 MB each, four other models 22 MB each (the weapons model has one map per piece, smaller for small pieces)",
-      "phone": "too much as-is",
-      "afterShrinkOnLoad": "about 52 MB: fighters shrunk to 1024, props and weapons to 512, plus about 3 MB of canvas textures painted in code",
-      "plan": "Shrink textures on load (stage 5) and ship WebP at those sizes (stage 6)."
-    }
+    "busiestMoment": "Late in a run: Juno, Grudge and about 50 Crows.",
+    "note": "Recount when the models are in: the swarm needs the crow model at a low triangle count (about 3,000) because it is drawn up to 110 times."
   }
 }

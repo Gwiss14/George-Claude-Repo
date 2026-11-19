@@ -177,29 +177,3 @@ export function tankTexture() {
     halftone(g, 0, 0, w, h, 'rgba(20,30,40,0.3)', 8, 2, 1);
   }, { repeat: true });
 }
-
-// Pegboard back of the weapon rack, 1.8 x 2 m.
-export function pegboardTexture() {
-  return canvasTexture('pegboard', 180, 200, (g, w, h) => {
-    g.fillStyle = '#d6b07a'; g.fillRect(0, 0, w, h);
-    g.fillStyle = '#7a5a33';
-    for (let y = 8; y < h; y += 14) for (let x = 8; x < w; x += 14) { g.beginPath(); g.arc(x, y, 2.2, 0, Math.PI * 2); g.fill(); }
-    g.fillStyle = '#c0392b'; g.fillRect(0, 0, w, 30);
-    g.fillStyle = '#fff6e0'; g.font = 'bold 22px Impact, "Arial Black", sans-serif';
-    g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('TOOLS', w / 2, 16);
-  });
-}
-
-// Floor marking for a weapon pad: a yellow ring with hazard stripes.
-export function padTexture() {
-  return canvasTexture('pad', 128, 128, (g, w, h) => {
-    g.clearRect(0, 0, w, h);
-    g.save(); g.translate(w / 2, h / 2);
-    for (let i = 0; i < 16; i++) {
-      g.fillStyle = i % 2 ? '#0b0b10' : '#ffd23f';
-      g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, 62, (i / 16) * Math.PI * 2, ((i + 1) / 16) * Math.PI * 2); g.fill();
-    }
-    g.fillStyle = '#3a3438'; g.beginPath(); g.arc(0, 0, 48, 0, Math.PI * 2); g.fill();
-    g.restore();
-  });
-}
