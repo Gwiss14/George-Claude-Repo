@@ -1,0 +1,23 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "5.4",
+	"Category": "",
+	"Description": "Roof Rumble: one-thumb rooftop survivor. Port of the web game in /game.",
+	"Modules": [
+		{
+			"Name": "RoofRumble",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"CoreUObject"
+			]
+		}
+	],
+	"TargetPlatforms": [
+		"Windows",
+		"IOS",
+		"Android",
+		"Mac"
+	]
+}

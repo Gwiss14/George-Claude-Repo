@@ -35,6 +35,8 @@
 
 - ROLL button (player asked): a dodge-roll with a short safe window and a cooldown ring on the button. It passes through Crows and dodges Grudge's smash. The bot uses it when boxed in or when a smash is coming, and the tests check direction, safety and cooldown.
 
+- Unreal port (player asked "port Roof Rumble to Unreal"; UE 5.4+, chose to have it written here and finished on their PC): `unreal/RoofRumble/` is a C++-only project with no assets. The rules (`RRSim.cpp`) are a straight port of sim.js and were compiled with g++ and played headless; the Unreal parts have not been compiled. See `unreal/RoofRumble/README.md`.
+
 ## Known / open
 - Survivor difficulty is tuned against a simple bot (first runs 1:30–3:00 with no shop upgrades). Needs real playtesting on a phone.
 - The Home Screen web app needs a public https address; no host chosen yet (must ask the player before creating any public page or account).
@@ -50,6 +52,8 @@
 - Stage 3, Asset list: assets.json with 8 Tripo entries: juno, crow (+ crow_elite texture), grudge, crate, water_tank, weapon_rack, pipe, hammer. Lamp posts, coins, pads, roof, parapet and sky are built in code. Waiting for feedback.
 
 - Stage 4: TRIPO.md has the table of all the models and the export settings. Waiting for the player to make them in Tripo Studio and put the GLBs in public/assets/.
+
+- Unreal port: needs a first compile and fix round on the player's PC; no sounds, haptics, comic font or toon outlines yet.
 
 ## Next
 - Stage 5, Swap: load each GLB in place of its placeholder (when the player says they are in).
