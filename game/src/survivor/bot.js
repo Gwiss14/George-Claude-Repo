@@ -64,6 +64,8 @@ export class SurvivorBot {
       if (cd < 5) { fx += (c.x - j.x) / cd * 0.6; fz += (c.z - j.z) / cd * 0.6; }
     }
     const m = Math.hypot(fx, fz);
+    const smash = live.some((e) => e.kind === 'boss' && e.windup > 0 && Math.hypot(e.x - j.x, e.z - j.z) < S.enemies.boss.smashRadius + 1);
+    if ((smash || crowd >= 5) && j.rollCd <= 0 && j.rollT <= 0) { this.input.roll = 1; R.rolls = (R.rolls || 0) + 1; }
     this.input.mx = m > 0.02 ? fx / m : 0;
     this.input.mz = m > 0.02 ? fz / m : 0;
     // stuck check: wants to move but has not moved for a second

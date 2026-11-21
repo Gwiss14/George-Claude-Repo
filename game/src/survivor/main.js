@@ -29,6 +29,7 @@ const zone = document.getElementById('app');
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Backquote') { debug.toggle(); return; }
   if (e.code === 'Escape' && run.phase === 'play') setPaused(!paused);
+  if ((e.code === 'Space' || e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'KeyK') && !e.repeat) input.roll++;
   keys.add(e.code);
   if (e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault();
 });
@@ -53,7 +54,11 @@ zone.addEventListener('pointermove', (e) => {
 const end = (e) => { if (e.pointerId === stick.id) { stick.id = null; stick.x = stick.y = 0; base.style.display = 'none'; } };
 zone.addEventListener('pointerup', end);
 zone.addEventListener('pointercancel', end);
-const input = { mx: 0, mz: 0 };
+const input = { mx: 0, mz: 0, roll: 0 };
+// ROLL button: its own finger, so it works while the other thumb steers
+const rollBtn = document.getElementById('roll-btn');
+rollBtn.addEventListener('pointerdown', (e) => { input.roll++; rollBtn.classList.add('down'); e.preventDefault(); e.stopPropagation(); });
+for (const t of ['pointerup', 'pointercancel', 'pointerleave']) rollBtn.addEventListener(t, () => rollBtn.classList.remove('down'));
 function readInput() {
   let x = (keys.has('KeyD') || keys.has('ArrowRight') ? 1 : 0) - (keys.has('KeyA') || keys.has('ArrowLeft') ? 1 : 0);
   let z = (keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0) - (keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0);
@@ -78,6 +83,7 @@ run.on((ev, r) => {
     case 'heal': { const q = p(r.juno.x, r.juno.z, 2.1); ui.pop(q.x, q.y, `+${ev.amount}`, 'heal'); } break;
     case 'boss': ui.banner(ev.n === S.spawn.bossAt.length ? 'GRUDGE IS BACK — LAST TIME!' : 'BOSS: GRUDGE!'); buzz('heavy'); break;
     case 'smash': buzz('heavy'); break;
+    case 'roll': buzz('light'); break;
     case 'levelup': buzz('success'); ui.showLevelUp(r, ev.choices); break;
     case 'chose': if (r.phase === 'play') ui.hideLevelUp(); break;
     case 'revive': ui.banner('BACK ON YOUR FEET!'); buzz('success'); break;

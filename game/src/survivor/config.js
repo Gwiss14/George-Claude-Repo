@@ -10,6 +10,8 @@ export const S = {
     attackInterval: 0.42,  // s between punches (jab, cross, kick, repeat)
     reach: 1.9, arcDeg: 140, // punches hit every Crow in this arc in front of her
     starter: { wrench: 1 },  // every run starts with these upgrades
+    // ROLL button: a quick dodge-roll. Juno cannot be hurt and slips through the crowd while rolling.
+    roll: { speed: 12, time: 0.32, cooldown: 1.4, iframes: 0.4 },
     damage: [10, 12, 18],
     push: [1.3, 1.3, 3.6],
   },

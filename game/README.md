@@ -9,4 +9,4 @@ npm test           # build, then play it on an iPhone-sized screen with bots, an
 npm run ios        # build and copy into the Xcode project (then npm run ios:open, on a Mac)
 ```
 
-Controls: touch and drag anywhere (or WASD / arrows) to move; tap a card to pick an upgrade; ‖ or Esc to pause; ` for the debug panel. Bots: open with `?bot=1&speed=4`; the report is in `window.__botReport`.
+Controls: touch and drag anywhere (or WASD / arrows) to move; ROLL (or Space / Shift / K) to dodge-roll; tap a card to pick an upgrade; ‖ or Esc to pause; ` for the debug panel. Bots: open with `?bot=1&speed=4`; the report is in `window.__botReport`.

@@ -20,6 +20,7 @@ Move → Juno punches the nearest Crow, and her weapons fire on their own → kn
 |---|---|---|
 | Move | Touch and drag anywhere (a floating stick follows the thumb) | WASD / arrows |
 | Fight | automatic | automatic |
+| Roll (dodge) | ROLL button, bottom right (tap with a second finger while steering) | Space, Shift or K |
 | Pick an upgrade | tap a card | click |
 | Pause | ‖ (also pauses when the app goes to the background) | Esc |
 
@@ -30,6 +31,11 @@ Win at 5:00. Lose at 0 health (the shop's **Revive** gets you up once per run). 
 ## Juno
 
 100 health, 5.2 m/s. She punches every 0.42 s in a jab, cross, kick cycle (10 / 12 / 18 damage), and each punch hits every Crow within 1.9 m in a 140° arc in front of her. Kicks push Crows back hard and freeze the roof for a split second. After a hit, she can't be hurt again for 0.75 s. Every run starts with Wrench Toss level 1, so something is always hitting even while she's running away.
+
+**Roll:** the player asked for a roll button. ROLL sends Juno about 3–4 m in a somersault the way the thumb points (or straight ahead when standing still):
+- **Timing:** 12 m/s easing off over 0.32 s, then a 1.4 s cooldown. The button empties and refills as a ring, and its label fades until the roll is back.
+- **Safe while rolling:** for 0.4 s nothing can hurt her: Crows, thrown wrenches, or Grudge's smash.
+- **Through the crowd:** she slips through Crows instead of being blocked, and doesn't punch until she lands.
 
 ## Crows
 

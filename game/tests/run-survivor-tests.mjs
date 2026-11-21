@@ -38,6 +38,26 @@ const simWait = (page, sec) => page.evaluate((sec) => new Promise((res) => { con
   await simWait(page, 0.8);
   await t('touchEnd', []);
   const z1 = await page.evaluate(() => window.__run.juno.z);
+  // ROLL: hold the stick to the right with one finger, tap ROLL with another
+  await page.evaluate(() => { const r = window.__run; r.enemies = []; r.juno.x = -3; r.juno.z = 0; r.juno.px = -3; r.juno.pz = 0; });
+  await simWait(page, 0.2);
+  const rb = await page.locator('#roll-btn').boundingBox();
+  const rx0 = await page.evaluate(() => window.__run.juno.x);
+  await t('touchStart', [{ x: 120, y: 420, id: 2 }]);
+  await t('touchMove', [{ x: 170, y: 420, id: 2 }]);
+  await t('touchStart', [{ x: 170, y: 420, id: 2 }, { x: rb.x + rb.width / 2, y: rb.y + rb.height / 2, id: 3 }]);
+  await t('touchEnd', [{ x: 170, y: 420, id: 2 }]);
+  await simWait(page, 0.08);
+  const mid = await page.evaluate(() => { const j = window.__run.juno; return { rolling: j.rollT > 0, safe: j.iframes > 0, hurt: window.__run.hurtJuno(10, j.x - 1, j.z) }; });
+  await t('touchEnd', []);
+  await simWait(page, 0.4);
+  const roll1 = await page.evaluate(() => ({ x: window.__run.juno.x, rolls: window.__run.juno.rolls, cd: window.__run.juno.rollCd }));
+  // a second tap during the cooldown does nothing
+  await page.tap('#roll-btn');
+  await simWait(page, 0.05);
+  const roll2 = await page.evaluate(() => window.__run.juno.rolls);
+  await page.screenshot({ path: OUT + 'survivor-roll-cooldown.png' });
+  const rolled = { moved: +(roll1.x - rx0).toFixed(2), rollingMidway: mid.rolling, safeMidway: mid.safe, hurtWhileRolling: mid.hurt, rolls: roll1.rolls, blockedOnCooldown: roll2 === roll1.rolls && roll1.cd > 0 };
   // auto-attack: let Crows come; Juno punches on her own
   await page.evaluate(() => { window.__run.juno.xp = window.__run.juno.xpNeed - 0.01; });
   await simWait(page, 6);
@@ -76,9 +96,12 @@ const simWait = (page, sec) => page.evaluate((sec) => new Promise((res) => { con
   await page.reload();
   await page.waitForFunction(() => window.__ui);
   const kept = await page.evaluate(() => window.__ui.save.shop.might);
-  results.player = { titleShown, playing, ranNorth: +(z0 - z1).toFixed(2), fought, pickedCard: key, after, pausedFor: +(t1 - t0).toFixed(3), banked, mightBought: might, mightKept: kept, errors: errs() };
+  results.player = { titleShown, playing, ranNorth: +(z0 - z1).toFixed(2), rolled, fought, pickedCard: key, after, pausedFor: +(t1 - t0).toFixed(3), banked, mightBought: might, mightKept: kept, errors: errs() };
   if (!titleShown || !playing) fail('PLAY did not start a run');
   if (!(z0 - z1 > 1.5)) fail('dragging up did not move Juno north');
+  if (!(rolled.rolls === 1 && rolled.moved > 2)) fail(`ROLL did not roll Juno the way the stick points: ${JSON.stringify(rolled)}`);
+  if (!rolled.rollingMidway || !rolled.safeMidway || rolled.hurtWhileRolling) fail(`Juno could be hurt mid-roll: ${JSON.stringify(rolled)}`);
+  if (!rolled.blockedOnCooldown) fail('a second roll went through during the cooldown');
   if (!(fought.kills > 0)) fail('Juno did not knock out any Crow on her own');
   if (after.phase !== 'play' || after.lvl < 1) fail(`tapping a level-up card: ${JSON.stringify(after)}`);
   if (Math.abs(t1 - t0) > 0.001) fail('pause did not stop the run');
@@ -118,6 +141,7 @@ for (const r of results.bot) {
 const best = Math.max(...results.bot.map((r) => r.time));
 if (best < 90) fail(`bot never reached the first boss (best ${best} s)`);
 if (!results.bot.some((r) => r.level >= 8)) fail('bot never reached level 8');
+if (!results.bot.some((r) => r.rolls > 0)) fail('the bot never rolled');
 
 await browser.close();
 await server.httpServer.close();

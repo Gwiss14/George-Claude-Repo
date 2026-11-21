@@ -33,6 +33,8 @@
 
 - Player chose to keep only Roof Rumble ("Keep the rooftop brawl game. Stop the other game." → picked Roof Rumble). The brawler (Tank Roof Scrap) and the shooter (Rooftop Shootout) were removed from the app and the repository (still in git history). GDD.md is now the Roof Rumble design; assets.json lists only what Roof Rumble shows.
 
+- ROLL button (player asked): a dodge-roll with a short safe window and a cooldown ring on the button. It passes through Crows and dodges Grudge's smash. The bot uses it when boxed in or when a smash is coming, and the tests check direction, safety and cooldown.
+
 ## Known / open
 - Survivor difficulty is tuned against a simple bot (first runs 1:30–3:00 with no shop upgrades). Needs real playtesting on a phone.
 - The Home Screen web app needs a public https address; no host chosen yet (must ask the player before creating any public page or account).

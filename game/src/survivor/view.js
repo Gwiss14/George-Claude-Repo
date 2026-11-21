@@ -215,6 +215,7 @@ export class RunView {
       case 'kill': this.burst(ev.x, 1, ev.z, ev.kind === 'boss' ? 30 : ev.kind === 'brute' ? 14 : 6, ev.kind === 'boss' ? 0xff7a2a : 0xfff6e0, ev.kind === 'boss' ? 6 : 3.5); if (ev.kind === 'boss' || ev.kind === 'brute') { this.shake = Math.max(this.shake, F.bigShake); this.sfx.boom?.(); } break;
       case 'hurt': this.shake = Math.max(this.shake, F.shake * 1.3); this.hurtFlash = 1; this.sfx.hit(true); break;
       case 'coin': this.sfx.coin(); break;
+      case 'roll': this.sfx.whoosh(true); this.burst(ev.x, 0.15, ev.z, 6, 0xc9bfae, 2); break;
       case 'stomp': this.stompT = 0.35; this.stompR = ev.r; this.stompRing.position.set(ev.x, 0.03, ev.z); this.shake = Math.max(this.shake, F.shake); this.sfx.boom?.(); break;
       case 'smash': this.shake = Math.max(this.shake, F.bigShake * 1.2); this.burst(ev.x, 0.3, ev.z, 20, 0x9aa5b1, 6); this.sfx.boom?.(); break;
       case 'levelup': case 'chose': this.sfx.chime(false); break;
@@ -242,10 +243,15 @@ export class RunView {
       else if (j.swingChain === 1) { P.arm_r.rotation.x = -0.75 - 0.85 * k; P.body.rotation.y = 0.35 * k; }
       else { P.leg_r.rotation.x = -1.4 * k; P.body.rotation.x = -0.25 * k; }
     }
-    P.pose.visible = !(j.iframes > 0 && Math.floor(now * 16) % 2 === 0);
+    if (j.rollT > 0) { // somersault: tuck and spin forward once
+      const k = 1 - j.rollT / S.juno.roll.time;
+      P.pose.rotation.set(k * Math.PI * 2, 0, 0); P.pose.position.y = Math.sin(k * Math.PI) * 0.35 + 0.35;
+      P.arm_l.rotation.set(-2.4, 0, 0.3); P.arm_r.rotation.set(-2.4, 0, -0.3); P.leg_l.rotation.x = P.leg_r.rotation.x = -1.6;
+    }
+    P.pose.visible = j.rollT > 0 || !(j.iframes > 0 && Math.floor(now * 16) % 2 === 0);
     for (const m of o.userData.materials) m.emissive.setRGB(this.hurtFlash > 0.5 ? 0.6 : 0, 0, 0); // red when hit
     if (r.phase === 'dead') { P.pose.rotation.x = -Math.PI / 2 * 0.95; P.pose.position.y = 0.12; P.pose.visible = true; }
-    else { P.pose.rotation.x = 0; P.pose.position.y = r.phase === 'won' ? Math.abs(Math.sin(now * 6)) * 0.2 : Math.abs(Math.cos(this.stride)) * 0.04 * amp; }
+    else if (j.rollT <= 0) { P.pose.rotation.x = 0; P.pose.position.y = r.phase === 'won' ? Math.abs(Math.sin(now * 6)) * 0.2 : Math.abs(Math.cos(this.stride)) * 0.04 * amp; }
     if (r.phase === 'won') { P.arm_l.rotation.set(-2.9, 0, 0.3); P.arm_r.rotation.set(-2.9, 0, -0.3); }
 
     this.swarm.draw(r.enemies, alpha, now);

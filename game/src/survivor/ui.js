@@ -54,6 +54,11 @@ export class UI {
     $('hp-fill').classList.toggle('low', j.hp / j.maxHp < 0.3);
     $('kills').textContent = run.kills;
     $('run-coins').textContent = Math.floor(run.bank);
+    // the ROLL button empties when used and refills as the cooldown runs out
+    const cd = j.rollCd / S.juno.roll.cooldown;
+    const btn = $('roll-btn');
+    btn.style.setProperty('--cd', cd.toFixed(3));
+    btn.classList.toggle('ready', cd <= 0);
   }
 
   banner(text, ms = 1600) {

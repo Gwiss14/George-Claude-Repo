@@ -57,6 +57,7 @@ export class Run {
       hp: maxHp, maxHp, iframes: 0, attackT: 0.3, chain: 0, swing: 0, swingChain: 0, speedNow: 0,
       level: 1, xp: 0, xpNeed: S.xp.first, ups: { ...J.starter }, koCount: 0,
       pipeAngle: 0, wrenchT: 1, stompT: 2,
+      rollT: 0, rollCd: 0, rollX: 0, rollZ: 1, rolls: 0,
     };
     this.emit({ type: 'reset' });
   }
@@ -142,10 +143,35 @@ export class Run {
   }
 
   // ---- Juno ---------------------------------------------------------------------------------
+  // input: { mx, mz } move direction (length 0..1) and roll: presses of the ROLL button since the last step
   moveJuno(dt, input) {
-    const j = this.juno;
+    const j = this.juno, R = S.juno.roll;
     j.iframes = Math.max(0, j.iframes - dt);
+    j.rollCd = Math.max(0, j.rollCd - dt);
     const m = Math.hypot(input.mx, input.mz);
+    if (input.roll > 0) {
+      input.roll = 0;
+      if (j.rollCd <= 0 && j.rollT <= 0) {
+        // roll the way the thumb points, or straight ahead when standing still
+        j.rollX = m > 0.05 ? input.mx / m : Math.sin(j.yaw);
+        j.rollZ = m > 0.05 ? input.mz / m : Math.cos(j.yaw);
+        j.yaw = Math.atan2(j.rollX, j.rollZ);
+        j.rollT = R.time; j.rollCd = R.cooldown; j.rolls++;
+        j.iframes = Math.max(j.iframes, R.iframes);
+        j.swing = 0;
+        this.emit({ type: 'roll', x: j.x, z: j.z });
+      }
+    }
+    if (j.rollT > 0) {
+      j.rollT -= dt;
+      const k = R.speed * (0.45 + 0.55 * Math.max(0, j.rollT) / R.time); // fast out, easing off
+      j.vx = j.rollX * k; j.vz = j.rollZ * k;
+      j.x += j.vx * dt; j.z += j.vz * dt;
+      this.keepOut(j);
+      if (this.penetration(j) > 0.005) { j.x = j.px; j.z = j.pz; }
+      j.speedNow = Math.hypot(j.x - j.px, j.z - j.pz) / dt;
+      return;
+    }
     const s = this.speed * Math.min(1, m);
     j.vx = m > 0.05 ? (input.mx / m) * s : 0;
     j.vz = m > 0.05 ? (input.mz / m) * s : 0;
@@ -170,6 +196,7 @@ export class Run {
 
   autoAttack(dt) {
     const j = this.juno;
+    if (j.rollT > 0) return; // no punching mid-roll
     j.attackT -= dt;
     j.swing = Math.max(0, j.swing - dt);
     if (j.attackT > 0) return;
@@ -385,9 +412,9 @@ export class Run {
           o.x += nx * push * 2 * wo; o.z += nz * push * 2 * wo;
         }
       }
-      // Crows cannot stand inside Juno (she is pushed a little too)
+      // Crows cannot stand inside Juno (she is pushed a little too), except while she rolls through them
       const dx = j.x - e.x, dz = j.z - e.z, d = Math.hypot(dx, dz), min = e.radius + j.radius;
-      if (d < min && d > 1e-5) {
+      if (d < min && d > 1e-5 && j.rollT <= 0) {
         const over = min - d;
         e.x -= (dx / d) * over * 0.8; e.z -= (dz / d) * over * 0.8;
         j.x += (dx / d) * over * 0.2; j.z += (dz / d) * over * 0.2;
