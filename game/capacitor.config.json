@@ -1,0 +1,12 @@
+{
+  "appId": "com.roofrumble.game",
+  "appName": "Roof Rumble",
+  "webDir": "dist",
+  "backgroundColor": "#2b2a5e",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#2b2a5e",
+    "scrollEnabled": false,
+    "allowsLinkPreview": false
+  }
+}
