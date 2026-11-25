@@ -94,8 +94,8 @@ void ARRHUD::DrawHUD()
 	{
 		P.Age += Dt;
 		const FVector S = Project(P.World + FVector(0, 0, P.Age * 120.f));
-		const FLinearColor C = P.Style == 1 ? Red : P.Style == 3 ? Green : P.Style == 2 ? Paper : Accent;
-		if (S.Z > 0) Text(P.Text, S.X, S.Y, P.Style == 2 ? 2.2f : 1.4f, C.CopyWithNewOpacity(1.f - P.Age / 0.9f));
+		const FLinearColor C = P.Style == 1 ? Red : P.Style == 3 ? Green : P.Style == 2 ? Paper : P.Style == 4 ? FLinearColor(FColor::FromHex(TEXT("ff5a3c"))) : Accent;
+		if (S.Z > 0) Text(P.Text, S.X, S.Y, P.Style == 2 ? 2.2f : P.Style == 4 ? 2.f : 1.4f, C.CopyWithNewOpacity(1.f - P.Age / 0.9f));
 	}
 	Pops.RemoveAll([](const FPop& P) { return P.Age > 0.9f; });
 
@@ -116,7 +116,8 @@ void ARRHUD::DrawTitle(ARRArena* A)
 	const float Bw = 300 * Sc, Bh = 70 * Sc;
 	Button(TEXT("play"), 0, W / 2 - Bw / 2, H * 0.67f, Bw, Bh, Accent, TEXT("PLAY"), 2.4f);
 	Button(TEXT("shop"), 0, W / 2 - 110 * Sc, H * 0.67f + Bh + 24 * Sc, 220 * Sc, 46 * Sc, Paper, FString::Printf(TEXT("UPGRADES  %d"), S ? FMath::FloorToInt(S->Bank) : 0), 1.2f);
-	Text(TEXT("Drag anywhere to move. Juno punches on her own. Tap ROLL to dodge."), W / 2, H * 0.9f, 0.75f, Paper);
+	Text(TEXT("Drag to move. PUNCH (J) and KICK (K): string them into combos like P P K."), W / 2, H * 0.88f, 0.7f, Paper);
+	Text(TEXT("ROLL (Space) to dodge."), W / 2, H * 0.915f, 0.7f, Paper);
 }
 
 void ARRHUD::DrawRun(ARRArena* A)
@@ -133,12 +134,32 @@ void ARRHUD::DrawRun(ARRArena* A)
 	Text(FString::Printf(TEXT("KO %d    $ %d"), R.Kills, FMath::FloorToInt(R.Bank)), 14 * Sc, 70 * Sc, 1.f, Paper, false);
 	Button(TEXT("pause"), 0, W - 58 * Sc, 26 * Sc, 44 * Sc, 44 * Sc, Paper, TEXT("II"), 1.2f);
 
+	// PUNCH (J) and KICK (K): big buttons for the right thumb
+	const float Ab = 92 * Sc;
+	const float Px = W - Ab - 18 * Sc, Py = H - Ab - 86 * Sc, Kx = Px - 100 * Sc, Ky = H - Ab - 26 * Sc;
+	Panel(Px, Py, Ab, Ab, FLinearColor(FColor::FromHex(TEXT("ffd23f"))), 4.f);
+	Text(TEXT("PUNCH"), Px + Ab / 2, Py + Ab * 0.45f, 1.1f, Ink, true, false);
+	Text(TEXT("J"), Px + Ab / 2, Py + Ab * 0.72f, 0.7f, FLinearColor(0, 0, 0, 0.6f), true, false);
+	Buttons.Add({ FBox2D(FVector2D(Px, Py), FVector2D(Px + Ab, Py + Ab)), TEXT("punch"), 0 });
+	Panel(Kx, Ky, Ab, Ab, FLinearColor(FColor::FromHex(TEXT("ff7a59"))), 4.f);
+	Text(TEXT("KICK"), Kx + Ab / 2, Ky + Ab * 0.45f, 1.1f, Ink, true, false);
+	Text(TEXT("K"), Kx + Ab / 2, Ky + Ab * 0.72f, 0.7f, FLinearColor(0, 0, 0, 0.6f), true, false);
+	Buttons.Add({ FBox2D(FVector2D(Kx, Ky), FVector2D(Kx + Ab, Ky + Ab)), TEXT("kick"), 0 });
+
+	// hit streak, and the combo string so far (P P K ...) under the timer
+	if (J.Streak >= 3) Text(FString::Printf(TEXT("%d HITS"), J.Streak), W - 70 * Sc, 130 * Sc, 1.8f, Accent);
+	{
+		FString Str;
+		for (int32 i = 0; i < J.Keys.Len(); i++) { if (i) Str += TEXT("  "); Str += J.Keys[i] == TEXT('J') ? TEXT("P") : TEXT("K"); }
+		if (Str.Len()) Text(Str, W / 2, 100 * Sc, 1.3f, Paper);
+	}
+
 	// ROLL: empties when used and refills as the cooldown runs out
-	const float Rb = 88 * Sc, Rx = W - Rb - 18 * Sc, Ry = H - Rb - 26 * Sc;
+	const float Rb = 70 * Sc, Rx = W - Rb - 18 * Sc, Ry = H - Rb - 196 * Sc;
 	const float Cd = J.RollCd / RollCooldown;
 	Panel(Rx, Ry, Rb, Rb, Cd > 0 ? FLinearColor(FColor::FromHex(TEXT("3a5a66"))) : Sky, 4.f);
 	if (Cd > 0) DrawRect(Sky, Rx, Ry + Rb * Cd, Rb, Rb * (1.f - Cd));
-	Text(TEXT("ROLL"), Rx + Rb / 2, Ry + Rb / 2, 1.3f, Cd > 0 ? FLinearColor(0, 0, 0, 0.6f) : Ink, true, false);
+	Text(TEXT("ROLL"), Rx + Rb / 2, Ry + Rb / 2, 1.05f, Cd > 0 ? FLinearColor(0, 0, 0, 0.6f) : Ink, true, false);
 	Buttons.Add({ FBox2D(FVector2D(Rx, Ry), FVector2D(Rx + Rb, Ry + Rb)), TEXT("roll"), 0 });
 
 	// floating stick under the thumb

@@ -7,13 +7,19 @@ export const S = {
 
   juno: {
     hp: 100, speed: 5.2, radius: 0.35, iframes: 0.75,
-    attackInterval: 0.42,  // s between punches (jab, cross, kick, repeat)
-    reach: 1.9, arcDeg: 140, // punches hit every Crow in this arc in front of her
+    // J = punch, K = kick. Each hits every Crow within reach in the arc in front of her.
+    // time: how long the move takes; hitAt: when in it the hit lands. Quick Hands shortens both.
+    attacks: {
+      punch: { damage: 11, push: 0.6, reach: 1.8, arcDeg: 120, time: 0.26, hitAt: 0.08 },
+      kick:  { damage: 17, push: 1.4, reach: 2.2, arcDeg: 150, time: 0.42, hitAt: 0.16 },
+    },
+    comboWindow: 0.6,  // s after a move ends that the next press still continues the string
+    attackMove: 0.7,   // move speed while swinging (x normal)
+    lunge: 1.4,        // a press steps her up to this far toward a Crow just out of reach
+    aimAssist: 1.6,    // a press turns her toward the nearest Crow within reach + this
     starter: { wrench: 1 },  // every run starts with these upgrades
     // ROLL button: a quick dodge-roll. Juno cannot be hurt and slips through the crowd while rolling.
     roll: { speed: 12, time: 0.32, cooldown: 1.4, iframes: 0.4 },
-    damage: [10, 12, 18],
-    push: [1.3, 1.3, 3.6],
   },
 
   // contact damage: a Crow touching Juno hurts her, then waits `contactCooldown` before it can again
@@ -43,14 +49,25 @@ export const S = {
 
   feel: { hitstop: 0.035, shake: 0.12, bigShake: 0.3 },
 
-  camera: { fov: 48, height: 15, back: 5.5, damping: 7, landscapeHeight: 12, landscapeBack: 6.5, edgeMargin: 5 },
+  // low, angled view: behind and above Juno, looking ahead across the roof and the city
+  camera: { fov: 52, height: 6.8, back: 8.5, ahead: 3.5, damping: 7, landscapeFov: 46, landscapeHeight: 5.6, landscapeBack: 8, edgeMargin: 4 },
 };
+
+// Combos: the last presses (J = punch, K = kick) ending in one of these strings make its finisher.
+// The finisher hits with damage x `damage`, its own push, extra reach and arc, and freezes the roof briefly.
+export const COMBOS = [
+  { keys: 'JKJK', name: 'FURY',       damage: 2.6, push: 5,   reach: 1.6, arcDeg: 360, hitstop: 0.08, coins: 2 }, // shockwave all around
+  { keys: 'JJJ',  name: 'TRIPLE JAB', damage: 2.0, push: 3,   reach: 0.2, arcDeg: 120, hitstop: 0.04, coins: 0 },
+  { keys: 'JJK',  name: 'ROUNDHOUSE', damage: 1.8, push: 4.5, reach: 0.5, arcDeg: 360, hitstop: 0.05, coins: 1 }, // spinning kick
+  { keys: 'KKJ',  name: 'UPPERCUT',   damage: 3.4, push: 6,   reach: 0.3, arcDeg: 80,  hitstop: 0.07, coins: 1 }, // one huge hit up front
+  { keys: 'KJK',  name: 'DROP KICK',  damage: 2.4, push: 7,   reach: 1.0, arcDeg: 100, hitstop: 0.06, coins: 1 }, // flies forward
+];
 
 // In-run upgrades: pick 1 of 3 on each level-up. Each goes to level 5.
 export const UPGRADES = {
-  haymaker:  { name: 'Haymaker',     text: (l) => `Punches hit ${25 * l}% harder` },
-  quick:     { name: 'Quick Hands',  text: (l) => `Punch ${12 * l}% faster` },
-  reach:     { name: 'Long Arms',    text: (l) => `+${(0.3 * l).toFixed(1)} m reach, wider swing` },
+  haymaker:  { name: 'Haymaker',     text: (l) => `Punches and kicks hit ${25 * l}% harder` },
+  quick:     { name: 'Quick Hands',  text: (l) => `Punch and kick ${12 * l}% faster` },
+  reach:     { name: 'Long Arms',    text: (l) => `+${(0.3 * l).toFixed(1)} m reach, wider swings` },
   pipes:     { name: 'Orbit Pipes',  text: (l) => `${Math.min(l, 4)} pipe${l > 1 ? 's' : ''} spin around you` },
   wrench:    { name: 'Wrench Toss',  text: (l) => `Throw ${1 + Math.floor((l - 1) / 2)} wrench${l > 2 ? 'es' : ''} every ${(1.7 - 0.2 * l).toFixed(1)} s` },
   stomp:     { name: 'Shockwave',    text: (l) => `Stomp every ${(3.4 - 0.3 * l).toFixed(1)} s, knocks Crows back` },

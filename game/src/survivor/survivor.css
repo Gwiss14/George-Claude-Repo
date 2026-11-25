@@ -49,8 +49,8 @@ h2 { margin: 0; font-weight: 400; font-size: clamp(44px, 13vw, 72px); color: var
 #pause-btn { position: absolute; top: calc(26px + env(safe-area-inset-top)); right: max(14px, env(safe-area-inset-right)); pointer-events: auto; width: 44px; height: 44px;
   font-size: 20px; color: var(--ink); background: var(--paper); border: 3px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); }
 #roll-btn {
-  position: absolute; right: max(18px, env(safe-area-inset-right)); bottom: calc(26px + env(safe-area-inset-bottom)); pointer-events: auto;
-  width: 88px; height: 88px; border-radius: 50%; font-size: 24px; color: var(--ink); touch-action: none;
+  position: absolute; right: max(18px, env(safe-area-inset-right)); bottom: calc(196px + env(safe-area-inset-bottom)); pointer-events: auto;
+  width: 70px; height: 70px; font-size: 20px !important; border-radius: 50%; font-size: 24px; color: var(--ink); touch-action: none;
   border: 4px solid var(--ink); box-shadow: 4px 4px 0 var(--ink);
   /* cooldown: the grey slice shrinks as the roll comes back */
   background: conic-gradient(rgba(11, 11, 16, 0.55) calc(var(--cd, 0) * 360deg), #7fe0ff 0);
@@ -58,6 +58,18 @@ h2 { margin: 0; font-weight: 400; font-size: clamp(44px, 13vw, 72px); color: var
 #roll-btn:not(.ready) { color: rgba(11, 11, 16, 0.6); }
 #roll-btn.ready { background: #7fe0ff; animation: ready 0.25s ease-out; }
 #roll-btn.down { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
+/* PUNCH and KICK: big buttons for the right thumb */
+.act { position: absolute; pointer-events: auto; touch-action: none; width: 92px; height: 92px; border-radius: 50%; font-size: 22px; line-height: 1;
+  color: var(--ink); border: 4px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.act small { font-size: 13px; opacity: 0.6; margin-top: 2px; }
+.act.down { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
+#punch-btn { right: max(18px, env(safe-area-inset-right)); bottom: calc(86px + env(safe-area-inset-bottom)); background: #ffd23f; }
+#kick-btn { right: calc(max(18px, env(safe-area-inset-right)) + 100px); bottom: calc(26px + env(safe-area-inset-bottom)); background: #ff7a59; }
+#streak { position: absolute; right: max(18px, env(safe-area-inset-right)); top: calc(120px + env(safe-area-inset-top)); font-size: 34px; color: var(--accent);
+  -webkit-text-stroke: 1.5px var(--ink); text-shadow: 3px 3px 0 var(--ink); transform: rotate(6deg); }
+#keys { position: absolute; left: 50%; top: calc(108px + env(safe-area-inset-top)); transform: translateX(-50%); font-size: 24px; letter-spacing: 4px;
+  color: #fff; -webkit-text-stroke: 1px var(--ink); text-shadow: 2px 2px 0 var(--ink); }
+.pop.combo { font-size: 40px; color: #ff5a3c; z-index: 2; }
 @keyframes ready { 50% { transform: scale(1.12); } }
 #banner { position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%) rotate(-4deg) scale(0.6); opacity: 0; width: 92vw; text-align: center;
   font-size: clamp(36px, 11vw, 70px); line-height: 1; color: var(--accent); -webkit-text-stroke: 2px var(--ink); text-shadow: 5px 5px 0 var(--ink); }

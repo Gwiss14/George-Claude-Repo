@@ -1,4 +1,4 @@
-// Test bot for Roof Rumble: kites the swarm, grabs coins when it is safe, dodges boss smashes,
+// Test bot for Roof Rumble: fights with J/K combo strings, kites the swarm, grabs coins when it is safe, dodges boss smashes,
 // and picks upgrades by a simple priority. Writes a report to window.__botReport.
 import { S } from './config.js';
 
@@ -9,6 +9,8 @@ export class SurvivorBot {
     this.run = run; this.input = input;
     this.report = { done: false, result: null, time: 0, kills: 0, level: 1, picks: [], hurt: 0, damageTaken: 0, peakEnemies: 0, bosses: 0, bossesKilled: 0, coins: 0, maxPenetration: 0, stuckSeconds: 0 };
     this.lastPos = { x: 0, z: 0, t: 0 };
+    this.combo = 0; this.step = 0; // which combo string it is playing, and how far in
+    this.report.combos = {}; this.report.presses = 0;
     run.on((ev, r) => {
       const R = this.report;
       if (ev.type === 'levelup') setTimeout(() => this.pick(), 0);
@@ -16,6 +18,8 @@ export class SurvivorBot {
       if (ev.type === 'boss') R.bosses++;
       if (ev.type === 'kill' && ev.kind === 'boss') R.bossesKilled++;
       if (ev.type === 'coin') R.coins++;
+      if (ev.type === 'swing') this.swung = true;
+      if (ev.type === 'swing' && ev.combo) R.combos[ev.combo] = (R.combos[ev.combo] || 0) + 1;
       if (ev.type === 'dead' || ev.type === 'won') { R.result = ev.type; R.done = true; R.time = +r.time.toFixed(1); R.kills = r.kills; R.level = r.juno.level; }
     });
   }
@@ -65,14 +69,22 @@ export class SurvivorBot {
     }
     const m = Math.hypot(fx, fz);
     const smash = live.some((e) => e.kind === 'boss' && e.windup > 0 && Math.hypot(e.x - j.x, e.z - j.z) < S.enemies.boss.smashRadius + 1);
-    if ((smash || crowd >= 5) && j.rollCd <= 0 && j.rollT <= 0) { this.input.roll = 1; R.rolls = (R.rolls || 0) + 1; }
+    if ((smash || crowd >= 4) && j.rollCd <= 0 && j.rollT <= 0) { this.input.roll = 1; R.rolls = (R.rolls || 0) + 1; }
+    // fight: when a Crow is in reach, play the next press of one of the combo strings
+    if (near && nd - near.radius < r.reach + 0.4 && !j.move && !j.queue.length && j.rollT <= 0) {
+      const strings = ['JJK', 'KKJ', 'JKJK', 'JJJ', 'KJK'], str = strings[this.combo % strings.length];
+      this.input.press.push(str[this.step]); R.presses++;
+      if (++this.step >= str.length) { this.step = 0; this.combo++; }
+    } else if (!near || nd > 4) this.step = 0;
     this.input.mx = m > 0.02 ? fx / m : 0;
     this.input.mz = m > 0.02 ? fz / m : 0;
     // stuck check: wants to move but has not moved for a second
     if (r.time - this.lastPos.t > 1) {
       // stuck = wants to move, has open space (no Crow within 1.5 m), yet did not move: a collision bug
       const open = !live.some((e) => Math.hypot(e.x - j.x, e.z - j.z) < 1.5 + e.radius);
-      if (m > 0.05 && open && Math.hypot(j.x - this.lastPos.x, j.z - this.lastPos.z) < 0.2) R.stuckSeconds++;
+      // seconds with a punch or kick in them don't count: swinging (and a finisher's step-in) holds her in place on purpose
+      if (m > 0.05 && open && !this.swung && Math.hypot(j.x - this.lastPos.x, j.z - this.lastPos.z) < 0.2) R.stuckSeconds++;
+      this.swung = false;
       this.lastPos = { x: j.x, z: j.z, t: r.time };
     }
   }

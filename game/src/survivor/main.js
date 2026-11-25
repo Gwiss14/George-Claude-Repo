@@ -29,7 +29,9 @@ const zone = document.getElementById('app');
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Backquote') { debug.toggle(); return; }
   if (e.code === 'Escape' && run.phase === 'play') setPaused(!paused);
-  if ((e.code === 'Space' || e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'KeyK') && !e.repeat) input.roll++;
+  if ((e.code === 'Space' || e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'KeyL') && !e.repeat) input.roll++;
+  if (e.code === 'KeyJ' && !e.repeat) input.press.push('J'); // punch
+  if (e.code === 'KeyK' && !e.repeat) input.press.push('K'); // kick
   keys.add(e.code);
   if (e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault();
 });
@@ -54,11 +56,19 @@ zone.addEventListener('pointermove', (e) => {
 const end = (e) => { if (e.pointerId === stick.id) { stick.id = null; stick.x = stick.y = 0; base.style.display = 'none'; } };
 zone.addEventListener('pointerup', end);
 zone.addEventListener('pointercancel', end);
-const input = { mx: 0, mz: 0, roll: 0 };
+const input = { mx: 0, mz: 0, roll: 0, press: [] };
 // ROLL button: its own finger, so it works while the other thumb steers
 const rollBtn = document.getElementById('roll-btn');
 rollBtn.addEventListener('pointerdown', (e) => { input.roll++; rollBtn.classList.add('down'); e.preventDefault(); e.stopPropagation(); });
+// PUNCH (J) and KICK (K) buttons: same idea, each its own finger
+const actionBtn = (id, fn) => {
+  const b = document.getElementById(id);
+  b.addEventListener('pointerdown', (e) => { fn(); b.classList.add('down'); e.preventDefault(); e.stopPropagation(); });
+  for (const t of ['pointerup', 'pointercancel', 'pointerleave']) b.addEventListener(t, () => b.classList.remove('down'));
+};
 for (const t of ['pointerup', 'pointercancel', 'pointerleave']) rollBtn.addEventListener(t, () => rollBtn.classList.remove('down'));
+actionBtn('punch-btn', () => input.press.push('J'));
+actionBtn('kick-btn', () => input.press.push('K'));
 function readInput() {
   let x = (keys.has('KeyD') || keys.has('ArrowRight') ? 1 : 0) - (keys.has('KeyA') || keys.has('ArrowLeft') ? 1 : 0);
   let z = (keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0) - (keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0);
@@ -79,6 +89,10 @@ run.on((ev, r) => {
       buzz(ev.kind === 'grunt' || ev.kind === 'runner' ? 'light' : 'medium');
       break;
     }
+    case 'swing':
+      if (ev.combo) { const q = p(ev.x, ev.z, 2.4); ui.pop(q.x, q.y, `${ev.combo}!`, 'combo'); buzz(ev.hits ? 'heavy' : 'light'); }
+      else if (ev.hits) buzz(ev.move === 'kick' ? 'medium' : 'light');
+      break;
     case 'hurt': buzz('medium'); { const q = p(r.juno.x, r.juno.z, 2.1); ui.pop(q.x, q.y, `-${Math.round(ev.amount)}`, 'bad'); } break;
     case 'heal': { const q = p(r.juno.x, r.juno.z, 2.1); ui.pop(q.x, q.y, `+${ev.amount}`, 'heal'); } break;
     case 'boss': ui.banner(ev.n === S.spawn.bossAt.length ? 'GRUDGE IS BACK — LAST TIME!' : 'BOSS: GRUDGE!'); buzz('heavy'); break;

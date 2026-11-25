@@ -113,7 +113,7 @@ export class RunView {
     const sun = this.sun = new THREE.DirectionalLight(0xffe2c0, 2.4);
     sun.castShadow = true;
     sun.shadow.mapSize.set(1024, 1024);
-    Object.assign(sun.shadow.camera, { left: -12, right: 12, top: 12, bottom: -12, near: 1, far: 50 });
+    Object.assign(sun.shadow.camera, { left: -14, right: 14, top: 16, bottom: -14, near: 1, far: 50 });
     sun.shadow.bias = -0.0005;
     scene.add(sun, sun.target);
     scene.add(new THREE.HemisphereLight(0xb9a6ff, 0x4a3a40, 0.95));
@@ -210,7 +210,11 @@ export class RunView {
   onEvent(ev) {
     const F = S.feel;
     switch (ev.type) {
-      case 'swing': if (ev.hits) this.sfx.hit(ev.chain === 2); else this.sfx.whoosh(true); if (ev.chain === 2 && ev.hits) this.shake = Math.max(this.shake, F.shake); break;
+      case 'swing':
+        if (ev.hits) this.sfx.hit(ev.move === 'kick' || !!ev.combo); else this.sfx.whoosh(true);
+        if (ev.combo) { this.shake = Math.max(this.shake, ev.hits ? F.bigShake : F.shake); this.burst(ev.x, 0.4, ev.z, 14, 0xff5a3c, 5); }
+        else if (ev.move === 'kick' && ev.hits) this.shake = Math.max(this.shake, F.shake);
+        break;
       case 'hit': if (ev.source === 'wrench' || ev.source === 'pipe') this.sfx.hit(false); this.burst(ev.x, 1.1, ev.z, ev.source === 'kick' ? 5 : 3, 0xffe14d); break;
       case 'kill': this.burst(ev.x, 1, ev.z, ev.kind === 'boss' ? 30 : ev.kind === 'brute' ? 14 : 6, ev.kind === 'boss' ? 0xff7a2a : 0xfff6e0, ev.kind === 'boss' ? 6 : 3.5); if (ev.kind === 'boss' || ev.kind === 'brute') { this.shake = Math.max(this.shake, F.bigShake); this.sfx.boom?.(); } break;
       case 'hurt': this.shake = Math.max(this.shake, F.shake * 1.3); this.hurtFlash = 1; this.sfx.hit(true); break;
@@ -238,10 +242,19 @@ export class RunView {
     P.body.rotation.set(0.05 + amp * 0.12, 0, 0);
     P.arm_l.rotation.set(-0.75 - s * amp * 0.3, 0, 0.12); P.arm_r.rotation.set(-0.75 + s * amp * 0.3, 0, -0.12);
     if (j.swing > 0) {
-      const k = Math.sin((1 - j.swing / 0.22) * Math.PI);
-      if (j.swingChain === 0) { P.arm_l.rotation.x = -0.75 - 0.85 * k; P.body.rotation.y = -0.3 * k; }
-      else if (j.swingChain === 1) { P.arm_r.rotation.x = -0.75 - 0.85 * k; P.body.rotation.y = 0.35 * k; }
-      else { P.leg_r.rotation.x = -1.4 * k; P.body.rotation.x = -0.25 * k; }
+      const u = 1 - j.swing / j.swingTime, k = Math.sin(u * Math.PI); // 0 → 1 → 0 over the move
+      switch (j.swingMove) {
+        case 'punch':
+          if (j.swingSide === 0) { P.arm_l.rotation.set(-1.6 * k - 0.75 * (1 - k), 0, 0.12); P.body.rotation.y = -0.35 * k; }
+          else { P.arm_r.rotation.set(-1.6 * k - 0.75 * (1 - k), 0, -0.12); P.body.rotation.y = 0.4 * k; }
+          break;
+        case 'kick': P.leg_r.rotation.x = -1.5 * k; P.body.rotation.x = -0.25 * k; break;
+        case 'TRIPLE JAB': P.arm_l.rotation.set(-1.65 * k, 0, -0.1); P.arm_r.rotation.set(-1.65 * k, 0, 0.1); P.body.rotation.x = 0.2 * k; break;
+        case 'ROUNDHOUSE': o.rotation.y = j.yaw + u * Math.PI * 2; P.leg_r.rotation.set(-1.2 * k, 0, 1.2 * k); P.body.rotation.z = -0.3 * k; break;
+        case 'UPPERCUT': P.arm_r.rotation.set(-0.3 - 2.7 * u, 0, -0.1); P.body.rotation.x = -0.35 * k; o.position.y = 0.45 * k; break;
+        case 'DROP KICK': P.leg_l.rotation.x = P.leg_r.rotation.x = -1.4 * k; P.body.rotation.x = -0.6 * k; o.position.y = 0.6 * k; break;
+        case 'FURY': o.rotation.y = j.yaw + u * Math.PI * 4; P.arm_l.rotation.set(-0.3, 0, 1.5 * k); P.arm_r.rotation.set(-0.3, 0, -1.5 * k); o.position.y = 0.3 * k; break;
+      }
     }
     if (j.rollT > 0) { // somersault: tuck and spin forward once
       const k = 1 - j.rollT / S.juno.roll.time;
@@ -317,19 +330,21 @@ export class RunView {
       if (u.life <= 0) sp.visible = false;
     }
 
-    // camera: high and behind, following Juno, kept over the roof
+    // camera: low and angled, behind and above Juno, looking ahead across the roof
     const C = S.camera, cam = this.camera, A = S.arena, portrait = cam.aspect < 1;
     const h = portrait ? C.height : C.landscapeHeight, back = portrait ? C.back : C.landscapeBack;
+    const fov = portrait ? C.fov : C.landscapeFov;
+    if (cam.fov !== fov) { cam.fov = fov; cam.updateProjectionMatrix(); }
     const f = 1 - Math.exp(-C.damping * dt);
     this.camX += (Math.max(-A.width / 2 + 3, Math.min(A.width / 2 - 3, jx)) - this.camX) * f;
-    this.camZ += (Math.max(-A.depth / 2 + C.edgeMargin, Math.min(A.depth / 2 - 3, jz)) - this.camZ) * f;
+    this.camZ += (Math.max(-A.depth / 2 + C.edgeMargin, Math.min(A.depth / 2 - 2, jz)) - this.camZ) * f;
     this.shake = Math.max(0, this.shake - dt * 1.5);
     this.hurtFlash = Math.max(0, this.hurtFlash - dt * 4);
     const sh = this.shake * this.shake * 3;
-    cam.position.set(this.camX + (Math.random() - 0.5) * sh, h + (Math.random() - 0.5) * sh, this.camZ + back);
-    cam.lookAt(this.camX, 0, this.camZ - 0.8);
-    this.sun.position.set(this.camX - 6, 14, this.camZ + 7);
-    this.sun.target.position.set(this.camX, 0, this.camZ);
+    cam.position.set(this.camX * 0.85 + (Math.random() - 0.5) * sh, h + (Math.random() - 0.5) * sh, this.camZ + back);
+    cam.lookAt(this.camX, 0.6, this.camZ - C.ahead);
+    this.sun.position.set(this.camX - 6, 14, this.camZ + 4);
+    this.sun.target.position.set(this.camX, 0, this.camZ - 3);
     this.renderer.render(this.scene, cam);
   }
 

@@ -256,6 +256,8 @@ void ARRArena::OnButton(FName Id, int32 Param)
 	else if (Id == TEXT("resume") && Screen == ERRScreen::Paused) Screen = ERRScreen::Run;
 	else if (Id == TEXT("quit")) { Sim.Phase = ERRPhase::Dead; FinishRun(false); }
 	else if (Id == TEXT("roll")) Input.Roll++;
+	else if (Id == TEXT("punch")) Input.Press.Add(TEXT('J'));
+	else if (Id == TEXT("kick")) Input.Press.Add(TEXT('K'));
 	else if (Id == TEXT("card") && Screen == ERRScreen::LevelUp && Sim.Choices.IsValidIndex(Param))
 	{
 		Sim.Choose(Sim.Choices[Param]);
@@ -269,7 +271,7 @@ void ARRArena::OnButton(FName Id, int32 Param)
 	}
 }
 
-// ---- input: one thumb anywhere steers; the ROLL button (or Space/Shift/K) rolls -------------------
+// ---- input: one thumb anywhere steers; PUNCH (J), KICK (K) and ROLL (Space/Shift/L) buttons -------------------
 void ARRArena::ReadInput(float Dt)
 {
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
@@ -278,7 +280,9 @@ void ARRArena::ReadInput(float Dt)
 
 	float Mx = (PC->IsInputKeyDown(EKeys::D) || PC->IsInputKeyDown(EKeys::Right) ? 1.f : 0.f) - (PC->IsInputKeyDown(EKeys::A) || PC->IsInputKeyDown(EKeys::Left) ? 1.f : 0.f);
 	float Mz = (PC->IsInputKeyDown(EKeys::S) || PC->IsInputKeyDown(EKeys::Down) ? 1.f : 0.f) - (PC->IsInputKeyDown(EKeys::W) || PC->IsInputKeyDown(EKeys::Up) ? 1.f : 0.f);
-	if (PC->WasInputKeyJustPressed(EKeys::SpaceBar) || PC->WasInputKeyJustPressed(EKeys::LeftShift) || PC->WasInputKeyJustPressed(EKeys::K)) Input.Roll++;
+	if (PC->WasInputKeyJustPressed(EKeys::SpaceBar) || PC->WasInputKeyJustPressed(EKeys::LeftShift) || PC->WasInputKeyJustPressed(EKeys::L)) Input.Roll++;
+	if (PC->WasInputKeyJustPressed(EKeys::J)) Input.Press.Add(TEXT('J')); // punch
+	if (PC->WasInputKeyJustPressed(EKeys::K)) Input.Press.Add(TEXT('K')); // kick
 	if (PC->WasInputKeyJustPressed(EKeys::Escape)) OnButton(Screen == ERRScreen::Paused ? FName(TEXT("resume")) : FName(TEXT("pause")), 0);
 
 	FVector2D ViewSize(1080, 1920);
@@ -333,7 +337,17 @@ void ARRArena::HandleEvents()
 	{
 		const FVector P = ToWorld(E.X, E.Z, 1.f);
 		if (E.Type == TEXT("hit")) Burst(P, E.Source == TEXT("kick") ? 5 : 3, 300.f);
-		else if (E.Type == TEXT("swing")) { if (E.Amount > 0 && E.Source == TEXT("kick")) Shake = FMath::Max(Shake, 0.12f); }
+		else if (E.Type == TEXT("swing"))
+		{
+			const bool bCombo = !(E.Source == TEXT("punch")) && !(E.Source == TEXT("kick")); // a finisher carries its name
+			if (bCombo)
+			{
+				Shake = FMath::Max(Shake, E.Amount > 0 ? 0.3f : 0.12f);
+				Burst(ToWorld(E.X, E.Z, 0.4f), 14, 500.f);
+				if (Hud) Hud->Pop(ToWorld(E.X, E.Z, 2.4f), E.Source + TEXT("!"), 4);
+			}
+			else if (E.Amount > 0 && E.Source == TEXT("kick")) Shake = FMath::Max(Shake, 0.12f);
+		}
 		else if (E.Type == TEXT("kill"))
 		{
 			const bool bBig = E.Kind == EKind::Boss || E.Kind == EKind::Brute;
@@ -413,8 +427,18 @@ void ARRArena::Draw(float Alpha, float Dt)
 		P.BodyPitch = -(3.f + Amp * 0.15f);
 		if (J.Swing > 0)
 		{
-			const float K = FMath::Sin((1.f - J.Swing / 0.22f) * PI);
-			if (J.SwingChain == 0) P.ArmL = 45.f + 50.f * K; else if (J.SwingChain == 1) P.ArmR = 45.f + 50.f * K; else P.LegR = 80.f * K;
+			const float U = 1.f - J.Swing / J.SwingTime, K = FMath::Sin(U * PI); // 0 -> 1 -> 0 over the move
+			switch (J.SwingMove)
+			{
+			case 0: if (J.SwingSide == 0) P.ArmL = 45.f + 50.f * K; else P.ArmR = 45.f + 50.f * K; P.YawDeg += (J.SwingSide == 0 ? 20.f : -22.f) * K; break; // punch
+			case 1: P.LegR = 85.f * K; P.BodyPitch += 14.f * K; break;                                       // kick
+			case 2: P.YawDeg += 720.f * U; P.ArmL = P.ArmR = 90.f; P.Lift = 30.f * K; break;                // FURY: double spin
+			case 3: P.ArmL = P.ArmR = 45.f + 50.f * K; P.BodyPitch -= 10.f * K; break;                      // TRIPLE JAB: both fists
+			case 4: P.YawDeg += 360.f * U; P.LegR = 75.f * K; break;                                        // ROUNDHOUSE: spinning kick
+			case 5: P.ArmR = 20.f + 155.f * U; P.BodyPitch += 18.f * K; P.Lift = 45.f * K; break;          // UPPERCUT: low to high
+			case 6: P.LegL = P.LegR = 80.f * K; P.BodyPitch += 35.f * K; P.Lift = 60.f * K; break;          // DROP KICK: both feet
+			default: break;
+			}
 		}
 		if (J.RollT > 0)
 		{
@@ -525,19 +549,22 @@ void ARRArena::Draw(float Alpha, float Dt)
 
 void ARRArena::UpdateCamera(float Jx, float Jz, float Dt)
 {
-	// high and behind, following Juno, kept over the roof so the view never runs past the north edge
-	const float F = 1.f - FMath::Exp(-CamDamping * Dt);
-	CamX += (FMath::Clamp(Jx, -ArenaWidth / 2 + 3, ArenaWidth / 2 - 3) - CamX) * F;
-	CamZ += (FMath::Clamp(Jz, -ArenaDepth / 2 + CamEdgeMargin, ArenaDepth / 2 - 3) - CamZ) * F;
-	Shake = FMath::Max(0.f, Shake - Dt * 1.5f);
-	HurtFlash = FMath::Max(0.f, HurtFlash - Dt * 4.f);
-	const float Sh = Shake * Shake * 3.f;
-	const FVector Pos = ToWorld(CamX + (FMath::FRand() - 0.5f) * Sh, CamZ + CamBack, CamHeight + (FMath::FRand() - 0.5f) * Sh);
-	const FVector Look = ToWorld(CamX, CamZ - 0.8f, 0.f);
-	Camera->SetWorldLocationAndRotation(Pos, (Look - Pos).Rotation());
-	// Unreal's field of view is horizontal: keep the web game's 48 degrees vertical on any screen shape
+	// low and angled: behind and above Juno, looking ahead across the roof and the city
 	FVector2D ViewSize(1080, 1920);
 	if (GEngine && GEngine->GameViewport) GEngine->GameViewport->GetViewportSize(ViewSize);
 	const float Aspect = ViewSize.Y > 0 ? ViewSize.X / ViewSize.Y : 0.5f;
-	Camera->SetFieldOfView(FMath::RadiansToDegrees(2.f * FMath::Atan(FMath::Tan(FMath::DegreesToRadians(CamFovDeg / 2.f)) * Aspect)));
+	const bool bPortrait = Aspect < 1.f;
+	const float Height = bPortrait ? CamHeight : CamLandscapeHeight, Back = bPortrait ? CamBack : CamLandscapeBack;
+	const float VFov = bPortrait ? CamFovDeg : CamLandscapeFovDeg;
+	const float F = 1.f - FMath::Exp(-CamDamping * Dt);
+	CamX += (FMath::Clamp(Jx, -ArenaWidth / 2 + 3, ArenaWidth / 2 - 3) - CamX) * F;
+	CamZ += (FMath::Clamp(Jz, -ArenaDepth / 2 + CamEdgeMargin, ArenaDepth / 2 - 2) - CamZ) * F;
+	Shake = FMath::Max(0.f, Shake - Dt * 1.5f);
+	HurtFlash = FMath::Max(0.f, HurtFlash - Dt * 4.f);
+	const float Sh = Shake * Shake * 3.f;
+	const FVector Pos = ToWorld(CamX * 0.85f + (FMath::FRand() - 0.5f) * Sh, CamZ + Back, Height + (FMath::FRand() - 0.5f) * Sh);
+	const FVector Look = ToWorld(CamX, CamZ - CamAhead, 0.6f);
+	Camera->SetWorldLocationAndRotation(Pos, (Look - Pos).Rotation());
+	// Unreal's field of view is horizontal: keep the web game's vertical angle on any screen shape
+	Camera->SetFieldOfView(FMath::RadiansToDegrees(2.f * FMath::Atan(FMath::Tan(FMath::DegreesToRadians(VFov / 2.f)) * Aspect)));
 }

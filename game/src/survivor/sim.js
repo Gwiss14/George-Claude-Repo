@@ -1,8 +1,8 @@
-// One run of Roof Rumble: Juno auto-fights swarms of Tin Crows for 5 minutes.
+// One run of Roof Rumble: Juno fights (J punch, K kick, combos) swarms of Tin Crows for 5 minutes.
 // Gameplay only: nothing here knows how anything looks. The view reads this state.
 // Yaw 0 faces +Z (toward the camera); +Z is south.
 
-import { S, UPGRADES } from './config.js';
+import { S, UPGRADES, COMBOS } from './config.js';
 
 const TAU = Math.PI * 2;
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -54,7 +54,9 @@ export class Run {
     const maxHp = J.hp + 15 * (m.vitality || 0);
     this.juno = {
       x: 0, z: 2, px: 0, pz: 2, vx: 0, vz: 0, kx: 0, kz: 0, yaw: Math.PI, radius: J.radius,
-      hp: maxHp, maxHp, iframes: 0, attackT: 0.3, chain: 0, swing: 0, swingChain: 0, speedNow: 0,
+      hp: maxHp, maxHp, iframes: 0, speedNow: 0,
+      move: null, queue: [], keys: '', comboT: 0, swing: 0, swingTime: 1, swingMove: 'punch', swingSide: 0, punches: 0,
+      streak: 0, streakT: 0, combos: 0, comboName: '',
       level: 1, xp: 0, xpNeed: S.xp.first, ups: { ...J.starter }, koCount: 0,
       pipeAngle: 0, wrenchT: 1, stompT: 2,
       rollT: 0, rollCd: 0, rollX: 0, rollZ: 1, rolls: 0,
@@ -65,9 +67,10 @@ export class Run {
   // ---- derived stats from upgrades and the shop ---------------------------------------
   lv(k) { return this.juno.ups[k] || 0; }
   get dmgMul() { return (1 + 0.25 * this.lv('haymaker')) * (1 + 0.08 * (this.meta.might || 0)); }
-  get interval() { return S.juno.attackInterval * Math.pow(0.88, this.lv('quick')); }
-  get reach() { return S.juno.reach + 0.3 * this.lv('reach'); }
-  get arc() { return ((S.juno.arcDeg + 12 * this.lv('reach')) * Math.PI) / 180; }
+  get quick() { return Math.pow(0.88, this.lv('quick')); } // move time multiplier
+  reachOf(a) { return a.reach + 0.3 * this.lv('reach'); }
+  arcOf(deg) { return (Math.min(360, deg + 12 * this.lv('reach')) * Math.PI) / 180; }
+  get reach() { return this.reachOf(S.juno.attacks.punch); }
   get speed() { return S.juno.speed * (1 + 0.1 * this.lv('sneakers')) * (1 + 0.05 * (this.meta.swift || 0)); }
   get magnet() { return S.xp.magnet * (1 + 0.45 * this.lv('magnet')); }
   get coinMul() { return 1 + 0.15 * (this.meta.greed || 0); }
@@ -86,7 +89,7 @@ export class Run {
 
     this.spawn(dt);
     this.moveJuno(dt, input);
-    this.autoAttack(dt);
+    this.fight(dt, input);
     this.weapons(dt);
     this.moveEnemies(dt);
     this.projectiles(dt);
@@ -158,7 +161,7 @@ export class Run {
         j.yaw = Math.atan2(j.rollX, j.rollZ);
         j.rollT = R.time; j.rollCd = R.cooldown; j.rolls++;
         j.iframes = Math.max(j.iframes, R.iframes);
-        j.swing = 0;
+        j.swing = 0; j.move = null; j.queue.length = 0; j.keys = ''; // a roll cancels the move and the combo
         this.emit({ type: 'roll', x: j.x, z: j.z });
       }
     }
@@ -172,10 +175,10 @@ export class Run {
       j.speedNow = Math.hypot(j.x - j.px, j.z - j.pz) / dt;
       return;
     }
-    const s = this.speed * Math.min(1, m);
+    const s = this.speed * Math.min(1, m) * (j.move ? S.juno.attackMove : 1);
     j.vx = m > 0.05 ? (input.mx / m) * s : 0;
     j.vz = m > 0.05 ? (input.mz / m) * s : 0;
-    if (m > 0.05 && j.swing <= 0) j.yaw = turn(j.yaw, Math.atan2(input.mx, input.mz), 14 * dt);
+    if (m > 0.05 && !j.move) j.yaw = turn(j.yaw, Math.atan2(input.mx, input.mz), 14 * dt);
     const decay = Math.exp(-10 * dt);
     j.x += (j.vx + j.kx) * dt; j.z += (j.vz + j.kz) * dt;
     j.kx *= decay; j.kz *= decay;
@@ -194,31 +197,70 @@ export class Run {
     return best;
   }
 
-  autoAttack(dt) {
-    const j = this.juno;
-    if (j.rollT > 0) return; // no punching mid-roll
-    j.attackT -= dt;
+  // J / K presses: input.press holds 'J' and 'K' in the order they were pressed since the last step.
+  // Presses during a move are kept (up to 2) and come out in order as each move ends. Strings of presses make combos.
+  fight(dt, input) {
+    const j = this.juno, A = S.juno.attacks;
+    if (input.press && input.press.length) {
+      for (const k of input.press) if ((k === 'J' || k === 'K') && j.queue.length < 2) j.queue.push(k); // up to 2 early presses, in order
+      input.press.length = 0;
+    }
     j.swing = Math.max(0, j.swing - dt);
-    if (j.attackT > 0) return;
-    const target = this.nearest(j.x, j.z, this.reach + 0.2);
-    if (!target) { j.chain = 0; return; }
-    j.yaw = Math.atan2(target.x - j.x, target.z - j.z);
-    const c = j.chain;
-    const dmg = S.juno.damage[c] * this.dmgMul, push = S.juno.push[c], arc = this.arc / 2;
+    j.streakT -= dt;
+    if (j.streakT <= 0) j.streak = 0;
+    if (j.rollT > 0) { j.queue.length = 0; return; } // no fighting mid-roll
+    if (j.move) {
+      const mv = j.move;
+      mv.t += dt;
+      if (!mv.done && mv.t >= mv.hitAt) { mv.done = true; this.strike(mv); }
+      if (mv.t < mv.time) return;
+      j.move = null; j.comboT = S.juno.comboWindow;
+      if (mv.combo) j.keys = ''; // a finisher ends the string
+    } else if (j.comboT > 0) {
+      j.comboT -= dt;
+      if (j.comboT <= 0) j.keys = '';
+    }
+    if (!j.queue.length) return;
+    const key = j.queue.shift();
+    const base = key === 'J' ? A.punch : A.kick;
+    j.keys = (j.keys + key).slice(-4);
+    const combo = COMBOS.find((c) => j.keys.endsWith(c.keys)) || null;
+    // aim assist: face the nearest Crow in range
+    const reach = this.reachOf(base) + (combo ? combo.reach : 0);
+    const target = this.nearest(j.x, j.z, reach + S.juno.aimAssist);
+    if (target) {
+      j.yaw = Math.atan2(target.x - j.x, target.z - j.z);
+      // a finisher steps in: a Crow just out of reach pulls her toward it (knock velocity fades at 10/s, so v = gap * 10)
+      const gap = Math.hypot(target.x - j.x, target.z - j.z) - target.radius - reach * 0.75;
+      if (combo && gap > 0) { const v = Math.min(S.juno.lunge, gap) * 10; j.kx += Math.sin(j.yaw) * v; j.kz += Math.cos(j.yaw) * v; }
+    }
+    const q = this.quick * (combo ? 1.25 : 1);
+    j.move = { key, combo, t: 0, time: base.time * q, hitAt: base.hitAt * q, done: false, reach };
+    j.swing = j.move.time; j.swingTime = j.move.time;
+    j.swingMove = combo ? combo.name : key === 'J' ? 'punch' : 'kick';
+    if (key === 'J') j.swingSide = j.punches++ % 2;
+    if (combo && combo.name === 'DROP KICK') { j.kx += Math.sin(j.yaw) * 7; j.kz += Math.cos(j.yaw) * 7; }
+  }
+
+  strike(mv) {
+    const j = this.juno, base = mv.key === 'J' ? S.juno.attacks.punch : S.juno.attacks.kick, c = mv.combo;
+    const dmg = base.damage * (c ? c.damage : 1) * this.dmgMul, push = c ? c.push : base.push;
+    const arc = this.arcOf(c ? c.arcDeg : base.arcDeg) / 2, source = mv.key === 'J' ? 'punch' : 'kick';
     let hits = 0;
     for (const e of this.enemies) {
       if (e.dead) continue;
       const dx = e.x - j.x, dz = e.z - j.z, d = Math.hypot(dx, dz);
-      if (d - e.radius > this.reach) continue;
-      if (d > 0.1 && Math.abs(wrap(Math.atan2(dx, dz) - j.yaw)) > arc) continue;
-      this.damage(e, dmg, push, dx / (d || 1), dz / (d || 1), c === 2 ? 'kick' : 'punch');
+      if (d - e.radius > mv.reach) continue;
+      if (d > 0.1 && arc < Math.PI && Math.abs(wrap(Math.atan2(dx, dz) - j.yaw)) > arc) continue;
+      this.damage(e, dmg, push, dx / (d || 1), dz / (d || 1), source);
       hits++;
     }
-    j.swing = 0.22; j.swingChain = c;
-    j.chain = (c + 1) % 3;
-    j.attackT = this.interval;
-    if (hits && c === 2) this.hitstop = S.feel.hitstop;
-    this.emit({ type: 'swing', chain: c, hits });
+    if (hits) { j.streak += hits; j.streakT = 1.6; }
+    if (c) {
+      j.combos++; j.comboName = c.name;
+      if (hits) { this.hitstop = c.hitstop; this.bank += c.coins * this.coinMul; }
+    } else if (hits && mv.key === 'K') this.hitstop = S.feel.hitstop;
+    this.emit({ type: 'swing', move: source, combo: c ? c.name : null, hits, x: j.x, z: j.z });
   }
 
   weapons(dt) {

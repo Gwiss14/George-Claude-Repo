@@ -41,6 +41,9 @@ const simWait = (page, sec) => page.evaluate((sec) => new Promise((res) => { con
   // ROLL: hold the stick to the right with one finger, tap ROLL with another
   await page.evaluate(() => { const r = window.__run; r.enemies = []; r.juno.x = -3; r.juno.z = 0; r.juno.px = -3; r.juno.pz = 0; });
   await simWait(page, 0.2);
+  // watch every step from inside the game: frames can hold several steps, so a check from outside may miss the roll
+  await page.evaluate(() => { const r = window.__run, step = r.step.bind(r), w = window.__rollWatch = { rolling: false, safe: true, hurt: false };
+    r.step = (dt, inp) => { step(dt, inp); const j = r.juno; if (j.rollT > 0) { if (!w.rolling) w.hurt = r.hurtJuno(10, j.x - 1, j.z); w.rolling = true; w.safe = w.safe && j.iframes > 0; } }; });
   const rb = await page.locator('#roll-btn').boundingBox();
   const rx0 = await page.evaluate(() => window.__run.juno.x);
   await t('touchStart', [{ x: 120, y: 420, id: 2 }]);
@@ -48,19 +51,36 @@ const simWait = (page, sec) => page.evaluate((sec) => new Promise((res) => { con
   await t('touchStart', [{ x: 170, y: 420, id: 2 }, { x: rb.x + rb.width / 2, y: rb.y + rb.height / 2, id: 3 }]);
   await t('touchEnd', [{ x: 170, y: 420, id: 2 }]);
   await simWait(page, 0.08);
-  const mid = await page.evaluate(() => { const j = window.__run.juno; return { rolling: j.rollT > 0, safe: j.iframes > 0, hurt: window.__run.hurtJuno(10, j.x - 1, j.z) }; });
+  const mid = await page.evaluate(() => window.__rollWatch);
   await t('touchEnd', []);
   await simWait(page, 0.4);
   const roll1 = await page.evaluate(() => ({ x: window.__run.juno.x, rolls: window.__run.juno.rolls, cd: window.__run.juno.rollCd }));
-  // a second tap during the cooldown does nothing
+  // a second tap during the cooldown does nothing (a long cooldown, so slow frames can't run it out mid-tap)
+  await page.evaluate(() => { window.__run.juno.rollCd = 5; });
   await page.tap('#roll-btn');
   await simWait(page, 0.05);
   const roll2 = await page.evaluate(() => window.__run.juno.rolls);
   await page.screenshot({ path: OUT + 'survivor-roll-cooldown.png' });
   const rolled = { moved: +(roll1.x - rx0).toFixed(2), rollingMidway: mid.rolling, safeMidway: mid.safe, hurtWhileRolling: mid.hurt, rolls: roll1.rolls, blockedOnCooldown: roll2 === roll1.rolls && roll1.cd > 0 };
-  // auto-attack: let Crows come; Juno punches on her own
-  await page.evaluate(() => { window.__run.juno.xp = window.__run.juno.xpNeed - 0.01; });
-  await simWait(page, 6);
+  // fighting: tap PUNCH and KICK; then keyboard strings J J K and K K J make their combos
+  const combos = [];
+  await page.evaluate(() => window.__run.on((ev) => { if (ev.type === 'swing') (window.__swings ||= []).push(ev); }));
+  const put = () => page.evaluate(() => { const r = window.__run, j = r.juno; r.enemies = []; j.yaw = Math.PI; j.keys = ''; j.comboT = 0;
+    for (let i = 0; i < 3; i++) r.addEnemy('grunt', 50); r.enemies.forEach((e, i) => { e.x = j.x + (i - 1) * 0.5; e.z = j.z - 1.1; e.px = e.x; e.pz = e.z; e.speed = 0; }); window.__swings = []; });
+  await put();
+  await page.tap('#punch-btn'); await simWait(page, 0.35);
+  await page.tap('#kick-btn'); await simWait(page, 0.5);
+  const tapped = await page.evaluate(() => window.__swings.map((s) => s.move + ':' + s.hits));
+  for (const str of ['JJK', 'KKJ']) {
+    await simWait(page, 0.8); await put();
+    for (const k of str) { await page.keyboard.press('Key' + k); await simWait(page, 0.2); }
+    await simWait(page, 0.6);
+    combos.push(await page.evaluate(() => window.__swings.filter((s) => s.combo).map((s) => s.combo + ':' + s.hits)));
+  }
+  await page.screenshot({ path: OUT + 'survivor-combo.png' });
+  // a short fight against real spawns with the bot's hands, to see KOs happen
+  await page.evaluate(() => { window.__run.enemies = []; window.__run.juno.xp = window.__run.juno.xpNeed - 0.01; });
+  for (let i = 0; i < 30; i++) { await page.keyboard.press(i % 3 === 2 ? 'KeyK' : 'KeyJ'); await simWait(page, 0.2); }
   const fought = await page.evaluate(() => ({ kills: window.__run.kills, phase: window.__run.phase }));
   // force a level-up and tap the first card
   await page.evaluate(() => { const r = window.__run; if (r.phase === 'play') { r.pendingLevels++; r.offerLevelUp(); } });
@@ -96,13 +116,16 @@ const simWait = (page, sec) => page.evaluate((sec) => new Promise((res) => { con
   await page.reload();
   await page.waitForFunction(() => window.__ui);
   const kept = await page.evaluate(() => window.__ui.save.shop.might);
-  results.player = { titleShown, playing, ranNorth: +(z0 - z1).toFixed(2), rolled, fought, pickedCard: key, after, pausedFor: +(t1 - t0).toFixed(3), banked, mightBought: might, mightKept: kept, errors: errs() };
+  results.player = { titleShown, playing, ranNorth: +(z0 - z1).toFixed(2), rolled, tapped, combos, fought, pickedCard: key, after, pausedFor: +(t1 - t0).toFixed(3), banked, mightBought: might, mightKept: kept, errors: errs() };
   if (!titleShown || !playing) fail('PLAY did not start a run');
   if (!(z0 - z1 > 1.5)) fail('dragging up did not move Juno north');
   if (!(rolled.rolls === 1 && rolled.moved > 2)) fail(`ROLL did not roll Juno the way the stick points: ${JSON.stringify(rolled)}`);
   if (!rolled.rollingMidway || !rolled.safeMidway || rolled.hurtWhileRolling) fail(`Juno could be hurt mid-roll: ${JSON.stringify(rolled)}`);
   if (!rolled.blockedOnCooldown) fail('a second roll went through during the cooldown');
-  if (!(fought.kills > 0)) fail('Juno did not knock out any Crow on her own');
+  if (!(tapped.length === 2 && tapped[0] === 'punch:3' && tapped[1].startsWith('kick:') && tapped[1] !== 'kick:0')) fail(`PUNCH / KICK buttons: ${JSON.stringify(tapped)}`);
+  if (!(combos[0][0] || '').startsWith('ROUNDHOUSE:') || combos[0][0] === 'ROUNDHOUSE:0') fail(`J J K did not make a ROUNDHOUSE that hits: ${JSON.stringify(combos)}`);
+  if (!(combos[1][0] || '').startsWith('UPPERCUT:') || combos[1][0] === 'UPPERCUT:0') fail(`K K J did not make an UPPERCUT that hits: ${JSON.stringify(combos)}`);
+  if (!(fought.kills > 0)) fail('pressing J / K did not knock out any Crow');
   if (after.phase !== 'play' || after.lvl < 1) fail(`tapping a level-up card: ${JSON.stringify(after)}`);
   if (Math.abs(t1 - t0) > 0.001) fail('pause did not stop the run');
   if (might !== 1 || kept !== 1) fail('shop purchase not kept');
@@ -135,13 +158,15 @@ for (let i = 0; i < 2; i++) results.bot.push(await botRun());
 for (const r of results.bot) {
   if (r.maxPenetration > 0.02) fail(`something went ${r.maxPenetration} m into a wall or prop`);
   if (r.stuckSeconds > 3) fail(`bot stuck ${r.stuckSeconds} s`);
-  if (r.maxDrawCalls > 160) fail(`${r.maxDrawCalls} draw calls`);
+  // the low 3D camera shows more of the roof and city than the old top-down one, so the budget is 180, not 160
+  if (r.maxDrawCalls > 180) fail(`${r.maxDrawCalls} draw calls`);
   if (r.errors.length) fail(`bot run errors: ${r.errors}`);
 }
 const best = Math.max(...results.bot.map((r) => r.time));
 if (best < 90) fail(`bot never reached the first boss (best ${best} s)`);
 if (!results.bot.some((r) => r.level >= 8)) fail('bot never reached level 8');
 if (!results.bot.some((r) => r.rolls > 0)) fail('the bot never rolled');
+for (const r of results.bot) if (Object.keys(r.combos).length < 4) fail(`bot landed only these combos: ${JSON.stringify(r.combos)}`);
 
 await browser.close();
 await server.httpServer.close();

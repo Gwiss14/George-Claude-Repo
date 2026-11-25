@@ -59,6 +59,11 @@ export class UI {
     const btn = $('roll-btn');
     btn.style.setProperty('--cd', cd.toFixed(3));
     btn.classList.toggle('ready', cd <= 0);
+    // hit streak and the combo string so far (J J K ...)
+    const st = $('streak');
+    st.hidden = j.streak < 3;
+    if (!st.hidden) st.textContent = `${j.streak} HITS`;
+    $('keys').textContent = j.keys.split('').map((k) => (k === 'J' ? 'P' : 'K')).join(' ');
   }
 
   banner(text, ms = 1600) {

@@ -19,11 +19,26 @@ namespace RR
 	constexpr float JunoSpeed = 5.2f;
 	constexpr float JunoRadius = 0.35f;
 	constexpr float JunoIframes = 0.75f;
-	constexpr float AttackInterval = 0.42f; // s between punches (jab, cross, kick, repeat)
-	constexpr float Reach = 1.9f;           // punches hit every Crow in the arc in front of her
-	constexpr float ArcDeg = 140.f;
-	constexpr float PunchDamage[3] = { 10.f, 12.f, 18.f };
-	constexpr float PunchPush[3] = { 1.3f, 1.3f, 3.6f };
+	// J = punch, K = kick. Each hits every Crow within reach in the arc in front of her.
+	// Time: how long the move takes; HitAt: when in it the hit lands. Quick Hands shortens both.
+	struct FAttackDef { float Damage, Push, Reach, ArcDeg, Time, HitAt; };
+	constexpr FAttackDef Punch = { 11.f, 0.6f, 1.8f, 120.f, 0.26f, 0.08f };
+	constexpr FAttackDef Kick = { 17.f, 1.4f, 2.2f, 150.f, 0.42f, 0.16f };
+	constexpr float ComboWindow = 0.6f;  // s after a move ends that the next press still continues the string
+	constexpr float AttackMove = 0.7f;   // move speed while swinging (x normal)
+	constexpr float Lunge = 1.4f;        // a press steps her up to this far toward a Crow just out of reach
+	constexpr float AimAssist = 1.6f;    // a press turns her toward the nearest Crow within reach + this
+
+	// Combos: the last presses ending in one of these strings make its finisher (checked in this order).
+	struct FComboDef { const TCHAR* Keys; const TCHAR* Name; float Damage, Push, Reach, ArcDeg, Hitstop, Coins; };
+	constexpr int32 NumCombos = 5;
+	constexpr FComboDef Combos[NumCombos] = {
+		{ TEXT("JKJK"), TEXT("FURY"),       2.6f, 5.f,   1.6f, 360.f, 0.08f, 2.f }, // shockwave all around
+		{ TEXT("JJJ"),  TEXT("TRIPLE JAB"), 2.0f, 3.f,   0.2f, 120.f, 0.04f, 0.f },
+		{ TEXT("JJK"),  TEXT("ROUNDHOUSE"), 1.8f, 4.5f,  0.5f, 360.f, 0.05f, 1.f }, // spinning kick
+		{ TEXT("KKJ"),  TEXT("UPPERCUT"),   3.4f, 6.f,   0.3f, 80.f,  0.07f, 1.f }, // one huge hit up front
+		{ TEXT("KJK"),  TEXT("DROP KICK"),  2.4f, 7.f,   1.0f, 100.f, 0.06f, 1.f }, // flies forward
+	};
 	constexpr int32 StarterWrench = 1;      // every run starts with Wrench Toss level 1
 
 	// ROLL: a quick dodge-roll. Juno cannot be hurt and slips through the crowd while rolling.
@@ -79,12 +94,16 @@ namespace RR
 	// ---- feel ----
 	constexpr float Hitstop = 0.035f;
 
-	// ---- camera (metres): high and behind, steep, never past the north edge ----
-	constexpr float CamFovDeg = 48.f;
-	constexpr float CamHeight = 15.f;
-	constexpr float CamBack = 5.5f;
+	// ---- camera (metres): low and angled, behind and above Juno, looking ahead across the roof ----
+	constexpr float CamFovDeg = 52.f;       // vertical, on a phone held upright
+	constexpr float CamLandscapeFovDeg = 46.f;
+	constexpr float CamHeight = 6.8f;
+	constexpr float CamBack = 8.5f;
+	constexpr float CamLandscapeHeight = 5.6f;
+	constexpr float CamLandscapeBack = 8.f;
+	constexpr float CamAhead = 3.5f;        // looks this far in front of Juno
 	constexpr float CamDamping = 7.f;
-	constexpr float CamEdgeMargin = 5.f;
+	constexpr float CamEdgeMargin = 4.f;
 
 	// ---- upgrades: pick 1 of 3 on each level-up, each to level 5 ----
 	enum class EUp : uint8 { Haymaker, Quick, Reach, Pipes, Wrench, Stomp, Sneakers, Magnet, IronSkin, SecondWind, Count, Heal = 255 };
@@ -111,9 +130,9 @@ namespace RR
 	{
 		switch (U)
 		{
-		case EUp::Haymaker: return FString::Printf(TEXT("Punches hit %d%% harder"), 25 * L);
-		case EUp::Quick: return FString::Printf(TEXT("Punch %d%% faster"), 12 * L);
-		case EUp::Reach: return FString::Printf(TEXT("+%.1f m reach, wider swing"), 0.3f * L);
+		case EUp::Haymaker: return FString::Printf(TEXT("Punches and kicks hit %d%% harder"), 25 * L);
+		case EUp::Quick: return FString::Printf(TEXT("Punch and kick %d%% faster"), 12 * L);
+		case EUp::Reach: return FString::Printf(TEXT("+%.1f m reach, wider swings"), 0.3f * L);
 		case EUp::Pipes: return FString::Printf(TEXT("%d pipe%s spin around you"), FMath::Min(L, 4), L > 1 ? TEXT("s") : TEXT(""));
 		case EUp::Wrench: return FString::Printf(TEXT("Throw %d wrench%s every %.1f s"), 1 + (L - 1) / 2, L > 2 ? TEXT("es") : TEXT(""), 1.7f - 0.2f * L);
 		case EUp::Stomp: return FString::Printf(TEXT("Stomp every %.1f s, knocks Crows back"), 3.4f - 0.3f * L);

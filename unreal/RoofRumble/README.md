@@ -23,7 +23,7 @@ The game starts on the engine's empty `Entry` map, so there is no level to open.
 2. Pull this repository and open `unreal/RoofRumble/`.
 3. Right-click `RoofRumble.uproject` → **Generate Visual Studio project files** (if that option is missing, pick your engine with **Switch Unreal Engine version** first).
 4. Double-click `RoofRumble.uproject`. Answer **Yes** when it asks to build the missing modules. If the build fails, open `RoofRumble.sln`, build **Development Editor / Win64**, and read the errors (or hand them to Claude Code, below).
-5. Press **Play** in the editor. The mouse acts as a finger: hold and drag to move, click ROLL. Keyboard: WASD/arrows to move, Space/Shift/K to roll, Esc to pause.
+5. Press **Play** in the editor. The mouse acts as a finger: hold and drag to move, click PUNCH, KICK and ROLL. Keyboard: WASD/arrows to move, **J punch, K kick**, Space/Shift/L to roll, Esc to pause. Combos: P P P, P P K, K K P, K P K, P K P K.
 6. Phone layout: in the Play menu choose **New Editor Window**, and set the window to a portrait size in Editor Preferences → Level Editor → Play (e.g. 390 × 844).
 
 Phones: iOS needs a Mac with Xcode and an Apple developer account. Android needs Android Studio, the SDK and NDK set up in Project Settings → Platforms → Android. Both are set to portrait already.
@@ -37,7 +37,8 @@ Phones: iOS needs a Mac with Xcode and an Apple developer account. Android needs
 This is a C++ port of the web game in ../../game/src/survivor (Roof Rumble). It was written
 without a compiler. Build the RoofRumble editor target, fix every compile and link error
 without changing the game rules in RRSim.cpp, then press Play and check: the roof and
-neighbourhood show, Juno moves with WASD and mouse drag, Crows spawn and get punched,
+neighbourhood show, Juno moves with WASD and mouse drag, J punches and K kicks, J J K makes a
+ROUNDHOUSE pop-up, the camera sits low behind Juno showing the skyline, Crows spawn and get hit,
 coins fly to Juno, a level-up shows 3 cards, ROLL works, Grudge arrives at 1:30 and the
 shop purchase survives a restart. Compare the look against the web version and tune
 colours, camera and sizes in RRArena.cpp. Commit each fix.

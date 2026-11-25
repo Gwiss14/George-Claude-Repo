@@ -102,7 +102,7 @@ void FRRSim::Step(float Dt, FRRInput& In)
 
 	Spawn(Dt);
 	MoveJuno(Dt, In);
-	AutoAttack(Dt);
+	Fight(Dt, In);
 	Weapons(Dt);
 	MoveEnemies(Dt);
 	Projectiles(Dt);
@@ -179,7 +179,7 @@ void FRRSim::MoveJuno(float Dt, FRRInput& In)
 			J.Yaw = FMath::Atan2(J.RollX, J.RollZ);
 			J.RollT = RollTime; J.RollCd = RollCooldown; J.Rolls++;
 			J.Iframes = FMath::Max(J.Iframes, RollIframes);
-			J.Swing = 0;
+			J.Swing = 0; J.MoveKey = 0; J.Queued = 0; J.Keys = FString(); // a roll cancels the move and the combo
 			Emit(TEXT("roll"), J.X, J.Z);
 		}
 	}
@@ -194,10 +194,10 @@ void FRRSim::MoveJuno(float Dt, FRRInput& In)
 		J.SpeedNow = FMath::Sqrt(FMath::Square(J.X - J.Px) + FMath::Square(J.Z - J.Pz)) / Dt;
 		return;
 	}
-	const float S = Speed() * FMath::Min(1.f, M);
+	const float S = Speed() * FMath::Min(1.f, M) * (J.MoveKey ? RR::AttackMove : 1.f);
 	J.Vx = M > 0.05f ? (In.Mx / M) * S : 0;
 	J.Vz = M > 0.05f ? (In.Mz / M) * S : 0;
-	if (M > 0.05f && J.Swing <= 0) J.Yaw = Turn(J.Yaw, FMath::Atan2(In.Mx, In.Mz), 14.f * Dt);
+	if (M > 0.05f && !J.MoveKey) J.Yaw = Turn(J.Yaw, FMath::Atan2(In.Mx, In.Mz), 14.f * Dt);
 	const float Decay = FMath::Exp(-10.f * Dt);
 	J.X += (J.Vx + J.Kx) * Dt; J.Z += (J.Vz + J.Kz) * Dt;
 	J.Kx *= Decay; J.Kz *= Decay;
@@ -206,41 +206,90 @@ void FRRSim::MoveJuno(float Dt, FRRInput& In)
 	J.SpeedNow = FMath::Sqrt(FMath::Square(J.X - J.Px) + FMath::Square(J.Z - J.Pz)) / Dt;
 }
 
-void FRRSim::AutoAttack(float Dt)
+// J / K presses: In.Press holds them in the order they were pressed since the last step.
+// Presses during a move are kept (up to 2) and come out in order as each move ends. Strings of presses make combos.
+void FRRSim::Fight(float Dt, FRRInput& In)
 {
 	FRRJuno& J = Juno;
-	if (J.RollT > 0) return; // no punching mid-roll
-	J.AttackT -= Dt;
+	for (const TCHAR K : In.Press) if ((K == TEXT('J') || K == TEXT('K')) && J.Queued < 2) J.Queue[J.Queued++] = K;
+	In.Press.Reset();
 	J.Swing = FMath::Max(0.f, J.Swing - Dt);
-	if (J.AttackT > 0) return;
-
-	FRREnemy* Target = nullptr; float Best = ReachM() + 0.2f;
-	for (FRREnemy& E : Enemies)
+	J.StreakT -= Dt;
+	if (J.StreakT <= 0) J.Streak = 0;
+	if (J.RollT > 0) { J.Queued = 0; return; } // no fighting mid-roll
+	if (J.MoveKey)
+	{
+		J.MoveT += Dt;
+		if (!J.bMoveDone && J.MoveT >= J.MoveHitAt) { J.bMoveDone = true; Strike(); }
+		if (J.MoveT < J.MoveTime) return;
+		if (J.MoveCombo >= 0) J.Keys = FString(); // a finisher ends the string
+		J.MoveKey = 0; J.ComboT = RR::ComboWindow;
+	}
+	else if (J.ComboT > 0)
+	{
+		J.ComboT -= Dt;
+		if (J.ComboT <= 0) J.Keys = FString();
+	}
+	if (!J.Queued) return;
+	const TCHAR Key = J.Queue[0]; J.Queue[0] = J.Queue[1]; J.Queued--;
+	const FAttackDef& Base = Key == TEXT('J') ? RR::Punch : RR::Kick;
+	J.Keys += Key;
+	if (J.Keys.Len() > 4) J.Keys = J.Keys.Right(4);
+	int32 Combo = -1;
+	for (int32 i = 0; i < RR::NumCombos && Combo < 0; i++) if (J.Keys.EndsWith(RR::Combos[i].Keys)) Combo = i;
+	// aim assist: face the nearest Crow in range
+	const float Reach = ReachOf(Base) + (Combo >= 0 ? RR::Combos[Combo].Reach : 0.f);
+	const FRREnemy* Target = nullptr; float Best = Reach + RR::AimAssist;
+	for (const FRREnemy& E : Enemies)
 	{
 		if (E.bDead) continue;
 		const float D = FMath::Sqrt(FMath::Square(E.X - J.X) + FMath::Square(E.Z - J.Z)) - E.Radius;
 		if (D < Best) { Best = D; Target = &E; }
 	}
-	if (!Target) { J.Chain = 0; return; }
-	J.Yaw = FMath::Atan2(Target->X - J.X, Target->Z - J.Z);
-	const int32 C = J.Chain;
-	const float Dmg = PunchDamage[C] * DmgMul(), Push = PunchPush[C], HalfArc = Arc() / 2;
+	if (Target)
+	{
+		J.Yaw = FMath::Atan2(Target->X - J.X, Target->Z - J.Z);
+		// a finisher steps in: a Crow just out of reach pulls her toward it (knock velocity fades at 10/s, so v = gap * 10)
+		const float Gap = FMath::Sqrt(FMath::Square(Target->X - J.X) + FMath::Square(Target->Z - J.Z)) - Target->Radius - Reach * 0.75f;
+		if (Combo >= 0 && Gap > 0) { const float V = FMath::Min(RR::Lunge, Gap) * 10.f; J.Kx += FMath::Sin(J.Yaw) * V; J.Kz += FMath::Cos(J.Yaw) * V; }
+	}
+	const float Q = Quick() * (Combo >= 0 ? 1.25f : 1.f);
+	J.MoveKey = Key; J.MoveCombo = Combo; J.MoveT = 0; J.MoveTime = Base.Time * Q; J.MoveHitAt = Base.HitAt * Q; J.MoveReach = Reach; J.bMoveDone = false;
+	J.Swing = J.MoveTime; J.SwingTime = J.MoveTime;
+	J.SwingMove = Combo >= 0 ? Combo + 2 : Key == TEXT('J') ? 0 : 1;
+	if (Key == TEXT('J')) J.SwingSide = J.Punches++ % 2;
+	if (Combo == 4) { J.Kx += FMath::Sin(J.Yaw) * 7.f; J.Kz += FMath::Cos(J.Yaw) * 7.f; } // DROP KICK flies forward
+}
+
+void FRRSim::Strike()
+{
+	FRRJuno& J = Juno;
+	const bool bPunch = J.MoveKey == TEXT('J');
+	const FAttackDef& Base = bPunch ? RR::Punch : RR::Kick;
+	const FComboDef* C = J.MoveCombo >= 0 ? &RR::Combos[J.MoveCombo] : nullptr;
+	const float Dmg = Base.Damage * (C ? C->Damage : 1.f) * DmgMul(), Push = C ? C->Push : Base.Push;
+	const float HalfArc = ArcOf(C ? C->ArcDeg : Base.ArcDeg) / 2;
+	const FString Source = bPunch ? TEXT("punch") : TEXT("kick");
 	int32 Hits = 0;
 	for (FRREnemy& E : Enemies)
 	{
 		if (E.bDead) continue;
 		const float Dx = E.X - J.X, Dz = E.Z - J.Z, D = FMath::Sqrt(Dx * Dx + Dz * Dz);
-		if (D - E.Radius > ReachM()) continue;
-		if (D > 0.1f && FMath::Abs(Wrap(FMath::Atan2(Dx, Dz) - J.Yaw)) > HalfArc) continue;
+		if (D - E.Radius > J.MoveReach) continue;
+		if (D > 0.1f && HalfArc < PI && FMath::Abs(Wrap(FMath::Atan2(Dx, Dz) - J.Yaw)) > HalfArc) continue;
 		const float Inv = D > 0.f ? 1.f / D : 1.f;
-		Damage(E, Dmg, Push, Dx * Inv, Dz * Inv, C == 2 ? TEXT("kick") : TEXT("punch"));
+		Damage(E, Dmg, Push, Dx * Inv, Dz * Inv, Source);
 		Hits++;
 	}
-	J.Swing = 0.22f; J.SwingChain = C;
-	J.Chain = (C + 1) % 3;
-	J.AttackT = Interval();
-	if (Hits && C == 2) Hitstop = RR::Hitstop;
-	Emit(TEXT("swing"), J.X, J.Z, (float)Hits, EKind::Grunt, C == 2 ? TEXT("kick") : TEXT("punch"));
+	if (Hits) { J.Streak += Hits; J.StreakT = 1.6f; }
+	if (C)
+	{
+		J.Combos++;
+		if (Hits) { Hitstop = C->Hitstop; Bank += C->Coins * CoinMul(); }
+	}
+	else if (Hits && !bPunch) Hitstop = RR::Hitstop;
+	// Source carries the combo name for a finisher, else "punch" / "kick"
+	Emit(TEXT("swing"), J.X, J.Z, (float)Hits, EKind::Grunt, C ? FString(C->Name) : Source);
 }
 
 void FRRSim::Weapons(float Dt)

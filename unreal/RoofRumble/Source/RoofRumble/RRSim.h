@@ -1,4 +1,4 @@
-// One run of Roof Rumble: Juno auto-fights swarms of Tin Crows for 5 minutes.
+// One run of Roof Rumble: Juno fights (J punch, K kick, combos) swarms of Tin Crows for 5 minutes.
 // Plain C++, no UObjects: a direct port of the web game's sim.js. Nothing here knows how anything looks.
 // Units are metres on the roof plane (x east, z south); yaw 0 faces +z.
 #pragma once
@@ -13,8 +13,14 @@ struct FRRSolid { bool bCircle = true; float X = 0, Z = 0, R = 0, Hx = 0, Hz = 0
 struct FRRJuno
 {
 	float X = 0, Z = 2, Px = 0, Pz = 2, Vx = 0, Vz = 0, Kx = 0, Kz = 0, Yaw = PI, Radius = RR::JunoRadius;
-	float Hp = RR::JunoHp, MaxHp = RR::JunoHp, Iframes = 0, AttackT = 0.3f, Swing = 0, SpeedNow = 0;
-	int32 Chain = 0, SwingChain = 0;
+	float Hp = RR::JunoHp, MaxHp = RR::JunoHp, Iframes = 0, SpeedNow = 0;
+	// the move in progress: Key 'J' or 'K' (0 = none), Combo index into RR::Combos (-1 = plain hit)
+	TCHAR MoveKey = 0; int32 MoveCombo = -1; float MoveT = 0, MoveTime = 0, MoveHitAt = 0, MoveReach = 0; bool bMoveDone = false;
+	TCHAR Queue[2] = { 0, 0 }; int32 Queued = 0; // up to 2 presses kept until the current move ends, in order
+	FString Keys;            // the combo string so far, newest last
+	float ComboT = 0;        // time left to continue the string
+	float Swing = 0, SwingTime = 1; int32 SwingMove = 0, SwingSide = 0, Punches = 0; // for drawing: 0 punch, 1 kick, 2+ combo index + 2
+	int32 Streak = 0; float StreakT = 0; int32 Combos = 0;
 	int32 Level = 1; float Xp = 0, XpNeed = RR::XpFirst;
 	int32 Ups[(int32)RR::EUp::Count] = { 0 };
 	int32 KoCount = 0;
@@ -40,7 +46,7 @@ enum class ERRPhase : uint8 { Play, LevelUp, Dead, Won };
 // Things that happened this step, for sounds, words, shakes and screens.
 struct FRREvent { FName Type; float X = 0, Z = 0, Amount = 0; RR::EKind Kind = RR::EKind::Grunt; FString Source; };
 
-struct FRRInput { float Mx = 0, Mz = 0; int32 Roll = 0; };
+struct FRRInput { float Mx = 0, Mz = 0; int32 Roll = 0; TArray<TCHAR> Press; }; // Press: 'J' / 'K' in the order pressed
 
 class FRRSim
 {
@@ -65,9 +71,10 @@ public:
 
 	int32 Lv(RR::EUp U) const { return Juno.Ups[(int32)U]; }
 	float DmgMul() const { return (1.f + 0.25f * Lv(RR::EUp::Haymaker)) * (1.f + 0.08f * Meta.Get(RR::EShop::Might)); }
-	float Interval() const { return RR::AttackInterval * FMath::Pow(0.88f, (float)Lv(RR::EUp::Quick)); }
-	float ReachM() const { return RR::Reach + 0.3f * Lv(RR::EUp::Reach); }
-	float Arc() const { return FMath::DegreesToRadians(RR::ArcDeg + 12.f * Lv(RR::EUp::Reach)); }
+	float Quick() const { return FMath::Pow(0.88f, (float)Lv(RR::EUp::Quick)); } // move time multiplier
+	float ReachOf(const RR::FAttackDef& A) const { return A.Reach + 0.3f * Lv(RR::EUp::Reach); }
+	float ArcOf(float Deg) const { return FMath::DegreesToRadians(FMath::Min(360.f, Deg + 12.f * Lv(RR::EUp::Reach))); }
+	float ReachM() const { return ReachOf(RR::Punch); }
 	float Speed() const { return RR::JunoSpeed * (1.f + 0.1f * Lv(RR::EUp::Sneakers)) * (1.f + 0.05f * Meta.Get(RR::EShop::Swift)); }
 	float MagnetR() const { return RR::Magnet * (1.f + 0.45f * Lv(RR::EUp::Magnet)); }
 	float CoinMul() const { return 1.f + 0.15f * Meta.Get(RR::EShop::Greed); }
@@ -78,7 +85,8 @@ private:
 	void Spawn(float Dt);
 	void AddEnemy(RR::EKind Kind, float HpScale);
 	void MoveJuno(float Dt, FRRInput& In);
-	void AutoAttack(float Dt);
+	void Fight(float Dt, FRRInput& In);
+	void Strike();
 	void Weapons(float Dt);
 	void Damage(FRREnemy& E, float Amount, float Push, float Nx, float Nz, const FString& Source);
 	void Kill(FRREnemy& E);

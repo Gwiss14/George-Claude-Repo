@@ -36,8 +36,10 @@
 - ROLL button (player asked): a dodge-roll with a short safe window and a cooldown ring on the button. It passes through Crows and dodges Grudge's smash. The bot uses it when boxed in or when a smash is coming, and the tests check direction, safety and cooldown.
 
 - Unreal port (player asked "port Roof Rumble to Unreal"; UE 5.4+, chose to have it written here and finished on their PC): `unreal/RoofRumble/` is a C++-only project with no assets. The rules (`RRSim.cpp`) are a straight port of sim.js and were compiled with g++ and played headless; the Unreal parts have not been compiled. See `unreal/RoofRumble/README.md`.
+- 3D view and hand fighting (player: "make this 3d and add punch kick combos punch: j kick:k"; chose both versions, a lower angled camera, and attacks only on J/K): the camera now sits low behind Juno looking across the roof at the skyline. Auto-punching is gone: PUNCH (J) and KICK (K) buttons, five combos (TRIPLE JAB, ROUNDHOUSE, UPPERCUT, DROP KICK, FURY), a hit counter and the combo string on screen. ROLL moved from K to Space/Shift/L. The same rules, camera and buttons are in the Unreal code; its rules were compiled with g++ and played headless with all five combos.
 
 ## Known / open
+- Tripo (player: "connect to tripo.ai"): an API key for api.tripo3d.ai is saved on the cloud environment (never in the repo), and the connection works. The account has 0 credits, so no models can be made through the API until credits are added.
 - Survivor difficulty is tuned against a simple bot (first runs 1:30–3:00 with no shop upgrades). Needs real playtesting on a phone.
 - The Home Screen web app needs a public https address; no host chosen yet (must ask the player before creating any public page or account).
 - The native app was generated on Linux and has not been built in Xcode yet (needs the player's Mac).
