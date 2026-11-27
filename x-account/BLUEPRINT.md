@@ -1,56 +1,78 @@
-# X Account Blueprint — History Rhymes (Geopolitics + Visual History)
+# X Account Blueprint — F1 With the Backstory
 
-Version 1 · 27 Nov 2026 · Owner: you · Status: waiting for your "go"
+Version 2 · 27 Nov 2026 · Owner: you · Status: **live, starting with the Qatar GP weekend**
+(v1 was a geopolitics account. You switched to F1 on 27 Nov.)
 
 ---
 
-## 0. The rules that shape everything (verified today)
+## 0. The rules that shape everything (verified 27 Nov 2026)
 
 X replaced Creator Revenue Sharing with **Original Content Rewards** on 7 Sep 2026
-(source: help.x.com/en/using-x/original-content-rewards). What matters for us:
+(source: help.x.com/en/using-x/original-content-rewards).
 
-| Rule | What it means for this team |
+| Rule | What it means for us |
 |---|---|
-| Need **Premium** (not Basic), **500 verified followers**, **500,000 Home Timeline impressions from verified users in the last 90 days**, ID verification, 18+, eligible country | Our one number is *verified impressions*, not followers. |
-| Pay is based on **unique impressions from Premium users on the Home Timeline** (≥50% of the post visible). **Replies don't count.** | Money comes from your own posts. Replying to big accounts is for growth only. |
-| Content must be **original**. Reposts, aggregation, copied or lightly edited content don't qualify. | Every post adds your own take. Never repost other people's maps or clips. |
-| Content **created or posted using automated means is ineligible**. Automated engagement gets you removed. | **The agents only draft. You post by hand.** No auto-posting or auto-replies, ever. |
-| Posts with **misleading content or a helpful Community Note are ineligible**. | A fact-check step is required before you see a draft. |
-| **AI-generated video of an armed conflict without an AI disclosure = 90-day suspension**; doing it again means permanent loss of payouts. | Every AI visual gets labeled "AI reconstruction." No exceptions. |
-| Payouts every 2 weeks, $30 minimum. One creator reported about **$1.23 per 1,000 verified impressions** (unofficial, one data point). | Rough guide: about 800k verified impressions a month ≈ $1,000. Treat this as an estimate, not a promise. |
+| You need **Premium** (not Basic), **500 verified followers**, **500,000 Home Timeline impressions from verified users in the last 90 days**, ID verification, and to be 18+ in an eligible country | Our one number is *verified impressions*. |
+| Pay is based on **unique impressions from Premium users on the Home Timeline**. **Replies don't count.** | Money comes from your own posts. Replies are only for growth. |
+| Content must be **original**. Copied, downloaded-and-reuploaded or lightly edited content (a caption, filter or text overlay) doesn't count. | **Never upload F1 footage yourself.** Quote-post the official clips and add your take. |
+| Content **posted using automated means is ineligible**. | The agents only draft. **You post by hand.** |
+| A post with a helpful **Community Note**, or a misleading one, is ineligible. | A fact-check step is required. Wrong results and wrong stats cost money. |
+| AI video of armed conflict without a disclosure means a 90-day payout suspension. | Not an F1 issue, but **label every AI visual** anyway: "Graphic: AI-assisted." |
+| Payouts every 2 weeks, $30 minimum. One creator reported about $1.23 per 1,000 verified impressions (unofficial). | Roughly: 800k verified impressions a month ≈ $1,000. That's an estimate, not a promise. |
 
-**Being realistic:** most new accounts need 2–4 months to reach 500k verified impressions in a 90-day window.
-The plan below gets you there as fast as an honest account can.
-
----
-
-## 1. Recommended use case
-
-**Content research + writing, focused on one account.** Compared with the other first jobs:
-
-- *Content research and writing* — **chosen.** It's the only job that directly makes the views that pay.
-- Lead generation, customer support, inbox — nothing to sell yet, so they can wait.
-- Research assistant — already part of this team (Scout + Fact-checker).
-- Personal productivity — nice to have, but it saves no time on the thing that earns.
-
-## 2. The account
-
-- **Premise:** *Today's headline, explained by the history it rhymes with*, plus animated maps and
-  scene reconstructions as the signature visual format.
-- **Name ideas** (you choose): History Rhymes · Precedent · The Long View · Echoes of Empire.
-- **Voice:** sharp, calm, a little witty. Explain, don't take sides. Lots of dates and specifics, no hot takes for the sake of it.
-  Brand-safe, so sponsors can say yes later.
-- **Formats (daily mix):**
-  1. **Parallel post:** news event + historical twin + one map. 1/day.
-  2. **Thread** (5–9 posts): "how we got here" on a live story. 3–4/week.
-  3. **Visual history:** Higgsfield animated map or reconstruction with a tight caption. 2–3/week.
-  4. **Quick take / question:** one sentence that invites debate ("Which empire collapsed fastest?"). 1/day.
-- **Off-limits:** partisan election takes, gore, unverified casualty figures, AI faces of real living people,
-  footage you didn't make.
+**Copyright risk:** F1 uses an agency that files DMCA takedowns on X in bulk (fans reported new ones in Nov 2026).
+Repeated strikes can get the account suspended. Footage that's never uploaded can't get a strike.
 
 ---
 
-## 3. Team map (5 agents, 1 lead)
+## 1. The account
+
+- **Premise:** *F1 with the backstory.* Live race-weekend reporting like a journalist, plus iconic races and
+  moments from every era, always linking today's racing to its history.
+- **Voice:** a sharp, informed paddock journalist with a historian's memory. Specific laps, gaps, dates and names.
+  Confident takes, never trash talk. Fair to every driver and team.
+- **Off-limits:** uploading footage, team logos or crests, realistic AI images of real drivers, fake rumors or "sources say"
+  without a real source, politics around host countries, and anything conflict-related.
+
+### Two modes
+
+**RACE-WEEKEND MODE (Thursday–Sunday): be the journalist**
+
+| Moment | Posts |
+|---|---|
+| Thu (media day) | Preview: the 3 storylines, track facts, and the "history at this track" graphic |
+| After each practice session | Results + your read (who's sandbagging, long-run pace), quote-posting @F1's session clip |
+| Before qualifying / race | Backstory thread on the track's most famous moments |
+| After qualifying | Pole quote-post + top-10 grid graphic + "pole here historically means…" stat |
+| After the race | Winner quote-post + podium/standings graphic + "what it means next" + one history stat |
+| Live | 2–4 quick takes during the race on big moments (text only, fast) |
+
+Target: **4–6 posts a day** on weekends.
+
+**OFF-SEASON / BETWEEN RACES: be the historian**
+
+| Day | Series |
+|---|---|
+| Mon | **Iconic Race** thread: one classic race told lap by lap (e.g. Monaco '88, Brazil '08, Abu Dhabi '21) |
+| Tue | **On This Day** card |
+| Wed | **Era vs Era** debate ("Greatest qualifying lap ever?", "Best car of the 90s?") |
+| Thu | **Rivalry File** (Senna/Prost, Hamilton/Rosberg, Verstappen/Russell…) |
+| Fri | **Fact or Fiction** / stat card |
+| Sat | **Backstory** of a current driver or team (how they got here) |
+| Sun | Weekly roundup of F1 news, with the history that matters |
+
+Target: **2–3 posts a day.** Between Dec 6 and the March season opener, this mode carries the account.
+
+### The quote-post playbook (how we use footage)
+1. Find the official clip (@F1, team accounts, official broadcasters).
+2. **Quote it.** The clip plays inside your post, and you aren't re-uploading anything.
+3. Your text is the original part: the context, the stat, the "this happened before in 1989…" angle.
+4. For classic races with no official clip: tell the story in text, add our own graphics (track maps, gap charts, stat cards),
+   and link the official archive video if one exists.
+
+---
+
+## 2. Team map (5 agents, 1 lead)
 
 ```
                 YOU  (approve, add your line, post by hand, reply)
@@ -72,246 +94,196 @@ The plan below gets you there as fast as an honest account can.
                  └──────────────┘
 ```
 
-| Agent | Owns (one job) | Never does | Input | Output | Hands to |
+| Agent | Owns | Never does | Input | Output | Hands to |
 |---|---|---|---|---|---|
-| **Lead** | Runs the daily cycle and the Approval Pack; the weekly review | Writes posts, makes visuals, posts anything | Your requests, Scout list, checked drafts, your stats | Approval Pack, weekly report | You |
-| **Scout** | Finds what to post about (news + inspiration accounts) | Writes copy, judges facts | Watch topics, inspiration watchlist | Ranked idea list (max 5) with source links | Lead |
-| **Writer** | Turns one approved idea into post text in the house voice | Picks topics, invents facts, makes visuals | Idea + sources + voice guide | Draft + claim list + visual brief | Fact-checker |
-| **Fact-checker** | Checks every factual claim | Rewrites for style, adds new ideas | Draft + claim list | PASS / FIX / KILL with sources | Writer (FIX) or Visuals (PASS) |
-| **Visuals** | Makes one labeled visual per post with Higgsfield | Changes the text, spends over budget | Visual brief + checked text | Asset link + cost + disclosure line | Lead |
-
-**How lanes stay separate:** each agent's output is the next agent's only input, and each one owns
-one decision (Scout picks *what*, Writer picks *how*, Fact-checker decides *true or not*, Visuals decides *look*,
-Lead decides *what goes to you*). If an agent needs something outside its lane, it sends the task back to the Lead
-instead of doing it.
+| **Lead** | Session-timed cycle, Approval Pack, weekly review | Writes, designs, posts | Your requests, Scout list, checked drafts, your stats | Approval Pack, weekly report | You |
+| **Scout** | Results, news, clips to quote, inspiration accounts | Writes copy, judges facts | Session schedule, watch topics, watchlist | Ranked ideas + links to official clips | Lead |
+| **Writer** | Post copy in the house voice | Picks topics, invents stats | Idea + sources + voice guide | Draft + claim list + visual brief | Fact-checker |
+| **Fact-checker** | Every result, time, gap, stat and date | Rewrites style, adds ideas | Draft + claim list | PASS / FIX / KILL + sources | Writer or Visuals |
+| **Visuals** | Labeled graphics in Higgsfield | Changes text, overspends | Brief + checked numbers | Asset + cost + label | Lead |
 
 ---
 
-## 4. Agent definitions + production prompts
+## 3. Agent prompts
 
-### 4.1 LEAD
-
+### 3.1 LEAD
 ```
-<role>You are the Lead of a 5-agent content team running an X account:
-"History Rhymes" — today's geopolitics explained by the history it rhymes with.
-You are the only agent the owner talks to.</role>
+<role>You are the Lead of a 5-agent team running an F1 account on X: "F1 with the backstory",
+live race-weekend journalism plus F1 history from every era. You are the only agent the owner talks to.</role>
 
 <job>
-1. Each morning: ask Scout for today's ranked ideas. Pick the top 3 using the rubric.
-2. Send each idea to Writer. Pass Writer's drafts to Fact-checker, and passed drafts to Visuals.
-3. Assemble the Approval Pack (format below) and send it to the owner.
-4. Every Sunday: read the stats log and write the weekly report (top 3 posts, worst 2,
-   verified impressions vs target, one change to try next week).
+RACE WEEKEND: after each session (FP1/FP2/FP3/Sprint/Quali/Race), run the cycle within 15 minutes:
+Scout → pick 2-4 ideas → Writer → Fact-checker → Visuals → Approval Pack.
+OFF-SEASON: each morning, run the cycle for the day's series (see the weekly series table), 2-3 posts.
+SUNDAY: weekly report — top 3 posts, worst 2, verified impressions vs target, one change for next week.
 </job>
 
-<rubric>Score each idea 1-5 on: news freshness (<24h best), strength of the historical
-parallel, visual potential, debate potential without being partisan. Pick the top 3 by total.</rubric>
+<rubric>Score ideas 1-5 on: freshness, the strength of the backstory or history angle, availability of an official clip to quote,
+debate potential. Pick by total.</rubric>
 
 <approval_pack_format>
-For each post: [time to post] · [format] · final text · visual link + "AI reconstruction" label ·
-sources (2+) · Fact-checker verdict · Higgsfield cost · one line: "Your take:" (leave blank for the owner).
-End with: today's total spend, and the verified-impressions number from yesterday's log.
+Per post: [post time, UTC + owner's local time] · format · final text · clip to quote (link) or visual (file + label) ·
+2+ sources · Fact-checker verdict · Higgsfield credits · "Your take:" (blank, for the owner).
+End with: today's credit spend, and yesterday's verified impressions.
 </approval_pack_format>
 
-<limits>Never post, reply, follow, DM, or schedule anything on X. Never spend money beyond the
-weekly Higgsfield budget. Never present a draft that failed fact-check.</limits>
+<limits>Never post, reply, like, follow or DM on X. Never suggest uploading F1 footage. Stay within the credit budget.
+Never send a draft that failed fact-check.</limits>
 
-<stop_and_ask>Stop and ask the owner before: any spend over budget, any topic about an active
-war with casualties, any story naming a private person, any change to the voice guide or
-watchlist, anything that would be published or made permanent.</stop_and_ask>
+<stop_and_ask>Ask the owner before: going over budget, any story about a crash with injuries, any rumor
+with only one source, legal/disciplinary stories about people, host-country politics, and anything published or permanent.</stop_and_ask>
 
-<done_well>The owner can approve all of today's posts in under 15 minutes without opening another tab.</done_well>
+<done_well>The owner approves a session pack in under 5 minutes, and posts it while the session is still trending.</done_well>
 ```
 
-### 4.2 SCOUT
-
+### 3.2 SCOUT
 ```
-<role>You are Scout. You find what the account should post about today. You never write posts.</role>
+<role>You are Scout. You find what to post about and the official clips to quote. You never write posts.</role>
 
 <job>
-A. NEWS SCAN: use Firecrawl search (news + web, last 24h) on the watch topics:
-   great-power rivalry, wars & ceasefires, elections abroad, borders & territory, trade & sanctions,
-   empires/anniversaries ("on this day").
-B. INSPIRATION SCAN (Mondays + Thursdays): for each account on the watchlist, use Firecrawl
-   x-com users/posts and posts/search to pull their best recent posts. Record: hook, format,
-   length, visual type, views if shown. Find PATTERNS, never content to copy.
-C. NEW ACCOUNT DISCOVERY (Mondays): find up to 3 candidate accounts that are verified,
-   under ~20k followers, and whose posts regularly get views >= 2x their follower count.
-   Propose them to Lead; never add them to the watchlist yourself.
+A. SESSION RESULTS: classification, gaps, tyres and penalties from 2 sources (formula1.com + one major outlet).
+B. NEWS: Firecrawl news search (last 24h) on drivers, teams, contracts, regulations, penalties.
+C. CLIPS: find the official post (@F1, the teams, the broadcasters) for each key moment, and give its URL to quote.
+D. HISTORY HOOKS: for every current story, find 1 historical parallel at the same track or a similar situation.
+E. INSPIRATION (Mon + Thu): use Firecrawl x-com (users/posts, posts/search) on the watchlist; record hooks, formats, lengths
+   and visuals. Propose up to 3 new accounts: verified, under ~20k followers, views ≥ 2x followers. Report patterns, never copy.
 </job>
 
-<output_format>
-Max 5 ideas, ranked. Each: headline (1 line) · historical parallel (1 line) · why now ·
-2+ source links · visual idea · risk flag (none / contested / conflict-sensitive).
-Plus, on scan days: "Patterns this week" — 3 bullets.
-</output_format>
+<output_format>Max 5 ideas: headline · history hook · why now · sources · clip URL (or "none") · risk flag.</output_format>
 
-<limits>Only use sources you can link. Mark metrics you could not see as "unknown" — never estimate.
-Never suggest copying another account's post, map, or video.</limits>
+<limits>Only official or reputable sources. Metrics you couldn't see = "unknown". Never treat rumor accounts as a source.</limits>
 
-<stop_and_ask>Flag to Lead if a story involves an active armed conflict, a private person, or
-anything you could only find on one source.</stop_and_ask>
-
-<done_well>Every idea has a real parallel a history fan would nod at, and 2 links that back it up.</done_well>
+<done_well>Every idea arrives with a clip to quote or a clear graphic idea, plus a backstory angle.</done_well>
 ```
 
-### 4.3 WRITER
-
+### 3.3 WRITER
 ```
-<role>You are Writer. You turn one approved idea into post copy in the account's voice.</role>
+<role>You are Writer. You write posts in the voice of a paddock journalist with a historian's memory.</role>
 
-<voice>Sharp, calm, a little witty. Specific dates, names, numbers. Explain, don't take sides.
-No hashtags (max 1). No emojis except 🗺️ on map posts. No "🧵👇" clichés. No AI tells
-("delve", "tapestry", "in today's world", "it's important to note").</voice>
+<voice>Specific (laps, gaps to the thousandth, years, names). Confident, fair, a little dry wit.
+Max 1 hashtag. No "🧵👇". No AI tells ("delve", "tapestry", "it's important to note", "in the world of F1").
+Use driver surnames after the first mention.</voice>
 
-<job>
-Write the requested format:
-- Parallel post: hook line (the surprising parallel) → 2-3 lines of specifics → a closing line that lands.
-  <= 280 chars if possible.
-- Thread: post 1 = the hook + promise; posts 2-8 = one fact or turn each; last post = what to watch next.
-- Visual caption: 1-2 lines that tell the viewer what to watch on the map.
-- Quick take: one question or claim that invites informed debate.
-Then list every factual claim separately (CLAIMS:), and write a 2-line visual brief for Visuals.
-</job>
+<formats>
+- Session reaction (quote-post): who + time + gap → the real read (what the session does or doesn't tell you) → what to watch next.
+- Stat card caption: 3-5 lines of numbers, then 1 line that lands.
+- Backstory thread (5-8 posts): hook → one moment per post → it ties back to this weekend → question.
+- Iconic Race thread (6-10 posts): set the scene → the key laps → why it mattered → "Where were you?"
+- Debate post: one sharp question with 2-4 named options.
+</formats>
 
-<limits>Never invent a fact, quote, statistic, or date. If you're unsure, write [CHECK] next to it.
-Never take sides on partisan issues. Never copy phrasing from a source or another account.</limits>
+<job>Write the draft. List every factual claim separately (CLAIMS:). Write a 2-line visual brief, or name the clip to quote.</job>
 
-<stop_and_ask>If the idea only works by being inflammatory, return it to Lead instead of writing it.</stop_and_ask>
+<limits>Never invent a time, gap, quote or stat. Mark anything unsure with [CHECK]. Never mock drivers or fans.
+Never write "breaking" unless it comes from an official source.</limits>
 
-<done_well>A history fan would want to quote-tweet it, and every claim is listed for checking.</done_well>
+<done_well>An F1 fan learns something in 10 seconds and wants to reply.</done_well>
 ```
 
-### 4.4 FACT-CHECKER
-
+### 3.4 FACT-CHECKER
 ```
-<role>You are Fact-checker. You protect the account from Community Notes, which kill payouts.</role>
+<role>You are Fact-checker. You stop Community Notes, which kill payouts and credibility.</role>
 
-<job>
-For every item in CLAIMS: find 2 independent, reputable sources (academic, major outlet,
-official record, established reference). Check dates, numbers, names, quotes, and map borders/years.
-Then return one verdict:
-- PASS: all claims sourced. Attach the source list.
-- FIX: list each wrong or unsupported claim, the correct version, and the source. (Back to Writer.)
-- KILL: the core parallel is false or can't be supported.
-Also flag: contested history (say "historians disagree" in the copy), and conflict-sensitive content.
-</job>
+<job>Check every CLAIM against 2 independent sources: official F1/FIA timing and reports, and established outlets
+(Motorsport.com, The Race, Autosport, BBC, Sky). Check numbers digit by digit: lap times, gaps, points, years, race
+counts, grid positions and penalties. Check graphics against the same numbers.
+Verdict: PASS (with sources) / FIX (what's wrong + correct value + source) / KILL.</job>
 
-<limits>Don't rewrite for style. Don't add new claims. One source is not enough.</limits>
+<limits>No style edits. No new claims. One source isn't enough for anything that looks like a record ("first", "most", "only").</limits>
 
-<stop_and_ask>Escalate to Lead if a claim involves casualties, an active war, or a living person's conduct.</stop_and_ask>
-
-<done_well>Zero Community Notes. Every PASS has links the owner could show a skeptic.</done_well>
+<done_well>Zero Community Notes. Every PASS comes with links you could show a skeptic.</done_well>
 ```
 
-### 4.5 VISUALS
-
+### 3.5 VISUALS
 ```
-<role>You are Visuals. You make one visual per post with Higgsfield.</role>
+<role>You are Visuals. You make the graphics with Higgsfield (default model: gpt_image_2_6, quality high, 2k, 16:9).</role>
 
-<job>
-Style guide (keep it consistent so the account is recognizable):
-- Maps: dark navy background, parchment-toned land, one accent color (crimson) for the "subject",
-  white serif labels, year stamp top-left, small "AI reconstruction" tag bottom-right.
-- Reconstructions: painterly, period-accurate, no real living people, no gore.
-- Video: 6-12 seconds, vertical or 16:9, borders/arrows moving — 2-3 per week max.
-1. Estimate cost before generating (estimate_image_cost / estimate_video_cost).
-2. Generate. Check the result for wrong borders, wrong years, garbled text.
-3. Return: asset link, cost, and the disclosure line to put in the post:
-   "Visual: AI reconstruction."
-</job>
+<style>Dark charcoal or navy background · bold white condensed sans-serif titles · muted team-colored bars
+(no logos) · stylised floodlit circuit outlines · small "Graphic: AI-assisted" bottom-right.
+Formats: standings bars, grid top-10, winners timeline, track map with sectors, era vs era comparison, On This Day card.</style>
 
-<limits>Every AI visual is labeled. No logos, real photos, or other people's maps as references.
-Never generate AI video of an active armed conflict unless the disclosure is in the post text.
-Stay under the weekly budget.</limits>
+<job>Estimate the cost first (about 2 credits per image). Generate. Check every word and number against the checked text,
+and regenerate if anything is wrong. Return the file, the credits used and the label.</job>
 
-<stop_and_ask>Ask Lead before any single generation over $3, or if the week's spend would pass the budget.</stop_and_ask>
+<limits>No team logos or crests, no realistic images of real drivers, no copies of broadcast graphics or photos.
+Max 2 credits per graphic without asking; weekly cap 60 credits unless the owner raises it.</limits>
 
-<done_well>Someone scrolling stops on it, and recognizes the account's style without reading the name.</done_well>
+<done_well>It's readable on a phone in 2 seconds, and recognizably *our* style.</done_well>
 ```
 
 ---
 
-## 5. Workflow (daily, ~15–25 min of your time)
+## 4. Workflow
 
-1. **07:00 (automatic, scheduled):** Lead starts the cycle. Scout runs the news scan (plus the inspiration scan on Mon/Thu).
-2. Lead scores the ideas and picks 3.
-3. Writer drafts all 3. → Fact-checker checks them. FIX goes back to Writer (max 2 loops). A KILL is replaced by idea #4.
-4. Visuals makes one visual per post and labels it.
-5. Lead sends the **Approval Pack** (in chat + logged to the Content sheet).
-6. **You:** approve or edit, add your own line where it says "Your take:", then **post by hand** at the suggested times.
-7. **You, 10 min:** reply to 5–10 bigger accounts in the niche with real, useful replies (growth, not money).
-8. **Next morning:** paste yesterday's X analytics (or a screenshot) and Lead logs it.
-9. **Sunday:** Lead's weekly report, and you choose one change for next week.
+**Race weekend (session-timed):**
+1. A session ends → a scheduled check-in fires about 10 minutes later.
+2. Scout: results + news + clip links + history hook. → Lead picks 2–4.
+3. Writer drafts → Fact-checker (FIX loops max 2) → Visuals makes graphics.
+4. Lead sends the Approval Pack in chat and saves it to `x-account/packs/`.
+5. **You:** add your line, quote-post or post with the graphic, by hand. 5 minutes.
+6. During the race: you post 2–4 live quick takes yourself (fast beats perfect).
 
-Review points: Fact-checker (truth), Lead (fit and rubric), **you (final, always)**.
+**Off-season (daily, 07:00 your time):** the same cycle for the day's series, 2–3 posts, about 15 minutes.
+
+**Daily, you, 10 minutes:** reply to 5–10 bigger F1 accounts with real insight (growth).
+**Next morning:** paste yesterday's X analytics, and Lead logs them.
+**Sunday:** weekly report → you choose one change.
 
 ---
 
-## 6. Tool stack (lean v1)
+## 5. Tool stack
 
 | Need | Tool | Why |
 |---|---|---|
-| Brain | Claude (this session + scheduled tasks) | Runs all 5 agent roles; a scheduled task kicks off the morning cycle. |
-| Research | **Firecrawl** (search + news; `x-com` provider for X data) | News scan, fact sources, inspiration scan. Note: X data comes back as *samples* and metrics are often missing, so add your manual check (below). |
-| Visuals | **Higgsfield** | Maps, reconstructions, short videos. Costs are estimated before each generation. |
-| Knowledge base | **Notion** (already connected) | Voice guide, style guide, watchlist, agent prompts. |
-| Spreadsheet | **Google Sheets** (via Drive) | `Content Log` (post, format, date, impressions, verified impressions, likes, replies) and `Inspiration Watchlist`. |
-| Task manager | **Todoist** (already connected) | The one daily task: "Approve + post today's pack." |
-| Channel | This chat + push notification | Where the Approval Pack arrives. |
-| Automation | One scheduled task at 07:00 | Drafting only. Never posting. |
-| Platform | X Premium (not Basic) | Required for payouts. |
+| Brain | Claude (this session + scheduled check-ins) | Runs all 5 roles; session-timed drafts |
+| Research | **Firecrawl** (news/web search, x-com provider) | Results, news, fact sources, inspiration scan |
+| Visuals | **Higgsfield** (Plus plan; 1,144 credits as of 27 Nov) | ~2 credits per graphic |
+| Knowledge base | This repo (`x-account/`) + Notion (optional) | Blueprint, packs, graphics, voice guide |
+| Spreadsheet | Google Sheets | `Content Log` + `Inspiration Watchlist` + `F1 Calendar` |
+| Task manager | Todoist | "Post the pack" reminders per session |
+| Platform | X Premium (not Basic) | Required for payouts |
 
-**Manual inspiration check (5 min, Mon/Thu):** in X search, run
-`geopolitics map min_faves:500 -filter:replies` and `history thread min_faves:500 since:<last week>`. Open the authors:
-blue check + under 20k followers + views ≥ 2× followers? Add them to the watchlist.
+**Manual inspiration check (5 min, Mon/Thu):** search X for `F1 min_faves:500 -filter:replies` and
+`(Senna OR Schumacher OR "on this day") F1 min_faves:300`. Add authors who are verified, have under 20k followers, and get views ≥ 2× their followers.
 
-**Budget (default, change it if you like):** X Premium ~$8/mo · Higgsfield ~$40–70/mo (about 20 images + 10 short videos a week, so check
-the estimates on day 5) · Firecrawl within your current plan. **Total ≈ $50–100/mo.**
+**Budget:** X Premium ~$8/mo · Higgsfield already on Plus (budget ~60 credits a week) · Firecrawl within your plan.
 
 ---
 
-## 7. QA plan
+## 6. QA plan
 
-**Checkpoints:** Fact-checker PASS → Lead's rubric → your approval. Nothing skips a step.
+**Checkpoints:** Fact-checker PASS → Lead rubric → your approval.
 
 **Most likely ways this breaks:**
-1. A wrong fact gets a Community Note, and that post earns nothing. → Two sources per claim, and "historians disagree" wording where needed.
-2. An unlabeled AI war video → 90-day suspension. → Visuals adds the label every time; you check it before posting.
-3. Generic AI-sounding posts → low engagement and a risk of being judged "not original." → The voice guide, the "Your take" line, and banned words.
-4. Aggregation (just summarizing news) → not original. → Every post must include the historical parallel. That parallel *is* the original part.
-5. Higgsfield costs creep up. → Estimate first, weekly cap, Lead asks before going over.
-6. The X scan misses things. → The manual 5-minute check covers it.
-7. Burnout (yours). → The daily pack takes 15 minutes or less, or we cut to 2 posts.
+1. A wrong time, gap or stat gets a Community Note. → 2 sources, digit-by-digit checks, records need extra proof.
+2. A footage upload gets a DMCA strike. → Quote-posts only, never upload.
+3. Generic "F1 news account" posts get judged not original and are easy to ignore. → Every post needs a take or a history angle.
+4. Slow during sessions, so the moment passes. → Session-timed check-ins; you post quick takes yourself.
+5. The off-season dip. → The weekly series table keeps 2–3 posts a day going until March.
+6. AI graphic typos. → Visuals checks every character; regenerate if wrong.
+7. Feud bait turns toxic. → Report rivalries, don't take sides.
 
-**Test by hand before launch (Day 3–5):** run 5 full dry runs. Check that each pack has sources that open, no
-claim without a source, a label on every visual, under 15 minutes to approve, and that you'd actually post 4 of the 5.
-
-**The one number:** **verified Home Timeline impressions per week** (X Analytics → filter to verified if shown;
-otherwise use total impressions as a proxy). Target: **≥ 40,000/week by week 6** → ~500k per 90 days.
-Second number: verified followers (goal 500).
+**One number:** **verified Home Timeline impressions per week.** Target ≥ 40,000/week by week 6 (about 500k per 90 days).
+Second: verified followers (goal 500).
 
 ---
 
-## 8. 7-day launch plan (one clear task per day)
+## 7. Launch plan
 
-| Day | The task | Test | Turn on |
+| Day | Date | The task | Turn on |
 |---|---|---|---|
-| **1** | Create the account: pick the handle and name, write the bio, and have Visuals make a profile image and banner. Subscribe to Premium and start ID verification. | Profile reads clearly in 3 seconds | Visuals (branding only) |
-| **2** | Build the Inspiration Watchlist: Scout proposes 15 accounts, you approve 10–15. | Each one meets: verified, <20k followers, views ≥ 2× followers | **Scout** |
-| **3** | Lock the voice: Writer drafts 10 posts and you edit them hard. Your edits become the voice guide. | You'd post at least 6 of the 10 with small edits | **Writer** |
-| **4** | Turn on fact-checking and **start posting 2 a day** (text-only is fine). | Zero claims without a source; you post 2 today | **Fact-checker** |
-| **5** | Visual style: make 3 map visuals and 1 short video; lock the style guide and weekly budget. | Costs match the estimates; labels present | **Visuals** (full) |
-| **6** | Full cycle end-to-end; set up the 07:00 scheduled task (with your approval). | Pack arrives on time and takes ≤ 15 minutes to approve | **Lead** (full team) |
-| **7** | First review: log the stats, fix the weakest step, set next week's mix (3 posts a day). | The one number is being recorded | Weekly rhythm |
+| 1 | Fri 27 Nov | **Qatar FP1/FP2** — first packs; you post 3–4 | Scout, Writer, Fact-checker, Visuals |
+| 2 | Sat 28 Nov | **Qatar qualifying** — backstory thread + quali pack | Full team |
+| 3 | Sun 29 Nov | **Qatar race** — race pack + 2–4 live takes by you | — |
+| 4 | Mon 30 Nov | Review the weekend's stats; Scout builds the watchlist (10–15 accounts); fix the slowest step | Inspiration scan |
+| 5 | Tue 1 Dec | Lock the voice guide from your edits; set up the Google Sheet | — |
+| 6 | Thu 3 Dec | **Abu Dhabi preview** (finale storylines, Yas Marina history incl. 2021) | Race-weekend mode |
+| 7 | Sun 6 Dec | **Season finale** → then switch to off-season mode on 7 Dec | Off-season series |
 
 ---
 
 ## START HERE FIRST
 
-**Today (about 20 minutes):**
-1. Pick a name from section 2 (or your own) and check the handle is free on X.
-2. Create the account, subscribe to **X Premium** (not Basic), and start **ID verification**. You enter all logins
-   and payment yourself; never paste them in chat.
-3. Reply **"go"** with the handle. I'll then make the profile image and banner (with a cost estimate first), set up
-   the Notion guides and the Google Sheet, and run Scout's first watchlist scan.
+1. **Today:** post the Friday pack (`x-account/packs/2026-11-27-qatar-friday.md`) and add your line to each post.
+2. Make sure you have **X Premium** (not Basic) and start **ID verification** under Monetization. Enter the details yourself, never in chat.
+3. Tell me your **handle** so Scout can track how your posts perform.
