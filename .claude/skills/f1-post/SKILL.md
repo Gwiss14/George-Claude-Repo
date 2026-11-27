@@ -15,7 +15,7 @@ The full plan, voice and agent prompts are in `x-account/BLUEPRINT.md`. Read it 
 - **Every factual claim needs 2 sources.** Lap times, gaps, points, years and grid positions are checked digit by digit. "First", "most" and "only" claims need extra proof, or get cut.
 - **Every race-weekend draft is a quote-post of an official @F1 post**, so the media comes with it. Put the @F1 post's URL on the last line of the draft text: pasting it into X attaches the quote automatically. Get real URLs from Firecrawl `x-com` `users/posts` (username `F1`, today's date). Never invent a URL. Only drafts with our own graphic go without a quote.
 - **Whenever @F1 has new posts worth reacting to, draft quote-posts for them.** Record each quoted post ID in `x-account/packs/quoted-ids.txt` and skip IDs already there.
-- **After sending drafts, send George a push notification** (PushNotification tool) saying how many drafts are ready.
+- **After sending drafts, email them to George** with the Gmail connector (`send_message`, to his own address, plain-text body, each draft whole with its link on the last line), then send a push notification (PushNotification tool) saying how many drafts are ready. He plans to move this to Slack later.
 - **Each post is 280 characters or fewer, counting the link as 23** until George confirms he has X Premium.
 - No team logos, no realistic AI images of real drivers, no AI label on stat graphics.
 - Stay off host-country politics and anything conflict-related.
