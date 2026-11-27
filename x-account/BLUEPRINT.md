@@ -27,6 +27,12 @@ Repeated strikes can get the account suspended. Footage that's never uploaded ca
 
 ## 1. The account
 
+- **Handle:** @UtdCapo. Existing account: 423 followers (27 Nov 2026). It was previously Man United banter plus RTs.
+- **Rebrand (owner does it by hand):** display name "Capo | F1 with the backstory"; bio
+  "F1 with the backstory 🏁 Every session, every story, every era. Race-weekend coverage + iconic races from the archive."
+  Optional handle change (e.g. @CapoF1). Followers carry over, but old links and @-mentions to @UtdCapo break.
+- **Timeline rule:** from now on, F1 only on the main timeline. United talk goes in replies only, so the algorithm learns the account is about F1.
+
 - **Premise:** *F1 with the backstory.* Live race-weekend reporting like a journalist, plus iconic races and
   moments from every era, always linking today's racing to its history.
 - **Voice:** a sharp, informed paddock journalist with a historian's memory. Specific laps, gaps, dates and names.
