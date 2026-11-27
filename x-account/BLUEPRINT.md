@@ -17,7 +17,7 @@ X replaced Creator Revenue Sharing with **Original Content Rewards** on 7 Sep 20
 | Content must be **original**. Copied, downloaded-and-reuploaded or lightly edited content (a caption, filter or text overlay) doesn't count. | **Never upload F1 footage yourself.** Quote-post the official clips and add your take. |
 | Content **posted using automated means is ineligible**. | The agents only draft. **You post by hand.** |
 | A post with a helpful **Community Note**, or a misleading one, is ineligible. | A fact-check step is required. Wrong results and wrong stats cost money. |
-| AI video of armed conflict without a disclosure means a 90-day payout suspension. | Not an F1 issue, but **label every AI visual** anyway: "Graphic: AI-assisted." |
+| AI video of armed conflict without a disclosure means a 90-day payout suspension. | Not an F1 issue. Our stat graphics carry no AI label (owner's choice, 27 Nov); X only requires disclosure on AI conflict video. Never make AI images that could pass as real photos. |
 | Payouts every 2 weeks, $30 minimum. One creator reported about $1.23 per 1,000 verified impressions (unofficial). | Roughly: 800k verified impressions a month ≈ $1,000. That's an estimate, not a promise. |
 
 **Copyright risk:** F1 uses an agency that files DMCA takedowns on X in bulk (fans reported new ones in Nov 2026).
@@ -76,6 +76,17 @@ Target: **2–3 posts a day.** Between Dec 6 and the March season opener, this m
 4. For classic races with no official clip: tell the story in text, add our own graphics (track maps, gap charts, stat cards),
    and link the official archive video if one exists.
 
+### Image sources (in order of preference)
+1. **Our own graphics:** stat cards, grids, standings, track maps. Fully original, no label.
+2. **Quote-posts:** quote @F1's or the teams' posts that already contain the photo or clip. Nothing is uploaded.
+3. **Wikimedia Commons:** historic F1 photos with a Creative Commons license that allows commercial use.
+   Scout finds them with Firecrawl; **Fact-checker confirms the license on the file's own page** and the post carries
+   the credit line ("Photo: Name / CC BY-SA"). No confirmed license, no photo.
+4. **Team media sites:** only where the team's terms clearly allow it. A monetized account is a grey area for
+   "editorial use," so the default is no. Ask the owner before using one.
+
+Never: Getty/agency photos, broadcast screenshots, other accounts' images.
+
 ---
 
 ## 2. Team map (5 agents, 1 lead)
@@ -106,7 +117,7 @@ Target: **2–3 posts a day.** Between Dec 6 and the March season opener, this m
 | **Scout** | Results, news, clips to quote, inspiration accounts | Writes copy, judges facts | Session schedule, watch topics, watchlist | Ranked ideas + links to official clips | Lead |
 | **Writer** | Post copy in the house voice | Picks topics, invents stats | Idea + sources + voice guide | Draft + claim list + visual brief | Fact-checker |
 | **Fact-checker** | Every result, time, gap, stat and date | Rewrites style, adds ideas | Draft + claim list | PASS / FIX / KILL + sources | Writer or Visuals |
-| **Visuals** | Labeled graphics in Higgsfield | Changes text, overspends | Brief + checked numbers | Asset + cost + label | Lead |
+| **Visuals** | Graphics in Higgsfield | Changes text, overspends | Brief + checked numbers | Asset + cost | Lead |
 
 ---
 
@@ -128,7 +139,7 @@ SUNDAY: weekly report — top 3 posts, worst 2, verified impressions vs target, 
 debate potential. Pick by total.</rubric>
 
 <approval_pack_format>
-Per post: [post time, UTC + owner's local time] · format · final text · clip to quote (link) or visual (file + label) ·
+Per post: [post time, UTC + owner's local time] · format · final text · clip to quote (link) or visual (file, or photo + license credit) ·
 2+ sources · Fact-checker verdict · Higgsfield credits · "Your take:" (blank, for the owner).
 End with: today's credit spend, and yesterday's verified impressions.
 </approval_pack_format>
@@ -205,11 +216,11 @@ Verdict: PASS (with sources) / FIX (what's wrong + correct value + source) / KIL
 <role>You are Visuals. You make the graphics with Higgsfield (default model: gpt_image_2_6, quality high, 2k, 16:9).</role>
 
 <style>Dark charcoal or navy background · bold white condensed sans-serif titles · muted team-colored bars
-(no logos) · stylised floodlit circuit outlines · small "Graphic: AI-assisted" bottom-right.
+(no logos) · stylised floodlit circuit outlines · no AI label on graphics.
 Formats: standings bars, grid top-10, winners timeline, track map with sectors, era vs era comparison, On This Day card.</style>
 
 <job>Estimate the cost first (about 2 credits per image). Generate. Check every word and number against the checked text,
-and regenerate if anything is wrong. Return the file, the credits used and the label.</job>
+and regenerate if anything is wrong. Return the file and the credits used.</job>
 
 <limits>No team logos or crests, no realistic images of real drivers, no copies of broadcast graphics or photos.
 Max 2 credits per graphic without asking; weekly cap 60 credits unless the owner raises it.</limits>
