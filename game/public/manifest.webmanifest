@@ -1,0 +1,19 @@
+{
+  "name": "Roof Rumble",
+  "short_name": "Roof Rumble",
+  "description": "Defend the rooftop from endless Tin Crows: a comic brawler and a first-person shooter.",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#2b2a5e",
+  "theme_color": "#2b2a5e",
+  "categories": ["games"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

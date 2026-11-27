@@ -1,0 +1,19 @@
+{
+  "name": "rooftop-shootout",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview --host",
+    "build:single": "vite build --config vite.single.config.js && node scripts/pack-single.mjs",
+    "test": "vite build && node tests/run-fps-tests.mjs && npm run build:single && node tests/run-feature-tests.mjs"
+  },
+  "dependencies": {
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "vite": "^6.0.7"
+  }
+}
