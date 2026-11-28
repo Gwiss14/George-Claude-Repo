@@ -15,12 +15,12 @@ Original Content Rewards program.
 - Our own stat graphics carry **no AI label** (George's choice). Images: own graphics → quote-posts → Wikimedia
   Commons with a confirmed license → team media sites only with George's OK.
 - Posts stay at 280 characters or fewer (links count as 23) until he has Premium.
-- Drafts are delivered in chat, **by Gmail to his own address**, and by push notification. He plans to switch to Slack
-  (its connector sign-in is unfinished).
+- Drafts are delivered in chat, **by Slack DM to himself** (user ID `U0CML2FE33K`, workspace twitterworkflow), and by
+  push notification. Gmail was used briefly on 27 Nov and is no longer used.
 
 ## State of things
 - PR #11 merged to `Master`: blueprint, skill, Qatar Friday pack, graphics, preview page.
-- PR #12 (draft, open): quote-post rule, email step, pre-FP2 quote drafts, these notes. Branch `claude/epic-hamilton-it7g39`.
+- PR #12 merged to `Master`: quote-post rule, pre-FP2 and FP2 drafts, these notes. Branch `claude/epic-hamilton-it7g39` is reused for new work.
 - Preview page (private artifact): https://claude.ai/artifact/5f1adRpMfscL1RzPcGiqpf
 - Higgsfield: ~1,140 credits left; graphics cost about 2 each.
 - George posted the FP1 reaction as a plain text post (the quote did not attach; steps since explained).
